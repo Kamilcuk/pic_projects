@@ -1,0 +1,39 @@
+#ifndef _USB_CONFIG_H_
+#define _USB_CONFIG_H_
+
+#include "usb_ep1.h"
+
+#define USB_CONFIG_NUM_ENDPOINTS 	1
+
+#define USB_CONFIG_DEVICE_CLASS 0x00
+#define USB_CONFIG_DEVICE_SUBCLASS 0x00
+#define USB_CONFIG_DEVICE_PROTOCOL 0x00
+#define USB_CONFIG_DEVICE_VENDOR 0xffff
+#define USB_CONFIG_DEVICE_PRODUCT 0x0010 //godpic
+#define USB_CONFIG_DEVICE_RELEASE 0x0002
+
+#define USB_BUFFER_DESCRIPTOR_MODE 0
+
+#define EP0_BUFFER_SIZE 64
+#define EP1_BUFFER_SIZE 64
+
+
+#define USB_CONFIG_ENDPOINTS_DESCRIPTORS() \
+	{ \
+		USB_DT_ENDPOINT_SIZE, \
+		USB_DT_ENDPOINT, \
+		1 | USB_DIR_IN, \
+		USB_ENDPOINT_XFER_INT, \
+		EP1_BUFFER_SIZE, \
+		1 \
+	}
+
+#define USB_CONFIG_STRING2_DESCRIPTOR_()  _('t')_('e')_('m')_('p')_('e')_('r')_(' ') 
+
+#define USB_CONFIG_ENDPOINTS_INIT() USB_EP1_init()
+
+#define USB_EP1_TRANSMISSION()  USB_EP1_transmission()
+
+
+#endif // _USB_CONFIG_H_
+

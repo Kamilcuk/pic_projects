@@ -1,0 +1,990 @@
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.4.0 #8981 (May 19 2014) (Linux)
+                      00004 ; This file was generated Tue Apr 21 23:49:49 2015
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008 
+                      00009         .ident "SDCC version 3.4.0 #8981 [pic16 port]"
+                      00010         .file   "usb_ep1.c"
+                      00011         list    p=18f2550
+                      00012         radix   dec
+                      00013 
+                      00014 
+                      00015 ;--------------------------------------------------------
+                      00016 ; public variables in this module
+                      00017 ;--------------------------------------------------------
+  0000                00018         global  _USB_EP1_init
+  0000                00019         global  _USB_EP2_init
+  0000                00020         global  _USB_EP2_send
+  0000                00021         global  _USB_EP2_transmission
+  0000                00022         global  _USB_EP1_transmission
+                      00023 
+                      00024 ;--------------------------------------------------------
+                      00025 ; extern variables in this module
+                      00026 ;--------------------------------------------------------
+  0000                00027         extern  __gptrget1
+  0000                00028         extern  _UFRMLbits
+  0000                00029         extern  _UFRMHbits
+  0000                00030         extern  _UIRbits
+  0000                00031         extern  _UIEbits
+  0000                00032         extern  _UEIRbits
+  0000                00033         extern  _UEIEbits
+  0000                00034         extern  _USTATbits
+  0000                00035         extern  _UCONbits
+  0000                00036         extern  _UADDRbits
+  0000                00037         extern  _UCFGbits
+  0000                00038         extern  _UEP0bits
+  0000                00039         extern  _UEP1bits
+  0000                00040         extern  _UEP2bits
+  0000                00041         extern  _UEP3bits
+  0000                00042         extern  _UEP4bits
+  0000                00043         extern  _UEP5bits
+  0000                00044         extern  _UEP6bits
+  0000                00045         extern  _UEP7bits
+  0000                00046         extern  _UEP8bits
+  0000                00047         extern  _UEP9bits
+  0000                00048         extern  _UEP10bits
+  0000                00049         extern  _UEP11bits
+  0000                00050         extern  _UEP12bits
+  0000                00051         extern  _UEP13bits
+  0000                00052         extern  _UEP14bits
+  0000                00053         extern  _UEP15bits
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00054         extern  _PORTAbits
+  0000                00055         extern  _PORTBbits
+  0000                00056         extern  _PORTCbits
+  0000                00057         extern  _PORTEbits
+  0000                00058         extern  _LATAbits
+  0000                00059         extern  _LATBbits
+  0000                00060         extern  _LATCbits
+  0000                00061         extern  _DDRAbits
+  0000                00062         extern  _TRISAbits
+  0000                00063         extern  _DDRBbits
+  0000                00064         extern  _TRISBbits
+  0000                00065         extern  _DDRCbits
+  0000                00066         extern  _TRISCbits
+  0000                00067         extern  _OSCTUNEbits
+  0000                00068         extern  _PIE1bits
+  0000                00069         extern  _PIR1bits
+  0000                00070         extern  _IPR1bits
+  0000                00071         extern  _PIE2bits
+  0000                00072         extern  _PIR2bits
+  0000                00073         extern  _IPR2bits
+  0000                00074         extern  _EECON1bits
+  0000                00075         extern  _RCSTAbits
+  0000                00076         extern  _TXSTAbits
+  0000                00077         extern  _T3CONbits
+  0000                00078         extern  _CMCONbits
+  0000                00079         extern  _CVRCONbits
+  0000                00080         extern  _CCP1ASbits
+  0000                00081         extern  _ECCP1ASbits
+  0000                00082         extern  _CCP1DELbits
+  0000                00083         extern  _ECCP1DELbits
+  0000                00084         extern  _BAUDCONbits
+  0000                00085         extern  _BAUDCTLbits
+  0000                00086         extern  _CCP2CONbits
+  0000                00087         extern  _CCP1CONbits
+  0000                00088         extern  _ADCON2bits
+  0000                00089         extern  _ADCON1bits
+  0000                00090         extern  _ADCON0bits
+  0000                00091         extern  _SSPCON2bits
+  0000                00092         extern  _SSPCON1bits
+  0000                00093         extern  _SSPSTATbits
+  0000                00094         extern  _T2CONbits
+  0000                00095         extern  _T1CONbits
+  0000                00096         extern  _RCONbits
+  0000                00097         extern  _WDTCONbits
+  0000                00098         extern  _HLVDCONbits
+  0000                00099         extern  _LVDCONbits
+  0000                00100         extern  _OSCCONbits
+  0000                00101         extern  _T0CONbits
+  0000                00102         extern  _STATUSbits
+  0000                00103         extern  _INTCON3bits
+  0000                00104         extern  _INTCON2bits
+  0000                00105         extern  _INTCONbits
+  0000                00106         extern  _STKPTRbits
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00107         extern  _usb_ustat
+  0000                00108         extern  _usb_bd
+  0000                00109         extern  _state
+  0000                00110         extern  _UFRM
+  0000                00111         extern  _UFRML
+  0000                00112         extern  _UFRMH
+  0000                00113         extern  _UIR
+  0000                00114         extern  _UIE
+  0000                00115         extern  _UEIR
+  0000                00116         extern  _UEIE
+  0000                00117         extern  _USTAT
+  0000                00118         extern  _UCON
+  0000                00119         extern  _UADDR
+  0000                00120         extern  _UCFG
+  0000                00121         extern  _UEP0
+  0000                00122         extern  _UEP1
+  0000                00123         extern  _UEP2
+  0000                00124         extern  _UEP3
+  0000                00125         extern  _UEP4
+  0000                00126         extern  _UEP5
+  0000                00127         extern  _UEP6
+  0000                00128         extern  _UEP7
+  0000                00129         extern  _UEP8
+  0000                00130         extern  _UEP9
+  0000                00131         extern  _UEP10
+  0000                00132         extern  _UEP11
+  0000                00133         extern  _UEP12
+  0000                00134         extern  _UEP13
+  0000                00135         extern  _UEP14
+  0000                00136         extern  _UEP15
+  0000                00137         extern  _PORTA
+  0000                00138         extern  _PORTB
+  0000                00139         extern  _PORTC
+  0000                00140         extern  _PORTE
+  0000                00141         extern  _LATA
+  0000                00142         extern  _LATB
+  0000                00143         extern  _LATC
+  0000                00144         extern  _DDRA
+  0000                00145         extern  _TRISA
+  0000                00146         extern  _DDRB
+  0000                00147         extern  _TRISB
+  0000                00148         extern  _DDRC
+  0000                00149         extern  _TRISC
+  0000                00150         extern  _OSCTUNE
+  0000                00151         extern  _PIE1
+  0000                00152         extern  _PIR1
+  0000                00153         extern  _IPR1
+  0000                00154         extern  _PIE2
+  0000                00155         extern  _PIR2
+  0000                00156         extern  _IPR2
+  0000                00157         extern  _EECON1
+  0000                00158         extern  _EECON2
+  0000                00159         extern  _EEDATA
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00160         extern  _EEADR
+  0000                00161         extern  _RCSTA
+  0000                00162         extern  _TXSTA
+  0000                00163         extern  _TXREG
+  0000                00164         extern  _RCREG
+  0000                00165         extern  _SPBRG
+  0000                00166         extern  _SPBRGH
+  0000                00167         extern  _T3CON
+  0000                00168         extern  _TMR3
+  0000                00169         extern  _TMR3L
+  0000                00170         extern  _TMR3H
+  0000                00171         extern  _CMCON
+  0000                00172         extern  _CVRCON
+  0000                00173         extern  _CCP1AS
+  0000                00174         extern  _ECCP1AS
+  0000                00175         extern  _CCP1DEL
+  0000                00176         extern  _ECCP1DEL
+  0000                00177         extern  _BAUDCON
+  0000                00178         extern  _BAUDCTL
+  0000                00179         extern  _CCP2CON
+  0000                00180         extern  _CCPR2
+  0000                00181         extern  _CCPR2L
+  0000                00182         extern  _CCPR2H
+  0000                00183         extern  _CCP1CON
+  0000                00184         extern  _CCPR1
+  0000                00185         extern  _CCPR1L
+  0000                00186         extern  _CCPR1H
+  0000                00187         extern  _ADCON2
+  0000                00188         extern  _ADCON1
+  0000                00189         extern  _ADCON0
+  0000                00190         extern  _ADRES
+  0000                00191         extern  _ADRESL
+  0000                00192         extern  _ADRESH
+  0000                00193         extern  _SSPCON2
+  0000                00194         extern  _SSPCON1
+  0000                00195         extern  _SSPSTAT
+  0000                00196         extern  _SSPADD
+  0000                00197         extern  _SSPBUF
+  0000                00198         extern  _T2CON
+  0000                00199         extern  _PR2
+  0000                00200         extern  _TMR2
+  0000                00201         extern  _T1CON
+  0000                00202         extern  _TMR1
+  0000                00203         extern  _TMR1L
+  0000                00204         extern  _TMR1H
+  0000                00205         extern  _RCON
+  0000                00206         extern  _WDTCON
+  0000                00207         extern  _HLVDCON
+  0000                00208         extern  _LVDCON
+  0000                00209         extern  _OSCCON
+  0000                00210         extern  _T0CON
+  0000                00211         extern  _TMR0
+  0000                00212         extern  _TMR0L
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00213         extern  _TMR0H
+  0000                00214         extern  _STATUS
+  0000                00215         extern  _FSR2L
+  0000                00216         extern  _FSR2H
+  0000                00217         extern  _PLUSW2
+  0000                00218         extern  _PREINC2
+  0000                00219         extern  _POSTDEC2
+  0000                00220         extern  _POSTINC2
+  0000                00221         extern  _INDF2
+  0000                00222         extern  _BSR
+  0000                00223         extern  _FSR1L
+  0000                00224         extern  _FSR1H
+  0000                00225         extern  _PLUSW1
+  0000                00226         extern  _PREINC1
+  0000                00227         extern  _POSTDEC1
+  0000                00228         extern  _POSTINC1
+  0000                00229         extern  _INDF1
+  0000                00230         extern  _WREG
+  0000                00231         extern  _FSR0L
+  0000                00232         extern  _FSR0H
+  0000                00233         extern  _PLUSW0
+  0000                00234         extern  _PREINC0
+  0000                00235         extern  _POSTDEC0
+  0000                00236         extern  _POSTINC0
+  0000                00237         extern  _INDF0
+  0000                00238         extern  _INTCON3
+  0000                00239         extern  _INTCON2
+  0000                00240         extern  _INTCON
+  0000                00241         extern  _PROD
+  0000                00242         extern  _PRODL
+  0000                00243         extern  _PRODH
+  0000                00244         extern  _TABLAT
+  0000                00245         extern  _TBLPTR
+  0000                00246         extern  _TBLPTRL
+  0000                00247         extern  _TBLPTRH
+  0000                00248         extern  _TBLPTRU
+  0000                00249         extern  _PC
+  0000                00250         extern  _PCL
+  0000                00251         extern  _PCLATH
+  0000                00252         extern  _PCLATU
+  0000                00253         extern  _STKPTR
+  0000                00254         extern  _TOS
+  0000                00255         extern  _TOSL
+  0000                00256         extern  _TOSH
+  0000                00257         extern  _TOSU
+                      00258 
+                      00259 ;--------------------------------------------------------
+                      00260 ;       Equates to used internal registers
+                      00261 ;--------------------------------------------------------
+  00000FD8            00262 STATUS  equ     0xfd8
+  00000FE8            00263 WREG    equ     0xfe8
+  00000FE9            00264 FSR0L   equ     0xfe9
+  00000FEA            00265 FSR0H   equ     0xfea
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  00000FE1            00266 FSR1L   equ     0xfe1
+  00000FD9            00267 FSR2L   equ     0xfd9
+  00000FEF            00268 INDF0   equ     0xfef
+  00000FE5            00269 POSTDEC1        equ     0xfe5
+  00000FE4            00270 PREINC1 equ     0xfe4
+  00000FDB            00271 PLUSW2  equ     0xfdb
+  00000FF3            00272 PRODL   equ     0xff3
+                      00273 
+                      00274 
+                      00275 ; Internal registers
+                      00276 .registers      udata_ovr       0x0000
+000000                00277 r0x00   res     1
+000001                00278 r0x01   res     1
+000002                00279 r0x02   res     1
+000003                00280 r0x03   res     1
+000004                00281 r0x04   res     1
+000005                00282 r0x05   res     1
+000006                00283 r0x06   res     1
+000007                00284 r0x07   res     1
+000008                00285 r0x08   res     1
+000009                00286 r0x09   res     1
+00000A                00287 r0x0a   res     1
+00000B                00288 r0x0b   res     1
+                      00289 
+                      00290 
+                      00291 databank6       udata
+000000                00292 _USB_EP1_buffer res     64
+000040                00293 _USB_EP2_buffer res     64
+                      00294 
+                      00295 ;--------------------------------------------------------
+                      00296 ; global & static initialisations
+                      00297 ;--------------------------------------------------------
+                      00298 ; I code from now on!
+                      00299 ; ; Starting pCode block
+                      00300 S_usb_ep1__USB_EP1_transmission code
+000000                00301 _USB_EP1_transmission:
+                      00302         .line   107; usb_ep1.c  void USB_EP1_transmission(void)
+000000 CFD9 FFE5      00303         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00304         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00305         MOVFF   r0x00, POSTDEC1
+                      00306         .line   114; usb_ep1.c  state[0] = *msg;
+00000C C??? F???      00307         MOVFF   (_usb_bd + 10), r0x00
+000010 50??           00308         MOVF    r0x00, W
+000012 ????           00309         BANKSEL _state
+000014 6F??           00310         MOVWF   _state, B
+000016 ????           00311         BANKSEL (_usb_bd + 9)
+                      00312         .line   115; usb_ep1.c  state[1] = cnt;
+000018 51??           00313         MOVF    (_usb_bd + 9), W, B
+00001A ????           00314         BANKSEL (_state + 1)
+00001C 6F??           00315         MOVWF   (_state + 1), B
+                      00316         .line   117; usb_ep1.c  bdpnt->cnt = EP1_BUFFER_SIZE;
+00001E 0E40           00317         MOVLW   0x40
+000020 ????           00318         BANKSEL (_usb_bd + 9)
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000022 6F??           00319         MOVWF   (_usb_bd + 9), B
+                      00320         .line   119; usb_ep1.c  USB_BD_SET_STAT(bdpnt);
+000024 0E40           00321         MOVLW   0x40
+000026 ????           00322         BANKSEL (_usb_bd + 8)
+000028 15??           00323         ANDWF   (_usb_bd + 8), W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00002A 6E??           00324         MOVWF   r0x00
+00002C 7C??           00325         BTG     r0x00, 6
+00002E 0E88           00326         MOVLW   0x88
+000030 12??           00327         IORWF   r0x00, F
+000032 50??           00328         MOVF    r0x00, W
+000034 ????           00329         BANKSEL (_usb_bd + 8)
+000036 6F??           00330         MOVWF   (_usb_bd + 8), B
+000038 CFE4 F000      00331         MOVFF   PREINC1, r0x00
+00003C CFE4 FFD9      00332         MOVFF   PREINC1, FSR2L
+000040 0012           00333         RETURN  
+                      00334 
+                      00335 ; ; Starting pCode block
+                      00336 S_usb_ep1__USB_EP2_transmission code
+000000                00337 _USB_EP2_transmission:
+                      00338         .line   99; usb_ep1.c   void USB_EP2_transmission(void)
+000000 CFD9 FFE5      00339         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00340         MOVFF   FSR1L, FSR2L
+                      00341         .line   104; usb_ep1.c  }
+000008 CFE4 FFD9      00342         MOVFF   PREINC1, FSR2L
+00000C 0012           00343         RETURN  
+                      00344 
+                      00345 ; ; Starting pCode block
+                      00346 S_usb_ep1__USB_EP2_send code
+000000                00347 _USB_EP2_send:
+                      00348         .line   71; usb_ep1.c   void USB_EP2_send(char *src)
+000000 CFD9 FFE5      00349         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00350         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00351         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00352         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00353         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00354         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00355         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00356         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00357         MOVFF   r0x06, POSTDEC1
+000024 C??? F???      00358         MOVFF   r0x07, POSTDEC1
+000028 C??? F???      00359         MOVFF   r0x08, POSTDEC1
+00002C C??? F???      00360         MOVFF   r0x09, POSTDEC1
+000030 C??? F???      00361         MOVFF   r0x0a, POSTDEC1
+000034 C??? F???      00362         MOVFF   r0x0b, POSTDEC1
+000038 0E02           00363         MOVLW   0x02
+00003A CFDB F000      00364         MOVFF   PLUSW2, r0x00
+00003E 0E03           00365         MOVLW   0x03
+000040 CFDB F000      00366         MOVFF   PLUSW2, r0x01
+000044 0E04           00367         MOVLW   0x04
+000046 CFDB F000      00368         MOVFF   PLUSW2, r0x02
+                      00369         .line   74; usb_ep1.c   unsigned char __near *dst = bdpnt->adr;
+00004A C??? F???      00370         MOVFF   (_usb_bd + 22), r0x03
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  8
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00004E C??? F???      00371         MOVFF   (_usb_bd + 23), r0x04
+000052                00372 _00148_DS_:
+                      00373         .line   79; usb_ep1.c   while( *src != '\0' ) {
+000052 C??? F???      00374         MOVFF   r0x00, FSR0L
+000056 C??? F???      00375         MOVFF   r0x01, PRODL
+00005A 50??           00376         MOVF    r0x02, W
+00005C EC?? F0??      00377         CALL    __gptrget1
+Message[1301]: Using default destination of 0 (Access Bank).
+000060 6E??           00378         MOVWF   r0x05
+000062 50??           00379         MOVF    r0x05, W
+000064 B4D8           00380         BTFSC   STATUS, 2
+000066 D???           00381         BRA     _00153_DS_
+000068                00382 _00139_DS_:
+000068 ????           00383         BANKSEL (_usb_bd + 20)
+                      00384         .line   80; usb_ep1.c   while ( bdpnt->statbits.UOWN ) ; // wait for it tobecame ours.
+00006A BF??           00385         BTFSC   (_usb_bd + 20), 7, B
+00006C D???           00386         BRA     _00139_DS_
+                      00387         .line   83; usb_ep1.c   for (i=0; i<EP2_BUFFER_SIZE; i++) {
+00006E C??? F???      00388         MOVFF   r0x03, r0x05
+000072 C??? F???      00389         MOVFF   r0x04, r0x06
+000076 C??? F???      00390         MOVFF   r0x00, r0x07
+00007A C??? F???      00391         MOVFF   r0x01, r0x08
+00007E C??? F???      00392         MOVFF   r0x02, r0x09
+Message[1301]: Using default destination of 0 (Access Bank).
+000082 6A??           00393         CLRF    r0x0a
+000084                00394 _00151_DS_:
+                      00395         .line   84; usb_ep1.c   *dst = *src;
+000084 C??? F???      00396         MOVFF   r0x07, FSR0L
+000088 C??? F???      00397         MOVFF   r0x08, PRODL
+00008C 50??           00398         MOVF    r0x09, W
+00008E EC?? F0??      00399         CALL    __gptrget1
+Message[1301]: Using default destination of 0 (Access Bank).
+000092 6E??           00400         MOVWF   r0x0b
+000094 C??? F???      00401         MOVFF   r0x05, FSR0L
+000098 C??? F???      00402         MOVFF   r0x06, FSR0H
+00009C C??? F???      00403         MOVFF   r0x0b, INDF0
+                      00404         .line   85; usb_ep1.c   if ( *src == '\0' ) {
+0000A0 C??? F???      00405         MOVFF   r0x07, FSR0L
+0000A4 C??? F???      00406         MOVFF   r0x08, PRODL
+0000A8 50??           00407         MOVF    r0x09, W
+0000AA EC?? F0??      00408         CALL    __gptrget1
+Message[1301]: Using default destination of 0 (Access Bank).
+0000AE 6E??           00409         MOVWF   r0x0b
+0000B0 50??           00410         MOVF    r0x0b, W
+0000B2 E0??           00411         BZ      _00160_DS_
+                      00412         .line   88; usb_ep1.c   dst++;
+0000B4 4A??           00413         INFSNZ  r0x05, F
+0000B6 2A??           00414         INCF    r0x06, F
+                      00415         .line   89; usb_ep1.c   src++;
+0000B8 2A??           00416         INCF    r0x07, F
+0000BA E3??           00417         BNC     _00171_DS_
+0000BC 4A??           00418         INFSNZ  r0x08, F
+0000BE 2A??           00419         INCF    r0x09, F
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE  9
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000C0                00420 _00171_DS_:
+                      00421         .line   83; usb_ep1.c   for (i=0; i<EP2_BUFFER_SIZE; i++) {
+0000C0 2A??           00422         INCF    r0x0a, F
+0000C2 0E40           00423         MOVLW   0x40
+0000C4 5C??           00424         SUBWF   r0x0a, W
+0000C6 E3??           00425         BNC     _00151_DS_
+0000C8                00426 _00160_DS_:
+0000C8 C??? F???      00427         MOVFF   r0x05, r0x03
+0000CC C??? F???      00428         MOVFF   r0x06, r0x04
+0000D0 C??? F???      00429         MOVFF   r0x07, r0x00
+0000D4 C??? F???      00430         MOVFF   r0x08, r0x01
+0000D8 C??? F???      00431         MOVFF   r0x09, r0x02
+                      00432         .line   93; usb_ep1.c   bdpnt->cnt = i;
+0000DC 50??           00433         MOVF    r0x0a, W
+0000DE ????           00434         BANKSEL (_usb_bd + 21)
+0000E0 6F??           00435         MOVWF   (_usb_bd + 21), B
+                      00436         .line   95; usb_ep1.c   USB_BD_SET_STAT(bdpnt);
+0000E2 0E40           00437         MOVLW   0x40
+0000E4 ????           00438         BANKSEL (_usb_bd + 20)
+0000E6 15??           00439         ANDWF   (_usb_bd + 20), W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0000E8 6E??           00440         MOVWF   r0x05
+0000EA 7C??           00441         BTG     r0x05, 6
+0000EC 0E88           00442         MOVLW   0x88
+0000EE 12??           00443         IORWF   r0x05, F
+0000F0 50??           00444         MOVF    r0x05, W
+0000F2 ????           00445         BANKSEL (_usb_bd + 20)
+0000F4 6F??           00446         MOVWF   (_usb_bd + 20), B
+0000F6 D???           00447         BRA     _00148_DS_
+0000F8                00448 _00153_DS_:
+0000F8 CFE4 F000      00449         MOVFF   PREINC1, r0x0b
+0000FC CFE4 F000      00450         MOVFF   PREINC1, r0x0a
+000100 CFE4 F000      00451         MOVFF   PREINC1, r0x09
+000104 CFE4 F000      00452         MOVFF   PREINC1, r0x08
+000108 CFE4 F000      00453         MOVFF   PREINC1, r0x07
+00010C CFE4 F000      00454         MOVFF   PREINC1, r0x06
+000110 CFE4 F000      00455         MOVFF   PREINC1, r0x05
+000114 CFE4 F000      00456         MOVFF   PREINC1, r0x04
+000118 CFE4 F000      00457         MOVFF   PREINC1, r0x03
+00011C CFE4 F000      00458         MOVFF   PREINC1, r0x02
+000120 CFE4 F000      00459         MOVFF   PREINC1, r0x01
+000124 CFE4 F000      00460         MOVFF   PREINC1, r0x00
+000128 CFE4 FFD9      00461         MOVFF   PREINC1, FSR2L
+00012C 0012           00462         RETURN  
+                      00463 
+                      00464 ; ; Starting pCode block
+                      00465 S_usb_ep1__USB_EP2_init code
+000000                00466 _USB_EP2_init:
+                      00467         .line   56; usb_ep1.c   void USB_EP2_init(void)
+000000 CFD9 FFE5      00468         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00469         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00470         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00471         MOVFF   r0x01, POSTDEC1
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 10
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000010 C??? F???      00472         MOVFF   r0x02, POSTDEC1
+                      00473         .line   60; usb_ep1.c   for (i=0; i<sizeof(USB_EP2_buffer); i++)
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6A??           00474         CLRF    r0x00
+000016                00475 _00123_DS_:
+                      00476         .line   61; usb_ep1.c   ((unsigned char *)USB_EP2_buffer)[i] = 0;
+000016 0E??           00477         MOVLW   LOW(_USB_EP2_buffer)
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6E??           00478         MOVWF   r0x01
+00001A 0E??           00479         MOVLW   HIGH(_USB_EP2_buffer)
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6E??           00480         MOVWF   r0x02
+00001E 50??           00481         MOVF    r0x00, W
+000020 26??           00482         ADDWF   r0x01, F
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6AE8           00483         CLRF    WREG
+000024 22??           00484         ADDWFC  r0x02, F
+000026 C??? F???      00485         MOVFF   r0x01, FSR0L
+00002A C??? F???      00486         MOVFF   r0x02, FSR0H
+00002E 0E00           00487         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6EEF           00488         MOVWF   INDF0
+                      00489         .line   60; usb_ep1.c   for (i=0; i<sizeof(USB_EP2_buffer); i++)
+000032 2A??           00490         INCF    r0x00, F
+000034 0E40           00491         MOVLW   0x40
+000036 5C??           00492         SUBWF   r0x00, W
+000038 E3??           00493         BNC     _00123_DS_
+                      00494         .line   64; usb_ep1.c   bdpnt->adr = USB_EP2_buffer[0];
+00003A 0E??           00495         MOVLW   LOW(_USB_EP2_buffer)
+00003C ????           00496         BANKSEL (_usb_bd + 22)
+00003E 6F??           00497         MOVWF   (_usb_bd + 22), B
+000040 0E??           00498         MOVLW   HIGH(_USB_EP2_buffer)
+000042 ????           00499         BANKSEL (_usb_bd + 23)
+000044 6F??           00500         MOVWF   (_usb_bd + 23), B
+000046 ????           00501         BANKSEL (_usb_bd + 21)
+                      00502         .line   65; usb_ep1.c   bdpnt->cnt = 0;
+000048 6B??           00503         CLRF    (_usb_bd + 21), B
+                      00504         .line   66; usb_ep1.c   bdpnt->stat = BD_STAT_UCPU | BD_STAT_DATA0 | BD_STAT_DTSEN;
+00004A 0E08           00505         MOVLW   0x08
+00004C ????           00506         BANKSEL (_usb_bd + 20)
+00004E 6F??           00507         MOVWF   (_usb_bd + 20), B
+                      00508         .line   68; usb_ep1.c   UEP2 = UEP_EPHSHK | UEP_EPINEN;
+000050 0E12           00509         MOVLW   0x12
+Message[1301]: Using default destination of 0 (Access Bank).
+000052 6E??           00510         MOVWF   _UEP2
+000054 CFE4 F000      00511         MOVFF   PREINC1, r0x02
+000058 CFE4 F000      00512         MOVFF   PREINC1, r0x01
+00005C CFE4 F000      00513         MOVFF   PREINC1, r0x00
+000060 CFE4 FFD9      00514         MOVFF   PREINC1, FSR2L
+000064 0012           00515         RETURN  
+                      00516 
+                      00517 ; ; Starting pCode block
+                      00518 S_usb_ep1__USB_EP1_init code
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 11
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000000                00519 _USB_EP1_init:
+                      00520         .line   40; usb_ep1.c   void USB_EP1_init(void)
+000000 CFD9 FFE5      00521         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00522         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00523         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00524         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00525         MOVFF   r0x02, POSTDEC1
+                      00526         .line   44; usb_ep1.c   for (i=0; i<sizeof(USB_EP1_buffer); i++)
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6A??           00527         CLRF    r0x00
+000016                00528 _00106_DS_:
+                      00529         .line   45; usb_ep1.c   ((unsigned char *)USB_EP1_buffer)[i] = 0;
+000016 0E??           00530         MOVLW   LOW(_USB_EP1_buffer)
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6E??           00531         MOVWF   r0x01
+00001A 0E??           00532         MOVLW   HIGH(_USB_EP1_buffer)
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6E??           00533         MOVWF   r0x02
+00001E 50??           00534         MOVF    r0x00, W
+000020 26??           00535         ADDWF   r0x01, F
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6AE8           00536         CLRF    WREG
+000024 22??           00537         ADDWFC  r0x02, F
+000026 C??? F???      00538         MOVFF   r0x01, FSR0L
+00002A C??? F???      00539         MOVFF   r0x02, FSR0H
+00002E 0E00           00540         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6EEF           00541         MOVWF   INDF0
+                      00542         .line   44; usb_ep1.c   for (i=0; i<sizeof(USB_EP1_buffer); i++)
+000032 2A??           00543         INCF    r0x00, F
+000034 0E40           00544         MOVLW   0x40
+000036 5C??           00545         SUBWF   r0x00, W
+000038 E3??           00546         BNC     _00106_DS_
+                      00547         .line   48; usb_ep1.c   bdpnt->cnt = EP1_BUFFER_SIZE;
+00003A 0E40           00548         MOVLW   0x40
+00003C ????           00549         BANKSEL (_usb_bd + 9)
+00003E 6F??           00550         MOVWF   (_usb_bd + 9), B
+                      00551         .line   49; usb_ep1.c   bdpnt->adr = USB_EP1_buffer[0];
+000040 0E??           00552         MOVLW   LOW(_USB_EP1_buffer)
+000042 ????           00553         BANKSEL (_usb_bd + 10)
+000044 6F??           00554         MOVWF   (_usb_bd + 10), B
+000046 0E??           00555         MOVLW   HIGH(_USB_EP1_buffer)
+000048 ????           00556         BANKSEL (_usb_bd + 11)
+00004A 6F??           00557         MOVWF   (_usb_bd + 11), B
+                      00558         .line   50; usb_ep1.c   bdpnt->stat = BD_STAT_USIE | BD_STAT_DATA0 | BD_STAT_DTSEN;
+00004C 0E88           00559         MOVLW   0x88
+00004E ????           00560         BANKSEL (_usb_bd + 8)
+000050 6F??           00561         MOVWF   (_usb_bd + 8), B
+                      00562         .line   52; usb_ep1.c   UEP1 = UEP_EPHSHK | UEP_EPOUTEN;
+000052 0E14           00563         MOVLW   0x14
+Message[1301]: Using default destination of 0 (Access Bank).
+000054 6E??           00564         MOVWF   _UEP1
+000056 CFE4 F000      00565         MOVFF   PREINC1, r0x02
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 12
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00005A CFE4 F000      00566         MOVFF   PREINC1, r0x01
+00005E CFE4 F000      00567         MOVFF   PREINC1, r0x00
+000062 CFE4 FFD9      00568         MOVFF   PREINC1, FSR2L
+000066 0012           00569         RETURN  
+                      00570 
+                      00571 
+                      00572 
+                      00573 ; Statistics:
+                      00574 ; code size:      588 (0x024c) bytes ( 0.45%)
+                      00575 ;                 294 (0x0126) words
+                      00576 ; udata size:     128 (0x0080) bytes ( 7.14%)
+                      00577 ; access size:     12 (0x000c) bytes
+                      00578 
+                      00579 
+                      00580         end
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODL                             00000FF3
+STATUS                            00000FD8
+WREG                              00000FE8
+_00106_DS_                        00000016
+_00123_DS_                        00000016
+_00139_DS_                        00000068
+_00148_DS_                        00000052
+_00151_DS_                        00000084
+_00153_DS_                        000000F8
+_00160_DS_                        000000C8
+_00171_DS_                        000000C0
+_ADCON0                           00000000
+_ADCON0bits                       00000000
+_ADCON1                           00000000
+_ADCON1bits                       00000000
+_ADCON2                           00000000
+_ADCON2bits                       00000000
+_ADRES                            00000000
+_ADRESH                           00000000
+_ADRESL                           00000000
+_BAUDCON                          00000000
+_BAUDCONbits                      00000000
+_BAUDCTL                          00000000
+_BAUDCTLbits                      00000000
+_BSR                              00000000
+_CCP1AS                           00000000
+_CCP1ASbits                       00000000
+_CCP1CON                          00000000
+_CCP1CONbits                      00000000
+_CCP1DEL                          00000000
+_CCP1DELbits                      00000000
+_CCP2CON                          00000000
+_CCP2CONbits                      00000000
+_CCPR1                            00000000
+_CCPR1H                           00000000
+_CCPR1L                           00000000
+_CCPR2                            00000000
+_CCPR2H                           00000000
+_CCPR2L                           00000000
+_CMCON                            00000000
+_CMCONbits                        00000000
+_CVRCON                           00000000
+_CVRCONbits                       00000000
+_DDRA                             00000000
+_DDRAbits                         00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_DDRB                             00000000
+_DDRBbits                         00000000
+_DDRC                             00000000
+_DDRCbits                         00000000
+_ECCP1AS                          00000000
+_ECCP1ASbits                      00000000
+_ECCP1DEL                         00000000
+_ECCP1DELbits                     00000000
+_EEADR                            00000000
+_EECON1                           00000000
+_EECON1bits                       00000000
+_EECON2                           00000000
+_EEDATA                           00000000
+_FSR0H                            00000000
+_FSR0L                            00000000
+_FSR1H                            00000000
+_FSR1L                            00000000
+_FSR2H                            00000000
+_FSR2L                            00000000
+_HLVDCON                          00000000
+_HLVDCONbits                      00000000
+_INDF0                            00000000
+_INDF1                            00000000
+_INDF2                            00000000
+_INTCON                           00000000
+_INTCON2                          00000000
+_INTCON2bits                      00000000
+_INTCON3                          00000000
+_INTCON3bits                      00000000
+_INTCONbits                       00000000
+_IPR1                             00000000
+_IPR1bits                         00000000
+_IPR2                             00000000
+_IPR2bits                         00000000
+_LATA                             00000000
+_LATAbits                         00000000
+_LATB                             00000000
+_LATBbits                         00000000
+_LATC                             00000000
+_LATCbits                         00000000
+_LVDCON                           00000000
+_LVDCONbits                       00000000
+_OSCCON                           00000000
+_OSCCONbits                       00000000
+_OSCTUNE                          00000000
+_OSCTUNEbits                      00000000
+_PC                               00000000
+_PCL                              00000000
+_PCLATH                           00000000
+_PCLATU                           00000000
+_PIE1                             00000000
+_PIE1bits                         00000000
+_PIE2                             00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_PIE2bits                         00000000
+_PIR1                             00000000
+_PIR1bits                         00000000
+_PIR2                             00000000
+_PIR2bits                         00000000
+_PLUSW0                           00000000
+_PLUSW1                           00000000
+_PLUSW2                           00000000
+_PORTA                            00000000
+_PORTAbits                        00000000
+_PORTB                            00000000
+_PORTBbits                        00000000
+_PORTC                            00000000
+_PORTCbits                        00000000
+_PORTE                            00000000
+_PORTEbits                        00000000
+_POSTDEC0                         00000000
+_POSTDEC1                         00000000
+_POSTDEC2                         00000000
+_POSTINC0                         00000000
+_POSTINC1                         00000000
+_POSTINC2                         00000000
+_PR2                              00000000
+_PREINC0                          00000000
+_PREINC1                          00000000
+_PREINC2                          00000000
+_PROD                             00000000
+_PRODH                            00000000
+_PRODL                            00000000
+_RCON                             00000000
+_RCONbits                         00000000
+_RCREG                            00000000
+_RCSTA                            00000000
+_RCSTAbits                        00000000
+_SPBRG                            00000000
+_SPBRGH                           00000000
+_SSPADD                           00000000
+_SSPBUF                           00000000
+_SSPCON1                          00000000
+_SSPCON1bits                      00000000
+_SSPCON2                          00000000
+_SSPCON2bits                      00000000
+_SSPSTAT                          00000000
+_SSPSTATbits                      00000000
+_STATUS                           00000000
+_STATUSbits                       00000000
+_STKPTR                           00000000
+_STKPTRbits                       00000000
+_T0CON                            00000000
+_T0CONbits                        00000000
+_T1CON                            00000000
+_T1CONbits                        00000000
+_T2CON                            00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_T2CONbits                        00000000
+_T3CON                            00000000
+_T3CONbits                        00000000
+_TABLAT                           00000000
+_TBLPTR                           00000000
+_TBLPTRH                          00000000
+_TBLPTRL                          00000000
+_TBLPTRU                          00000000
+_TMR0                             00000000
+_TMR0H                            00000000
+_TMR0L                            00000000
+_TMR1                             00000000
+_TMR1H                            00000000
+_TMR1L                            00000000
+_TMR2                             00000000
+_TMR3                             00000000
+_TMR3H                            00000000
+_TMR3L                            00000000
+_TOS                              00000000
+_TOSH                             00000000
+_TOSL                             00000000
+_TOSU                             00000000
+_TRISA                            00000000
+_TRISAbits                        00000000
+_TRISB                            00000000
+_TRISBbits                        00000000
+_TRISC                            00000000
+_TRISCbits                        00000000
+_TXREG                            00000000
+_TXSTA                            00000000
+_TXSTAbits                        00000000
+_UADDR                            00000000
+_UADDRbits                        00000000
+_UCFG                             00000000
+_UCFGbits                         00000000
+_UCON                             00000000
+_UCONbits                         00000000
+_UEIE                             00000000
+_UEIEbits                         00000000
+_UEIR                             00000000
+_UEIRbits                         00000000
+_UEP0                             00000000
+_UEP0bits                         00000000
+_UEP1                             00000000
+_UEP10                            00000000
+_UEP10bits                        00000000
+_UEP11                            00000000
+_UEP11bits                        00000000
+_UEP12                            00000000
+_UEP12bits                        00000000
+_UEP13                            00000000
+_UEP13bits                        00000000
+_UEP14                            00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_UEP14bits                        00000000
+_UEP15                            00000000
+_UEP15bits                        00000000
+_UEP1bits                         00000000
+_UEP2                             00000000
+_UEP2bits                         00000000
+_UEP3                             00000000
+_UEP3bits                         00000000
+_UEP4                             00000000
+_UEP4bits                         00000000
+_UEP5                             00000000
+_UEP5bits                         00000000
+_UEP6                             00000000
+_UEP6bits                         00000000
+_UEP7                             00000000
+_UEP7bits                         00000000
+_UEP8                             00000000
+_UEP8bits                         00000000
+_UEP9                             00000000
+_UEP9bits                         00000000
+_UFRM                             00000000
+_UFRMH                            00000000
+_UFRMHbits                        00000000
+_UFRML                            00000000
+_UFRMLbits                        00000000
+_UIE                              00000000
+_UIEbits                          00000000
+_UIR                              00000000
+_UIRbits                          00000000
+_USB_EP1_buffer                   00000000
+_USB_EP1_init                     00000000
+_USB_EP1_transmission             00000000
+_USB_EP2_buffer                   00000040
+_USB_EP2_init                     00000000
+_USB_EP2_send                     00000000
+_USB_EP2_transmission             00000000
+_USTAT                            00000000
+_USTATbits                        00000000
+_WDTCON                           00000000
+_WDTCONbits                       00000000
+_WREG                             00000000
+__18F2550                         00000001
+__ACC_RAM_LOW_END                 0000005F
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__gptrget1                        00000000
+_state                            00000000
+_usb_bd                           00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)   usb_ep1.asm   4-21-2015  23:49:49         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_usb_ustat                        00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+r0x07                             00000007
+r0x08                             00000008
+r0x09                             00000009
+r0x0a                             0000000A
+r0x0b                             0000000B
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    18 reported,     0 suppressed
+
+

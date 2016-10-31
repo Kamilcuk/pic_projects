@@ -1,0 +1,169 @@
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/sd   4-21-2015  23:49:51         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.4.0 #8981 (May 19 2014) (Linux)
+                      00004 ; This file was generated Tue Apr 21 23:49:51 2015
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008 
+                      00009         .ident "SDCC version 3.4.0 #8981 [pic16 port]"
+                      00010         .file   "../include/sdelay/sdelay.c"
+                      00011         list    p=18f2550
+                      00012         radix   dec
+                      00013 
+                      00014 
+                      00015 ;--------------------------------------------------------
+                      00016 ; public variables in this module
+                      00017 ;--------------------------------------------------------
+  0000                00018         global  __delay_us
+  0000                00019         global  __delay_ms
+                      00020 
+                      00021 ;--------------------------------------------------------
+                      00022 ;       Equates to used internal registers
+                      00023 ;--------------------------------------------------------
+  00000FD8            00024 STATUS  equ     0xfd8
+  00000FE1            00025 FSR1L   equ     0xfe1
+  00000FD9            00026 FSR2L   equ     0xfd9
+  00000FE6            00027 POSTINC1        equ     0xfe6
+  00000FE5            00028 POSTDEC1        equ     0xfe5
+  00000FE4            00029 PREINC1 equ     0xfe4
+  00000FDB            00030 PLUSW2  equ     0xfdb
+                      00031 
+                      00032 
+                      00033 ; Internal registers
+                      00034 .registers      udata_ovr       0x0000
+000000                00035 r0x00   res     1
+000001                00036 r0x01   res     1
+                      00037 
+                      00038 ;--------------------------------------------------------
+                      00039 ; global & static initialisations
+                      00040 ;--------------------------------------------------------
+                      00041 ; I code from now on!
+                      00042 ; ; Starting pCode block
+                      00043 S_sdelay___delay_ms     code
+000000                00044 __delay_ms:
+                      00045         .line   45; ../include/sdelay/sdelay.c  void _delay_ms(unsigned int ms)
+000000 CFD9 FFE5      00046         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00047         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00048         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00049         MOVFF   r0x01, POSTDEC1
+000010 0E02           00050         MOVLW   0x02
+000012 CFDB F000      00051         MOVFF   PLUSW2, r0x00
+000016 0E03           00052         MOVLW   0x03
+000018 CFDB F000      00053         MOVFF   PLUSW2, r0x01
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/sd   4-21-2015  23:49:51         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001C                00054 _00113_DS_:
+                      00055         .line   48; ../include/sdelay/sdelay.c  _delay_us(1000);
+00001C 0E03           00056         MOVLW   0x03
+Message[1301]: Using default destination of 0 (Access Bank).
+00001E 6EE5           00057         MOVWF   POSTDEC1
+000020 0EE8           00058         MOVLW   0xe8
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6EE5           00059         MOVWF   POSTDEC1
+000024 EC?? F0??      00060         CALL    __delay_us
+000028 52E6           00061         MOVF    POSTINC1, F
+00002A 52E6           00062         MOVF    POSTINC1, F
+                      00063         .line   49; ../include/sdelay/sdelay.c  } while(--ms);
+00002C 0EFF           00064         MOVLW   0xff
+00002E 26??           00065         ADDWF   r0x00, F
+000030 22??           00066         ADDWFC  r0x01, F
+000032 50??           00067         MOVF    r0x00, W
+000034 10??           00068         IORWF   r0x01, W
+000036 E1??           00069         BNZ     _00113_DS_
+000038 CFE4 F000      00070         MOVFF   PREINC1, r0x01
+00003C CFE4 F000      00071         MOVFF   PREINC1, r0x00
+000040 CFE4 FFD9      00072         MOVFF   PREINC1, FSR2L
+000044 0012           00073         RETURN  
+                      00074 
+                      00075 ; ; Starting pCode block
+                      00076 S_sdelay___delay_us     code
+000000                00077 __delay_us:
+                      00078         .line   31; ../include/sdelay/sdelay.c  void _delay_us(unsigned int __us) 
+000000 CFD9 FFE5      00079         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00080         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00081         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00082         MOVFF   r0x01, POSTDEC1
+000010 0E02           00083         MOVLW   0x02
+000012 CFDB F000      00084         MOVFF   PLUSW2, r0x00
+000016 0E03           00085         MOVLW   0x03
+000018 CFDB F000      00086         MOVFF   PLUSW2, r0x01
+00001C                00087 _00105_DS_:
+00001C 0000           00088         NOP
+00001E 0000           00089         NOP
+000020 0000           00090         NOP
+000022 0000           00091         NOP
+000024 0000           00092         NOP
+                      00093         
+                      00094         .line   42; ../include/sdelay/sdelay.c  } while(--__us); // 7 instructions with branch
+000026 0EFF           00095         MOVLW   0xff
+000028 26??           00096         ADDWF   r0x00, F
+00002A 22??           00097         ADDWFC  r0x01, F
+00002C 50??           00098         MOVF    r0x00, W
+00002E 10??           00099         IORWF   r0x01, W
+000030 E1??           00100         BNZ     _00105_DS_
+000032 CFE4 F000      00101         MOVFF   PREINC1, r0x01
+000036 CFE4 F000      00102         MOVFF   PREINC1, r0x00
+00003A CFE4 FFD9      00103         MOVFF   PREINC1, FSR2L
+00003E 0012           00104         RETURN  
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/sd   4-21-2015  23:49:51         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00105 
+                      00106 
+                      00107 
+                      00108 ; Statistics:
+                      00109 ; code size:      136 (0x0088) bytes ( 0.10%)
+                      00110 ;                  68 (0x0044) words
+                      00111 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00112 ; access size:      2 (0x0002) bytes
+                      00113 
+                      00114 
+                      00115         end
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/sd   4-21-2015  23:49:51         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+STATUS                            00000FD8
+_00105_DS_                        0000001C
+_00113_DS_                        0000001C
+__18F2550                         00000001
+__ACC_RAM_LOW_END                 0000005F
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__delay_ms                        00000000
+__delay_us                        00000000
+r0x00                             00000000
+r0x01                             00000001
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     2 reported,     0 suppressed
+
+

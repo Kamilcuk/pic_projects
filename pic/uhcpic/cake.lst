@@ -1,0 +1,2013 @@
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.4.0 #8981 (May 19 2014) (Linux)
+                      00004 ; This file was generated Tue Apr 21 23:49:52 2015
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008 
+                      00009         .ident "SDCC version 3.4.0 #8981 [pic16 port]"
+                      00010         .file   "cake.c"
+                      00011         list    p=18f2550
+                      00012         radix   dec
+                      00013 
+                      00014 
+                      00015 ;--------------------------------------------------------
+                      00016 ; public variables in this module
+                      00017 ;--------------------------------------------------------
+  0000                00018         global  _cake_eat_basket
+                      00019 
+                      00020 ;--------------------------------------------------------
+                      00021 ; extern variables in this module
+                      00022 ;--------------------------------------------------------
+  0000                00023         extern  _UFRMLbits
+  0000                00024         extern  _UFRMHbits
+  0000                00025         extern  _UIRbits
+  0000                00026         extern  _UIEbits
+  0000                00027         extern  _UEIRbits
+  0000                00028         extern  _UEIEbits
+  0000                00029         extern  _USTATbits
+  0000                00030         extern  _UCONbits
+  0000                00031         extern  _UADDRbits
+  0000                00032         extern  _UCFGbits
+  0000                00033         extern  _UEP0bits
+  0000                00034         extern  _UEP1bits
+  0000                00035         extern  _UEP2bits
+  0000                00036         extern  _UEP3bits
+  0000                00037         extern  _UEP4bits
+  0000                00038         extern  _UEP5bits
+  0000                00039         extern  _UEP6bits
+  0000                00040         extern  _UEP7bits
+  0000                00041         extern  _UEP8bits
+  0000                00042         extern  _UEP9bits
+  0000                00043         extern  _UEP10bits
+  0000                00044         extern  _UEP11bits
+  0000                00045         extern  _UEP12bits
+  0000                00046         extern  _UEP13bits
+  0000                00047         extern  _UEP14bits
+  0000                00048         extern  _UEP15bits
+  0000                00049         extern  _PORTAbits
+  0000                00050         extern  _PORTBbits
+  0000                00051         extern  _PORTCbits
+  0000                00052         extern  _PORTEbits
+  0000                00053         extern  _LATAbits
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00054         extern  _LATBbits
+  0000                00055         extern  _LATCbits
+  0000                00056         extern  _DDRAbits
+  0000                00057         extern  _TRISAbits
+  0000                00058         extern  _DDRBbits
+  0000                00059         extern  _TRISBbits
+  0000                00060         extern  _DDRCbits
+  0000                00061         extern  _TRISCbits
+  0000                00062         extern  _OSCTUNEbits
+  0000                00063         extern  _PIE1bits
+  0000                00064         extern  _PIR1bits
+  0000                00065         extern  _IPR1bits
+  0000                00066         extern  _PIE2bits
+  0000                00067         extern  _PIR2bits
+  0000                00068         extern  _IPR2bits
+  0000                00069         extern  _EECON1bits
+  0000                00070         extern  _RCSTAbits
+  0000                00071         extern  _TXSTAbits
+  0000                00072         extern  _T3CONbits
+  0000                00073         extern  _CMCONbits
+  0000                00074         extern  _CVRCONbits
+  0000                00075         extern  _CCP1ASbits
+  0000                00076         extern  _ECCP1ASbits
+  0000                00077         extern  _CCP1DELbits
+  0000                00078         extern  _ECCP1DELbits
+  0000                00079         extern  _BAUDCONbits
+  0000                00080         extern  _BAUDCTLbits
+  0000                00081         extern  _CCP2CONbits
+  0000                00082         extern  _CCP1CONbits
+  0000                00083         extern  _ADCON2bits
+  0000                00084         extern  _ADCON1bits
+  0000                00085         extern  _ADCON0bits
+  0000                00086         extern  _SSPCON2bits
+  0000                00087         extern  _SSPCON1bits
+  0000                00088         extern  _SSPSTATbits
+  0000                00089         extern  _T2CONbits
+  0000                00090         extern  _T1CONbits
+  0000                00091         extern  _RCONbits
+  0000                00092         extern  _WDTCONbits
+  0000                00093         extern  _HLVDCONbits
+  0000                00094         extern  _LVDCONbits
+  0000                00095         extern  _OSCCONbits
+  0000                00096         extern  _T0CONbits
+  0000                00097         extern  _STATUSbits
+  0000                00098         extern  _INTCON3bits
+  0000                00099         extern  _INTCON2bits
+  0000                00100         extern  _INTCONbits
+  0000                00101         extern  _STKPTRbits
+  0000                00102         extern  _lcddev
+  0000                00103         extern  _UFRM
+  0000                00104         extern  _UFRML
+  0000                00105         extern  _UFRMH
+  0000                00106         extern  _UIR
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00107         extern  _UIE
+  0000                00108         extern  _UEIR
+  0000                00109         extern  _UEIE
+  0000                00110         extern  _USTAT
+  0000                00111         extern  _UCON
+  0000                00112         extern  _UADDR
+  0000                00113         extern  _UCFG
+  0000                00114         extern  _UEP0
+  0000                00115         extern  _UEP1
+  0000                00116         extern  _UEP2
+  0000                00117         extern  _UEP3
+  0000                00118         extern  _UEP4
+  0000                00119         extern  _UEP5
+  0000                00120         extern  _UEP6
+  0000                00121         extern  _UEP7
+  0000                00122         extern  _UEP8
+  0000                00123         extern  _UEP9
+  0000                00124         extern  _UEP10
+  0000                00125         extern  _UEP11
+  0000                00126         extern  _UEP12
+  0000                00127         extern  _UEP13
+  0000                00128         extern  _UEP14
+  0000                00129         extern  _UEP15
+  0000                00130         extern  _PORTA
+  0000                00131         extern  _PORTB
+  0000                00132         extern  _PORTC
+  0000                00133         extern  _PORTE
+  0000                00134         extern  _LATA
+  0000                00135         extern  _LATB
+  0000                00136         extern  _LATC
+  0000                00137         extern  _DDRA
+  0000                00138         extern  _TRISA
+  0000                00139         extern  _DDRB
+  0000                00140         extern  _TRISB
+  0000                00141         extern  _DDRC
+  0000                00142         extern  _TRISC
+  0000                00143         extern  _OSCTUNE
+  0000                00144         extern  _PIE1
+  0000                00145         extern  _PIR1
+  0000                00146         extern  _IPR1
+  0000                00147         extern  _PIE2
+  0000                00148         extern  _PIR2
+  0000                00149         extern  _IPR2
+  0000                00150         extern  _EECON1
+  0000                00151         extern  _EECON2
+  0000                00152         extern  _EEDATA
+  0000                00153         extern  _EEADR
+  0000                00154         extern  _RCSTA
+  0000                00155         extern  _TXSTA
+  0000                00156         extern  _TXREG
+  0000                00157         extern  _RCREG
+  0000                00158         extern  _SPBRG
+  0000                00159         extern  _SPBRGH
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00160         extern  _T3CON
+  0000                00161         extern  _TMR3
+  0000                00162         extern  _TMR3L
+  0000                00163         extern  _TMR3H
+  0000                00164         extern  _CMCON
+  0000                00165         extern  _CVRCON
+  0000                00166         extern  _CCP1AS
+  0000                00167         extern  _ECCP1AS
+  0000                00168         extern  _CCP1DEL
+  0000                00169         extern  _ECCP1DEL
+  0000                00170         extern  _BAUDCON
+  0000                00171         extern  _BAUDCTL
+  0000                00172         extern  _CCP2CON
+  0000                00173         extern  _CCPR2
+  0000                00174         extern  _CCPR2L
+  0000                00175         extern  _CCPR2H
+  0000                00176         extern  _CCP1CON
+  0000                00177         extern  _CCPR1
+  0000                00178         extern  _CCPR1L
+  0000                00179         extern  _CCPR1H
+  0000                00180         extern  _ADCON2
+  0000                00181         extern  _ADCON1
+  0000                00182         extern  _ADCON0
+  0000                00183         extern  _ADRES
+  0000                00184         extern  _ADRESL
+  0000                00185         extern  _ADRESH
+  0000                00186         extern  _SSPCON2
+  0000                00187         extern  _SSPCON1
+  0000                00188         extern  _SSPSTAT
+  0000                00189         extern  _SSPADD
+  0000                00190         extern  _SSPBUF
+  0000                00191         extern  _T2CON
+  0000                00192         extern  _PR2
+  0000                00193         extern  _TMR2
+  0000                00194         extern  _T1CON
+  0000                00195         extern  _TMR1
+  0000                00196         extern  _TMR1L
+  0000                00197         extern  _TMR1H
+  0000                00198         extern  _RCON
+  0000                00199         extern  _WDTCON
+  0000                00200         extern  _HLVDCON
+  0000                00201         extern  _LVDCON
+  0000                00202         extern  _OSCCON
+  0000                00203         extern  _T0CON
+  0000                00204         extern  _TMR0
+  0000                00205         extern  _TMR0L
+  0000                00206         extern  _TMR0H
+  0000                00207         extern  _STATUS
+  0000                00208         extern  _FSR2L
+  0000                00209         extern  _FSR2H
+  0000                00210         extern  _PLUSW2
+  0000                00211         extern  _PREINC2
+  0000                00212         extern  _POSTDEC2
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00213         extern  _POSTINC2
+  0000                00214         extern  _INDF2
+  0000                00215         extern  _BSR
+  0000                00216         extern  _FSR1L
+  0000                00217         extern  _FSR1H
+  0000                00218         extern  _PLUSW1
+  0000                00219         extern  _PREINC1
+  0000                00220         extern  _POSTDEC1
+  0000                00221         extern  _POSTINC1
+  0000                00222         extern  _INDF1
+  0000                00223         extern  _WREG
+  0000                00224         extern  _FSR0L
+  0000                00225         extern  _FSR0H
+  0000                00226         extern  _PLUSW0
+  0000                00227         extern  _PREINC0
+  0000                00228         extern  _POSTDEC0
+  0000                00229         extern  _POSTINC0
+  0000                00230         extern  _INDF0
+  0000                00231         extern  _INTCON3
+  0000                00232         extern  _INTCON2
+  0000                00233         extern  _INTCON
+  0000                00234         extern  _PROD
+  0000                00235         extern  _PRODL
+  0000                00236         extern  _PRODH
+  0000                00237         extern  _TABLAT
+  0000                00238         extern  _TBLPTR
+  0000                00239         extern  _TBLPTRL
+  0000                00240         extern  _TBLPTRH
+  0000                00241         extern  _TBLPTRU
+  0000                00242         extern  _PC
+  0000                00243         extern  _PCL
+  0000                00244         extern  _PCLATH
+  0000                00245         extern  _PCLATU
+  0000                00246         extern  _STKPTR
+  0000                00247         extern  _TOS
+  0000                00248         extern  _TOSL
+  0000                00249         extern  _TOSH
+  0000                00250         extern  _TOSU
+  0000                00251         extern  _hd44780_recv
+  0000                00252         extern  _hd44780_send
+  0000                00253         extern  _hd44780_send_all
+  0000                00254         extern  _USB_EP2_set
+                      00255 
+                      00256 ;--------------------------------------------------------
+                      00257 ;       Equates to used internal registers
+                      00258 ;--------------------------------------------------------
+  00000FD8            00259 STATUS  equ     0xfd8
+  00000FF9            00260 PCL     equ     0xff9
+  00000FFA            00261 PCLATH  equ     0xffa
+  00000FFB            00262 PCLATU  equ     0xffb
+  00000FE8            00263 WREG    equ     0xfe8
+  00000FE9            00264 FSR0L   equ     0xfe9
+  00000FEA            00265 FSR0H   equ     0xfea
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  00000FE1            00266 FSR1L   equ     0xfe1
+  00000FD9            00267 FSR2L   equ     0xfd9
+  00000FEF            00268 INDF0   equ     0xfef
+  00000FE6            00269 POSTINC1        equ     0xfe6
+  00000FE5            00270 POSTDEC1        equ     0xfe5
+  00000FE4            00271 PREINC1 equ     0xfe4
+  00000FDB            00272 PLUSW2  equ     0xfdb
+  00000FF3            00273 PRODL   equ     0xff3
+                      00274 
+                      00275 
+                      00276         idata
+000000 00             00277 _intestine_cnt  db      0x00
+000001 00             00278 _input_state    db      0x00
+                      00279 
+                      00280 
+                      00281 ; Internal registers
+                      00282 .registers      udata_ovr       0x0000
+000000                00283 r0x00   res     1
+000001                00284 r0x01   res     1
+000002                00285 r0x02   res     1
+000003                00286 r0x03   res     1
+000004                00287 r0x04   res     1
+000005                00288 r0x05   res     1
+000006                00289 r0x06   res     1
+000007                00290 r0x07   res     1
+                      00291 
+                      00292 udata_cake_0    udata
+000000                00293 _bite   res     1
+                      00294 
+                      00295 udata_cake_1    udata
+000000                00296 _intestine      res     64
+                      00297 
+                      00298 ;--------------------------------------------------------
+                      00299 ; global & static initialisations
+                      00300 ;--------------------------------------------------------
+                      00301 ; I code from now on!
+                      00302 ; ; Starting pCode block
+                      00303 S_cake__cake_eat_basket code
+000000                00304 _cake_eat_basket:
+                      00305         .line   132; cake.c     void cake_eat_basket(unsigned char __near *basket, unsigned char cnt) //
+                             basket full of cakes !
+000000 CFD9 FFE5      00306         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00307         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00308         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00309         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00310         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00311         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00312         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00313         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00314         MOVFF   r0x06, POSTDEC1
+000024 C??? F???      00315         MOVFF   r0x07, POSTDEC1
+000028 0E02           00316         MOVLW   0x02
+00002A CFDB F000      00317         MOVFF   PLUSW2, r0x00
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00002E 0E03           00318         MOVLW   0x03
+000030 CFDB F000      00319         MOVFF   PLUSW2, r0x01
+000034 0E04           00320         MOVLW   0x04
+000036 CFDB F000      00321         MOVFF   PLUSW2, r0x02
+00003A                00322 _00226_DS_:
+                      00323         .line   136; cake.c     while (cnt) {
+00003A 50??           00324         MOVF    r0x02, W
+00003C B4D8           00325         BTFSC   STATUS, 2
+00003E D???           00326         BRA     _00263_DS_
+                      00327         .line   138; cake.c     cake = *basket;
+000040 C??? F???      00328         MOVFF   r0x00, FSR0L
+000044 C??? F???      00329         MOVFF   r0x01, FSR0H
+000048 CFEF F000      00330         MOVFF   INDF0, r0x03
+                      00331         .line   139; cake.c     ++basket;
+00004C 4A??           00332         INFSNZ  r0x00, F
+00004E 2A??           00333         INCF    r0x01, F
+                      00334         .line   140; cake.c     --cnt;
+000050 06??           00335         DECF    r0x02, F
+                      00336         .line   49; cake.c      switch(input_state) {
+000052 0E04           00337         MOVLW   0x04
+000054 ????           00338         BANKSEL _input_state
+000056 5D??           00339         SUBWF   _input_state, W, B
+000058 B0D8           00340         BTFSC   STATUS, 0
+00005A D???           00341         BRA     _00255_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00005C 6AFA           00342         CLRF    PCLATH
+Message[1301]: Using default destination of 0 (Access Bank).
+00005E 6AFB           00343         CLRF    PCLATU
+000060 ????           00344         BANKSEL _input_state
+000062 35??           00345         RLCF    _input_state, W, B
+000064 36FA           00346         RLCF    PCLATH, F
+000066 34E8           00347         RLCF    WREG, W
+000068 36FA           00348         RLCF    PCLATH, F
+00006A 0BFC           00349         ANDLW   0xfc
+00006C 0F??           00350         ADDLW   LOW(_00327_DS_)
+Message[1301]: Using default destination of 0 (Access Bank).
+00006E 6EE5           00351         MOVWF   POSTDEC1
+000070 0E??           00352         MOVLW   HIGH(_00327_DS_)
+000072 22FA           00353         ADDWFC  PCLATH, F
+000074 0E??           00354         MOVLW   UPPER(_00327_DS_)
+000076 22FB           00355         ADDWFC  PCLATU, F
+000078 50E4           00356         MOVF    PREINC1, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00007A 6EF9           00357         MOVWF   PCL
+00007C                00358 _00327_DS_:
+00007C EF?? F0??      00359         GOTO    _00250_DS_
+000080 EF?? F0??      00360         GOTO    _00251_DS_
+000084 EF?? F0??      00361         GOTO    _00252_DS_
+000088 EF?? F0??      00362         GOTO    _00253_DS_
+00008C                00363 _00250_DS_:
+                      00364         .line   51; cake.c      switch (cake&CAKE_FILLING_BITS) {
+00008C 0EE0           00365         MOVLW   0xe0
+00008E 14??           00366         ANDWF   r0x03, W
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  8
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+000090 6E??           00367         MOVWF   r0x04
+000092 50??           00368         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000094 6E??           00369         MOVWF   r0x05
+000096 50??           00370         MOVF    r0x05, W
+000098 E0??           00371         BZ      _00234_DS_
+00009A 50??           00372         MOVF    r0x04, W
+00009C 0A20           00373         XORLW   0x20
+00009E E1??           00374         BNZ     _00332_DS_
+0000A0 D???           00375         BRA     _00241_DS_
+0000A2                00376 _00332_DS_:
+0000A2 50??           00377         MOVF    r0x04, W
+0000A4 0A40           00378         XORLW   0x40
+0000A6 E1??           00379         BNZ     _00334_DS_
+0000A8 D???           00380         BRA     _00243_DS_
+0000AA                00381 _00334_DS_:
+0000AA 50??           00382         MOVF    r0x04, W
+0000AC 0A60           00383         XORLW   0x60
+0000AE E1??           00384         BNZ     _00336_DS_
+0000B0 D???           00385         BRA     _00242_DS_
+0000B2                00386 _00336_DS_:
+0000B2 50??           00387         MOVF    r0x04, W
+0000B4 0A80           00388         XORLW   0x80
+0000B6 E1??           00389         BNZ     _00338_DS_
+0000B8 D???           00390         BRA     _00246_DS_
+0000BA                00391 _00338_DS_:
+0000BA 50??           00392         MOVF    r0x04, W
+0000BC 0AA0           00393         XORLW   0xa0
+0000BE E1??           00394         BNZ     _00226_DS_
+0000C0 D???           00395         BRA     _00247_DS_
+0000C2                00396 _00340_DS_:
+0000C2 D???           00397         BRA     _00226_DS_
+0000C4                00398 _00234_DS_:
+                      00399         .line   53; cake.c      if (cake&CAKE_RW_BIT) { // 0 is write, 1 is read
+0000C4 A0??           00400         BTFSS   r0x03, 0
+0000C6 D???           00401         BRA     _00232_DS_
+                      00402         .line   55; cake.c      if (intestine_cnt >= CAKE_INTESTINE_SIZE) // our recv buffer is full
+0000C8 0E40           00403         MOVLW   0x40
+0000CA ????           00404         BANKSEL _intestine_cnt
+0000CC 5D??           00405         SUBWF   _intestine_cnt, W, B
+0000CE B0D8           00406         BTFSC   STATUS, 0
+0000D0 D???           00407         BRA     _00226_DS_
+                      00408         .line   57; cake.c      intestine[intestine_cnt] = hd44780_recv(CAKE_CTRL_NR(cake), cake&CAKE_FL
+                            AG_BITS);
+0000D2 0E??           00409         MOVLW   LOW(_intestine)
+0000D4 ????           00410         BANKSEL _intestine_cnt
+0000D6 25??           00411         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0000D8 6E??           00412         MOVWF   r0x04
+Message[1301]: Using default destination of 0 (Access Bank).
+0000DA 6A??           00413         CLRF    r0x05
+0000DC 0E??           00414         MOVLW   HIGH(_intestine)
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE  9
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000DE 22??           00415         ADDWFC  r0x05, F
+0000E0 0E1C           00416         MOVLW   0x1c
+0000E2 14??           00417         ANDWF   r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000E4 6E??           00418         MOVWF   r0x06
+0000E6 40??           00419         RRNCF   r0x06, W
+0000E8 40E8           00420         RRNCF   WREG, W
+0000EA 0B3F           00421         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+0000EC 6E??           00422         MOVWF   r0x06
+0000EE 0E03           00423         MOVLW   0x03
+0000F0 14??           00424         ANDWF   r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000F2 6E??           00425         MOVWF   r0x07
+0000F4 50??           00426         MOVF    r0x07, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000F6 6EE5           00427         MOVWF   POSTDEC1
+0000F8 50??           00428         MOVF    r0x06, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000FA 6EE5           00429         MOVWF   POSTDEC1
+0000FC EC?? F0??      00430         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+000100 6E??           00431         MOVWF   r0x06
+000102 52E6           00432         MOVF    POSTINC1, F
+000104 52E6           00433         MOVF    POSTINC1, F
+000106 C??? F???      00434         MOVFF   r0x04, FSR0L
+00010A C??? F???      00435         MOVFF   r0x05, FSR0H
+00010E C??? F???      00436         MOVFF   r0x06, INDF0
+000112 ????           00437         BANKSEL _intestine_cnt
+                      00438         .line   58; cake.c      intestine_cnt++;
+000114 2B??           00439         INCF    _intestine_cnt, F, B
+000116 D???           00440         BRA     _00226_DS_
+000118                00441 _00232_DS_:
+                      00442         .line   61; cake.c      input_state = RAW_WRITE;
+000118 0E01           00443         MOVLW   0x01
+00011A ????           00444         BANKSEL _input_state
+00011C 6F??           00445         MOVWF   _input_state, B
+                      00446         .line   62; cake.c      bite = cake;
+00011E C??? F???      00447         MOVFF   r0x03, _bite
+                      00448         .line   64; cake.c      break;
+000122 D???           00449         BRA     _00226_DS_
+000124                00450 _00241_DS_:
+                      00451         .line   66; cake.c      if (cake&CAKE_RW_BIT) { // 0 is write, 1 is read
+000124 A0??           00452         BTFSS   r0x03, 0
+000126 D???           00453         BRA     _00239_DS_
+                      00454         .line   68; cake.c      if (intestine_cnt > (CAKE_INTESTINE_SIZE-MAX_NUM_CONTROLLERS) )
+000128 0E39           00455         MOVLW   0x39
+00012A ????           00456         BANKSEL _intestine_cnt
+00012C 5D??           00457         SUBWF   _intestine_cnt, W, B
+00012E B0D8           00458         BTFSC   STATUS, 0
+000130 D???           00459         BRA     _00226_DS_
+000132 ????           00460         BANKSEL _bite
+                      00461         .line   72; cake.c      for (bite=0; bite<MAX_NUM_CONTROLLERS; bite++) {
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 10
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000134 6B??           00462         CLRF    _bite, B
+000136 0E03           00463         MOVLW   0x03
+000138 14??           00464         ANDWF   r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00013A 6E??           00465         MOVWF   r0x04
+00013C                00466 _00258_DS_:
+                      00467         .line   73; cake.c      intestine[intestine_cnt] = hd44780_recv(bite, cake&CAKE_FLAG_BITS);
+00013C 0E??           00468         MOVLW   LOW(_intestine)
+00013E ????           00469         BANKSEL _intestine_cnt
+000140 25??           00470         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000142 6E??           00471         MOVWF   r0x05
+Message[1301]: Using default destination of 0 (Access Bank).
+000144 6A??           00472         CLRF    r0x06
+000146 0E??           00473         MOVLW   HIGH(_intestine)
+000148 22??           00474         ADDWFC  r0x06, F
+00014A 50??           00475         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00014C 6EE5           00476         MOVWF   POSTDEC1
+00014E ????           00477         BANKSEL _bite
+000150 51??           00478         MOVF    _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000152 6EE5           00479         MOVWF   POSTDEC1
+000154 EC?? F0??      00480         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+000158 6E??           00481         MOVWF   r0x07
+00015A 52E6           00482         MOVF    POSTINC1, F
+00015C 52E6           00483         MOVF    POSTINC1, F
+00015E C??? F???      00484         MOVFF   r0x05, FSR0L
+000162 C??? F???      00485         MOVFF   r0x06, FSR0H
+000166 C??? F???      00486         MOVFF   r0x07, INDF0
+00016A ????           00487         BANKSEL _intestine_cnt
+                      00488         .line   74; cake.c      intestine_cnt++;
+00016C 2B??           00489         INCF    _intestine_cnt, F, B
+00016E ????           00490         BANKSEL _bite
+                      00491         .line   72; cake.c      for (bite=0; bite<MAX_NUM_CONTROLLERS; bite++) {
+000170 2B??           00492         INCF    _bite, F, B
+000172 0E08           00493         MOVLW   0x08
+000174 ????           00494         BANKSEL _bite
+000176 5D??           00495         SUBWF   _bite, W, B
+000178 E3??           00496         BNC     _00258_DS_
+00017A D???           00497         BRA     _00226_DS_
+00017C                00498 _00239_DS_:
+                      00499         .line   78; cake.c      input_state = RAW_WRITE_ALL;
+00017C 0E02           00500         MOVLW   0x02
+00017E ????           00501         BANKSEL _input_state
+000180 6F??           00502         MOVWF   _input_state, B
+                      00503         .line   79; cake.c      bite = cake;
+000182 C??? F???      00504         MOVFF   r0x03, _bite
+                      00505         .line   81; cake.c      break;
+000186 D???           00506         BRA     _00226_DS_
+000188                00507 _00242_DS_:
+                      00508         .line   83; cake.c      USB_EP2_set(intestine, intestine_cnt);
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 11
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000188 0E??           00509         MOVLW   LOW(_intestine)
+Message[1301]: Using default destination of 0 (Access Bank).
+00018A 6E??           00510         MOVWF   r0x04
+00018C 0E??           00511         MOVLW   HIGH(_intestine)
+Message[1301]: Using default destination of 0 (Access Bank).
+00018E 6E??           00512         MOVWF   r0x05
+000190 ????           00513         BANKSEL _intestine_cnt
+000192 51??           00514         MOVF    _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000194 6EE5           00515         MOVWF   POSTDEC1
+000196 50??           00516         MOVF    r0x05, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000198 6EE5           00517         MOVWF   POSTDEC1
+00019A 50??           00518         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00019C 6EE5           00519         MOVWF   POSTDEC1
+00019E EC?? F0??      00520         CALL    _USB_EP2_set
+0001A2 0E03           00521         MOVLW   0x03
+0001A4 26E1           00522         ADDWF   FSR1L, F
+0001A6 ????           00523         BANKSEL _intestine_cnt
+                      00524         .line   84; cake.c      intestine_cnt = 0;
+0001A8 6B??           00525         CLRF    _intestine_cnt, B
+                      00526         .line   85; cake.c      break;
+0001AA D???           00527         BRA     _00226_DS_
+0001AC                00528 _00243_DS_:
+                      00529         .line   87; cake.c      bite = cake;
+0001AC C??? F???      00530         MOVFF   r0x03, _bite
+                      00531         .line   88; cake.c      input_state  = NUM_READ;
+0001B0 0E03           00532         MOVLW   0x03
+0001B2 ????           00533         BANKSEL _input_state
+0001B4 6F??           00534         MOVWF   _input_state, B
+                      00535         .line   89; cake.c      break;
+0001B6 D???           00536         BRA     _00226_DS_
+0001B8                00537 _00246_DS_:
+                      00538         .line   91; cake.c      if ( intestine_cnt+8 >= CAKE_INTESTINE_SIZE )
+0001B8 C??? F???      00539         MOVFF   _intestine_cnt, r0x04
+Message[1301]: Using default destination of 0 (Access Bank).
+0001BC 6A??           00540         CLRF    r0x05
+0001BE 0E08           00541         MOVLW   0x08
+0001C0 26??           00542         ADDWF   r0x04, F
+0001C2 B0D8           00543         BTFSC   STATUS, 0
+0001C4 2A??           00544         INCF    r0x05, F
+0001C6 50??           00545         MOVF    r0x05, W
+0001C8 0F80           00546         ADDLW   0x80
+0001CA 0F80           00547         ADDLW   0x80
+0001CC E1??           00548         BNZ     _00349_DS_
+0001CE 0E40           00549         MOVLW   0x40
+0001D0 5C??           00550         SUBWF   r0x04, W
+0001D2                00551 _00349_DS_:
+0001D2 B0D8           00552         BTFSC   STATUS, 0
+0001D4 D???           00553         BRA     _00226_DS_
+                      00554         .line   93; cake.c      intestine[intestine_cnt++] = DISP_COLS;
+0001D6 C??? F???      00555         MOVFF   _intestine_cnt, r0x04
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 12
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0001DA ????           00556         BANKSEL _intestine_cnt
+0001DC 2B??           00557         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0001DE 6A??           00558         CLRF    r0x05
+0001E0 0E??           00559         MOVLW   LOW(_intestine)
+0001E2 26??           00560         ADDWF   r0x04, F
+0001E4 0E??           00561         MOVLW   HIGH(_intestine)
+0001E6 22??           00562         ADDWFC  r0x05, F
+0001E8 C??? F???      00563         MOVFF   r0x04, FSR0L
+0001EC C??? F???      00564         MOVFF   r0x05, FSR0H
+0001F0 0E28           00565         MOVLW   0x28
+Message[1301]: Using default destination of 0 (Access Bank).
+0001F2 6EEF           00566         MOVWF   INDF0
+                      00567         .line   94; cake.c      intestine[intestine_cnt++] = DISP_ROWS;
+0001F4 C??? F???      00568         MOVFF   _intestine_cnt, r0x04
+0001F8 ????           00569         BANKSEL _intestine_cnt
+0001FA 2B??           00570         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0001FC 6A??           00571         CLRF    r0x05
+0001FE 0E??           00572         MOVLW   LOW(_intestine)
+000200 26??           00573         ADDWF   r0x04, F
+000202 0E??           00574         MOVLW   HIGH(_intestine)
+000204 22??           00575         ADDWFC  r0x05, F
+000206 C??? F???      00576         MOVFF   r0x04, FSR0L
+00020A C??? F???      00577         MOVFF   r0x05, FSR0H
+00020E 0E10           00578         MOVLW   0x10
+Message[1301]: Using default destination of 0 (Access Bank).
+000210 6EEF           00579         MOVWF   INDF0
+                      00580         .line   95; cake.c      intestine[intestine_cnt++] = MAX_NUM_CONTROLLERS;
+000212 C??? F???      00581         MOVFF   _intestine_cnt, r0x04
+000216 ????           00582         BANKSEL _intestine_cnt
+000218 2B??           00583         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00021A 6A??           00584         CLRF    r0x05
+00021C 0E??           00585         MOVLW   LOW(_intestine)
+00021E 26??           00586         ADDWF   r0x04, F
+000220 0E??           00587         MOVLW   HIGH(_intestine)
+000222 22??           00588         ADDWFC  r0x05, F
+000224 C??? F???      00589         MOVFF   r0x04, FSR0L
+000228 C??? F???      00590         MOVFF   r0x05, FSR0H
+00022C 0E08           00591         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+00022E 6EEF           00592         MOVWF   INDF0
+                      00593         .line   96; cake.c      intestine[intestine_cnt++] = ROWS_PER_CTRL;
+000230 C??? F???      00594         MOVFF   _intestine_cnt, r0x04
+000234 ????           00595         BANKSEL _intestine_cnt
+000236 2B??           00596         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000238 6A??           00597         CLRF    r0x05
+00023A 0E??           00598         MOVLW   LOW(_intestine)
+00023C 26??           00599         ADDWF   r0x04, F
+00023E 0E??           00600         MOVLW   HIGH(_intestine)
+000240 22??           00601         ADDWFC  r0x05, F
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 13
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000242 C??? F???      00602         MOVFF   r0x04, FSR0L
+000246 C??? F???      00603         MOVFF   r0x05, FSR0H
+00024A 0E02           00604         MOVLW   0x02
+Message[1301]: Using default destination of 0 (Access Bank).
+00024C 6EEF           00605         MOVWF   INDF0
+                      00606         .line   97; cake.c      intestine[intestine_cnt++] = sizeof(lcddev);
+00024E C??? F???      00607         MOVFF   _intestine_cnt, r0x04
+000252 ????           00608         BANKSEL _intestine_cnt
+000254 2B??           00609         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000256 6A??           00610         CLRF    r0x05
+000258 0E??           00611         MOVLW   LOW(_intestine)
+00025A 26??           00612         ADDWF   r0x04, F
+00025C 0E??           00613         MOVLW   HIGH(_intestine)
+00025E 22??           00614         ADDWFC  r0x05, F
+000260 C??? F???      00615         MOVFF   r0x04, FSR0L
+000264 C??? F???      00616         MOVFF   r0x05, FSR0H
+000268 0E81           00617         MOVLW   0x81
+Message[1301]: Using default destination of 0 (Access Bank).
+00026A 6EEF           00618         MOVWF   INDF0
+                      00619         .line   98; cake.c      intestine[intestine_cnt++] = lcddev.disabled;
+00026C C??? F???      00620         MOVFF   _intestine_cnt, r0x04
+000270 ????           00621         BANKSEL _intestine_cnt
+000272 2B??           00622         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000274 6A??           00623         CLRF    r0x05
+000276 0E??           00624         MOVLW   LOW(_intestine)
+000278 26??           00625         ADDWF   r0x04, F
+00027A 0E??           00626         MOVLW   HIGH(_intestine)
+00027C 22??           00627         ADDWFC  r0x05, F
+00027E C??? F???      00628         MOVFF   _lcddev, r0x06
+000282 C??? F???      00629         MOVFF   r0x04, FSR0L
+000286 C??? F???      00630         MOVFF   r0x05, FSR0H
+00028A C??? F???      00631         MOVFF   r0x06, INDF0
+                      00632         .line   99; cake.c      intestine[intestine_cnt++] = 0;
+00028E C??? F???      00633         MOVFF   _intestine_cnt, r0x04
+000292 ????           00634         BANKSEL _intestine_cnt
+000294 2B??           00635         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000296 6A??           00636         CLRF    r0x05
+000298 0E??           00637         MOVLW   LOW(_intestine)
+00029A 26??           00638         ADDWF   r0x04, F
+00029C 0E??           00639         MOVLW   HIGH(_intestine)
+00029E 22??           00640         ADDWFC  r0x05, F
+0002A0 C??? F???      00641         MOVFF   r0x04, FSR0L
+0002A4 C??? F???      00642         MOVFF   r0x05, FSR0H
+0002A8 0E00           00643         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0002AA 6EEF           00644         MOVWF   INDF0
+                      00645         .line   100; cake.c     intestine[intestine_cnt++] = 0;
+0002AC C??? F???      00646         MOVFF   _intestine_cnt, r0x04
+0002B0 ????           00647         BANKSEL _intestine_cnt
+0002B2 2B??           00648         INCF    _intestine_cnt, F, B
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 14
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+0002B4 6A??           00649         CLRF    r0x05
+0002B6 0E??           00650         MOVLW   LOW(_intestine)
+0002B8 26??           00651         ADDWF   r0x04, F
+0002BA 0E??           00652         MOVLW   HIGH(_intestine)
+0002BC 22??           00653         ADDWFC  r0x05, F
+0002BE C??? F???      00654         MOVFF   r0x04, FSR0L
+0002C2 C??? F???      00655         MOVFF   r0x05, FSR0H
+0002C6 0E00           00656         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0002C8 6EEF           00657         MOVWF   INDF0
+                      00658         .line   101; cake.c     break;
+0002CA D???           00659         BRA     _00226_DS_
+0002CC                00660 _00247_DS_:
+                      00661         .line   103; cake.c     USB_EP2_set(&lcddev, sizeof(lcddev));
+0002CC 0E??           00662         MOVLW   LOW(_lcddev)
+Message[1301]: Using default destination of 0 (Access Bank).
+0002CE 6E??           00663         MOVWF   r0x04
+0002D0 0E??           00664         MOVLW   HIGH(_lcddev)
+Message[1301]: Using default destination of 0 (Access Bank).
+0002D2 6E??           00665         MOVWF   r0x05
+0002D4 0E81           00666         MOVLW   0x81
+Message[1301]: Using default destination of 0 (Access Bank).
+0002D6 6EE5           00667         MOVWF   POSTDEC1
+0002D8 50??           00668         MOVF    r0x05, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002DA 6EE5           00669         MOVWF   POSTDEC1
+0002DC 50??           00670         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002DE 6EE5           00671         MOVWF   POSTDEC1
+0002E0 EC?? F0??      00672         CALL    _USB_EP2_set
+0002E4 0E03           00673         MOVLW   0x03
+0002E6 26E1           00674         ADDWF   FSR1L, F
+                      00675         .line   104; cake.c     break;
+0002E8 D???           00676         BRA     _00226_DS_
+0002EA                00677 _00251_DS_:
+                      00678         .line   110; cake.c     hd44780_send(CAKE_CTRL_NR(bite), bite&CAKE_FLAG_BITS, cake);
+0002EA 0E1C           00679         MOVLW   0x1c
+0002EC ????           00680         BANKSEL _bite
+0002EE 15??           00681         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0002F0 6E??           00682         MOVWF   r0x04
+0002F2 40??           00683         RRNCF   r0x04, W
+0002F4 40E8           00684         RRNCF   WREG, W
+0002F6 0B3F           00685         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+0002F8 6E??           00686         MOVWF   r0x04
+0002FA 0E03           00687         MOVLW   0x03
+0002FC ????           00688         BANKSEL _bite
+0002FE 15??           00689         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000300 6E??           00690         MOVWF   r0x05
+000302 50??           00691         MOVF    r0x03, W
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 15
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+000304 6EE5           00692         MOVWF   POSTDEC1
+000306 50??           00693         MOVF    r0x05, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000308 6EE5           00694         MOVWF   POSTDEC1
+00030A 50??           00695         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00030C 6EE5           00696         MOVWF   POSTDEC1
+00030E EC?? F0??      00697         CALL    _hd44780_send
+000312 0E03           00698         MOVLW   0x03
+000314 26E1           00699         ADDWF   FSR1L, F
+000316 ????           00700         BANKSEL _input_state
+                      00701         .line   111; cake.c     input_state = NORMAL;
+000318 6B??           00702         CLRF    _input_state, B
+                      00703         .line   112; cake.c     break;
+00031A D???           00704         BRA     _00226_DS_
+00031C                00705 _00252_DS_:
+                      00706         .line   114; cake.c     hd44780_send_all(bite&CAKE_FLAG_BITS, cake);
+00031C 0E03           00707         MOVLW   0x03
+00031E ????           00708         BANKSEL _bite
+000320 15??           00709         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000322 6E??           00710         MOVWF   r0x04
+000324 50??           00711         MOVF    r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000326 6EE5           00712         MOVWF   POSTDEC1
+000328 50??           00713         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00032A 6EE5           00714         MOVWF   POSTDEC1
+00032C EC?? F0??      00715         CALL    _hd44780_send_all
+000330 52E6           00716         MOVF    POSTINC1, F
+000332 52E6           00717         MOVF    POSTINC1, F
+000334 ????           00718         BANKSEL _input_state
+                      00719         .line   115; cake.c     input_state = NORMAL;
+000336 6B??           00720         CLRF    _input_state, B
+                      00721         .line   116; cake.c     break;
+000338 D???           00722         BRA     _00226_DS_
+00033A                00723 _00253_DS_:
+                      00724         .line   119; cake.c     cake = min(cake, CAKE_INTESTINE_SIZE-intestine_cnt); // roll to our rece
+                            ive buffer 
+00033A C??? F???      00725         MOVFF   _intestine_cnt, r0x04
+Message[1301]: Using default destination of 0 (Access Bank).
+00033E 6A??           00726         CLRF    r0x05
+000340 50??           00727         MOVF    r0x04, W
+000342 0840           00728         SUBLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+000344 6E??           00729         MOVWF   r0x04
+000346 0E00           00730         MOVLW   0x00
+000348 56??           00731         SUBFWB  r0x05, F
+00034A C??? F???      00732         MOVFF   r0x03, r0x06
+Message[1301]: Using default destination of 0 (Access Bank).
+00034E 6A??           00733         CLRF    r0x07
+000350 50??           00734         MOVF    r0x05, W
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 16
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000352 0F80           00735         ADDLW   0x80
+Message[1301]: Using default destination of 0 (Access Bank).
+000354 6EF3           00736         MOVWF   PRODL
+000356 50??           00737         MOVF    r0x07, W
+000358 0F80           00738         ADDLW   0x80
+00035A 5CF3           00739         SUBWF   PRODL, W
+00035C E1??           00740         BNZ     _00353_DS_
+00035E 50??           00741         MOVF    r0x06, W
+000360 5C??           00742         SUBWF   r0x04, W
+000362                00743 _00353_DS_:
+000362 E2??           00744         BC      _00265_DS_
+000364 ????           00745         BANKSEL _intestine_cnt
+000366 51??           00746         MOVF    _intestine_cnt, W, B
+000368 0840           00747         SUBLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+00036A 6E??           00748         MOVWF   r0x04
+00036C D???           00749         BRA     _00266_DS_
+00036E                00750 _00265_DS_:
+00036E C??? F???      00751         MOVFF   r0x03, r0x04
+000372                00752 _00266_DS_:
+000372 C??? F???      00753         MOVFF   r0x04, r0x03
+000376                00754 _00261_DS_:
+                      00755         .line   120; cake.c     for (; cake; cake--) {
+000376 50??           00756         MOVF    r0x03, W
+000378 E0??           00757         BZ      _00254_DS_
+                      00758         .line   121; cake.c     intestine[intestine_cnt] = hd44780_recv(CAKE_CTRL_NR(bite), bite&CAKE_FL
+                            AG_BITS);
+00037A 0E??           00759         MOVLW   LOW(_intestine)
+00037C ????           00760         BANKSEL _intestine_cnt
+00037E 25??           00761         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000380 6E??           00762         MOVWF   r0x04
+Message[1301]: Using default destination of 0 (Access Bank).
+000382 6A??           00763         CLRF    r0x05
+000384 0E??           00764         MOVLW   HIGH(_intestine)
+000386 22??           00765         ADDWFC  r0x05, F
+000388 0E1C           00766         MOVLW   0x1c
+00038A ????           00767         BANKSEL _bite
+00038C 15??           00768         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00038E 6E??           00769         MOVWF   r0x06
+000390 40??           00770         RRNCF   r0x06, W
+000392 40E8           00771         RRNCF   WREG, W
+000394 0B3F           00772         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+000396 6E??           00773         MOVWF   r0x06
+000398 0E03           00774         MOVLW   0x03
+00039A ????           00775         BANKSEL _bite
+00039C 15??           00776         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00039E 6E??           00777         MOVWF   r0x07
+0003A0 50??           00778         MOVF    r0x07, W
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 17
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0003A2 6EE5           00779         MOVWF   POSTDEC1
+0003A4 50??           00780         MOVF    r0x06, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0003A6 6EE5           00781         MOVWF   POSTDEC1
+0003A8 EC?? F0??      00782         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+0003AC 6E??           00783         MOVWF   r0x06
+0003AE 52E6           00784         MOVF    POSTINC1, F
+0003B0 52E6           00785         MOVF    POSTINC1, F
+0003B2 C??? F???      00786         MOVFF   r0x04, FSR0L
+0003B6 C??? F???      00787         MOVFF   r0x05, FSR0H
+0003BA C??? F???      00788         MOVFF   r0x06, INDF0
+0003BE ????           00789         BANKSEL _intestine_cnt
+                      00790         .line   122; cake.c     intestine_cnt++;
+0003C0 2B??           00791         INCF    _intestine_cnt, F, B
+                      00792         .line   120; cake.c     for (; cake; cake--) {
+0003C2 06??           00793         DECF    r0x03, F
+0003C4 D???           00794         BRA     _00261_DS_
+0003C6                00795 _00254_DS_:
+0003C6 ????           00796         BANKSEL _input_state
+                      00797         .line   124; cake.c     input_state = NORMAL;
+0003C8 6B??           00798         CLRF    _input_state, B
+                      00799         .line   125; cake.c     break;
+0003CA D???           00800         BRA     _00226_DS_
+0003CC                00801 _00255_DS_:
+0003CC ????           00802         BANKSEL _input_state
+                      00803         .line   127; cake.c     input_state = NORMAL;
+0003CE 6B??           00804         CLRF    _input_state, B
+                      00805         .line   142; cake.c     cake_eat_cake(cake);
+0003D0 D???           00806         BRA     _00226_DS_
+0003D2                00807 _00263_DS_:
+0003D2 CFE4 F000      00808         MOVFF   PREINC1, r0x07
+0003D6 CFE4 F000      00809         MOVFF   PREINC1, r0x06
+0003DA CFE4 F000      00810         MOVFF   PREINC1, r0x05
+0003DE CFE4 F000      00811         MOVFF   PREINC1, r0x04
+0003E2 CFE4 F000      00812         MOVFF   PREINC1, r0x03
+0003E6 CFE4 F000      00813         MOVFF   PREINC1, r0x02
+0003EA CFE4 F000      00814         MOVFF   PREINC1, r0x01
+0003EE CFE4 F000      00815         MOVFF   PREINC1, r0x00
+0003F2 CFE4 FFD9      00816         MOVFF   PREINC1, FSR2L
+0003F6 0012           00817         RETURN  
+                      00818 
+                      00819 ; ; Starting pCode block
+                      00820 S_cake__cake_eat_cake   code
+000000                00821 _cake_eat_cake:
+                      00822         .line   47; cake.c      extern inline void cake_eat_cake(unsigned char cake)
+000000 CFD9 FFE5      00823         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00824         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00825         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00826         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00827         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00828         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00829         MOVFF   r0x04, POSTDEC1
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 18
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001C 0E02           00830         MOVLW   0x02
+00001E CFDB F000      00831         MOVFF   PLUSW2, r0x00
+                      00832         .line   49; cake.c      switch(input_state) {
+000022 0E04           00833         MOVLW   0x04
+000024 ????           00834         BANKSEL _input_state
+000026 5D??           00835         SUBWF   _input_state, W, B
+000028 B0D8           00836         BTFSC   STATUS, 0
+00002A D???           00837         BRA     _00131_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00002C 6AFA           00838         CLRF    PCLATH
+Message[1301]: Using default destination of 0 (Access Bank).
+00002E 6AFB           00839         CLRF    PCLATU
+000030 ????           00840         BANKSEL _input_state
+000032 35??           00841         RLCF    _input_state, W, B
+000034 36FA           00842         RLCF    PCLATH, F
+000036 34E8           00843         RLCF    WREG, W
+000038 36FA           00844         RLCF    PCLATH, F
+00003A 0BFC           00845         ANDLW   0xfc
+00003C 0F??           00846         ADDLW   LOW(_00195_DS_)
+Message[1301]: Using default destination of 0 (Access Bank).
+00003E 6EE5           00847         MOVWF   POSTDEC1
+000040 0E??           00848         MOVLW   HIGH(_00195_DS_)
+000042 22FA           00849         ADDWFC  PCLATH, F
+000044 0E??           00850         MOVLW   UPPER(_00195_DS_)
+000046 22FB           00851         ADDWFC  PCLATU, F
+000048 50E4           00852         MOVF    PREINC1, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00004A 6EF9           00853         MOVWF   PCL
+00004C                00854 _00195_DS_:
+00004C EF?? F0??      00855         GOTO    _00105_DS_
+000050 EF?? F0??      00856         GOTO    _00127_DS_
+000054 EF?? F0??      00857         GOTO    _00128_DS_
+000058 EF?? F0??      00858         GOTO    _00129_DS_
+00005C                00859 _00105_DS_:
+                      00860         .line   51; cake.c      switch (cake&CAKE_FILLING_BITS) {
+00005C 0EE0           00861         MOVLW   0xe0
+00005E 14??           00862         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000060 6E??           00863         MOVWF   r0x01
+000062 50??           00864         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000064 6E??           00865         MOVWF   r0x02
+000066 50??           00866         MOVF    r0x02, W
+000068 E0??           00867         BZ      _00106_DS_
+00006A 50??           00868         MOVF    r0x01, W
+00006C 0A20           00869         XORLW   0x20
+00006E E1??           00870         BNZ     _00200_DS_
+000070 D???           00871         BRA     _00112_DS_
+000072                00872 _00200_DS_:
+000072 50??           00873         MOVF    r0x01, W
+000074 0A40           00874         XORLW   0x40
+000076 E1??           00875         BNZ     _00202_DS_
+000078 D???           00876         BRA     _00120_DS_
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 19
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00007A                00877 _00202_DS_:
+00007A 50??           00878         MOVF    r0x01, W
+00007C 0A60           00879         XORLW   0x60
+00007E E1??           00880         BNZ     _00204_DS_
+000080 D???           00881         BRA     _00119_DS_
+000082                00882 _00204_DS_:
+000082 50??           00883         MOVF    r0x01, W
+000084 0A80           00884         XORLW   0x80
+000086 E1??           00885         BNZ     _00206_DS_
+000088 D???           00886         BRA     _00121_DS_
+00008A                00887 _00206_DS_:
+00008A 50??           00888         MOVF    r0x01, W
+00008C 0AA0           00889         XORLW   0xa0
+00008E E1??           00890         BNZ     _00208_DS_
+000090 D???           00891         BRA     _00124_DS_
+000092                00892 _00208_DS_:
+000092 D???           00893         BRA     _00138_DS_
+000094                00894 _00106_DS_:
+                      00895         .line   53; cake.c      if (cake&CAKE_RW_BIT) { // 0 is write, 1 is read
+000094 A0??           00896         BTFSS   r0x00, 0
+000096 D???           00897         BRA     _00110_DS_
+                      00898         .line   55; cake.c      if (intestine_cnt >= CAKE_INTESTINE_SIZE) // our recv buffer is full
+000098 0E40           00899         MOVLW   0x40
+00009A ????           00900         BANKSEL _intestine_cnt
+00009C 5D??           00901         SUBWF   _intestine_cnt, W, B
+00009E E3??           00902         BNC     _00108_DS_
+                      00903         .line   56; cake.c      return;
+0000A0 D???           00904         BRA     _00138_DS_
+0000A2                00905 _00108_DS_:
+                      00906         .line   57; cake.c      intestine[intestine_cnt] = hd44780_recv(CAKE_CTRL_NR(cake), cake&CAKE_FL
+                            AG_BITS);
+0000A2 0E??           00907         MOVLW   LOW(_intestine)
+0000A4 ????           00908         BANKSEL _intestine_cnt
+0000A6 25??           00909         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0000A8 6E??           00910         MOVWF   r0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+0000AA 6A??           00911         CLRF    r0x02
+0000AC 0E??           00912         MOVLW   HIGH(_intestine)
+0000AE 22??           00913         ADDWFC  r0x02, F
+0000B0 0E1C           00914         MOVLW   0x1c
+0000B2 14??           00915         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000B4 6E??           00916         MOVWF   r0x03
+0000B6 40??           00917         RRNCF   r0x03, W
+0000B8 40E8           00918         RRNCF   WREG, W
+0000BA 0B3F           00919         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+0000BC 6E??           00920         MOVWF   r0x03
+0000BE 0E03           00921         MOVLW   0x03
+0000C0 14??           00922         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000C2 6E??           00923         MOVWF   r0x04
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 20
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000C4 50??           00924         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000C6 6EE5           00925         MOVWF   POSTDEC1
+0000C8 50??           00926         MOVF    r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000CA 6EE5           00927         MOVWF   POSTDEC1
+0000CC EC?? F0??      00928         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+0000D0 6E??           00929         MOVWF   r0x03
+0000D2 52E6           00930         MOVF    POSTINC1, F
+0000D4 52E6           00931         MOVF    POSTINC1, F
+0000D6 C??? F???      00932         MOVFF   r0x01, FSR0L
+0000DA C??? F???      00933         MOVFF   r0x02, FSR0H
+0000DE C??? F???      00934         MOVFF   r0x03, INDF0
+0000E2 ????           00935         BANKSEL _intestine_cnt
+                      00936         .line   58; cake.c      intestine_cnt++;
+0000E4 2B??           00937         INCF    _intestine_cnt, F, B
+0000E6 D???           00938         BRA     _00138_DS_
+0000E8                00939 _00110_DS_:
+                      00940         .line   61; cake.c      input_state = RAW_WRITE;
+0000E8 0E01           00941         MOVLW   0x01
+0000EA ????           00942         BANKSEL _input_state
+0000EC 6F??           00943         MOVWF   _input_state, B
+                      00944         .line   62; cake.c      bite = cake;
+0000EE C??? F???      00945         MOVFF   r0x00, _bite
+                      00946         .line   64; cake.c      break;
+0000F2 D???           00947         BRA     _00138_DS_
+0000F4                00948 _00112_DS_:
+                      00949         .line   66; cake.c      if (cake&CAKE_RW_BIT) { // 0 is write, 1 is read
+0000F4 A0??           00950         BTFSS   r0x00, 0
+0000F6 D???           00951         BRA     _00117_DS_
+                      00952         .line   68; cake.c      if (intestine_cnt > (CAKE_INTESTINE_SIZE-MAX_NUM_CONTROLLERS) )
+0000F8 0E39           00953         MOVLW   0x39
+0000FA ????           00954         BANKSEL _intestine_cnt
+0000FC 5D??           00955         SUBWF   _intestine_cnt, W, B
+0000FE E3??           00956         BNC     _00114_DS_
+                      00957         .line   69; cake.c      return;
+000100 D???           00958         BRA     _00138_DS_
+000102                00959 _00114_DS_:
+000102 ????           00960         BANKSEL _bite
+                      00961         .line   72; cake.c      for (bite=0; bite<MAX_NUM_CONTROLLERS; bite++) {
+000104 6B??           00962         CLRF    _bite, B
+000106 0E03           00963         MOVLW   0x03
+000108 14??           00964         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00010A 6E??           00965         MOVWF   r0x01
+00010C                00966 _00133_DS_:
+                      00967         .line   73; cake.c      intestine[intestine_cnt] = hd44780_recv(bite, cake&CAKE_FLAG_BITS);
+00010C 0E??           00968         MOVLW   LOW(_intestine)
+00010E ????           00969         BANKSEL _intestine_cnt
+000110 25??           00970         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000112 6E??           00971         MOVWF   r0x02
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 21
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+000114 6A??           00972         CLRF    r0x03
+000116 0E??           00973         MOVLW   HIGH(_intestine)
+000118 22??           00974         ADDWFC  r0x03, F
+00011A 50??           00975         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00011C 6EE5           00976         MOVWF   POSTDEC1
+00011E ????           00977         BANKSEL _bite
+000120 51??           00978         MOVF    _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000122 6EE5           00979         MOVWF   POSTDEC1
+000124 EC?? F0??      00980         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+000128 6E??           00981         MOVWF   r0x04
+00012A 52E6           00982         MOVF    POSTINC1, F
+00012C 52E6           00983         MOVF    POSTINC1, F
+00012E C??? F???      00984         MOVFF   r0x02, FSR0L
+000132 C??? F???      00985         MOVFF   r0x03, FSR0H
+000136 C??? F???      00986         MOVFF   r0x04, INDF0
+00013A ????           00987         BANKSEL _intestine_cnt
+                      00988         .line   74; cake.c      intestine_cnt++;
+00013C 2B??           00989         INCF    _intestine_cnt, F, B
+00013E ????           00990         BANKSEL _bite
+                      00991         .line   72; cake.c      for (bite=0; bite<MAX_NUM_CONTROLLERS; bite++) {
+000140 2B??           00992         INCF    _bite, F, B
+000142 0E08           00993         MOVLW   0x08
+000144 ????           00994         BANKSEL _bite
+000146 5D??           00995         SUBWF   _bite, W, B
+000148 E3??           00996         BNC     _00133_DS_
+00014A D???           00997         BRA     _00138_DS_
+00014C                00998 _00117_DS_:
+                      00999         .line   78; cake.c      input_state = RAW_WRITE_ALL;
+00014C 0E02           01000         MOVLW   0x02
+00014E ????           01001         BANKSEL _input_state
+000150 6F??           01002         MOVWF   _input_state, B
+                      01003         .line   79; cake.c      bite = cake;
+000152 C??? F???      01004         MOVFF   r0x00, _bite
+                      01005         .line   81; cake.c      break;
+000156 D???           01006         BRA     _00138_DS_
+000158                01007 _00119_DS_:
+                      01008         .line   83; cake.c      USB_EP2_set(intestine, intestine_cnt);
+000158 0E??           01009         MOVLW   LOW(_intestine)
+Message[1301]: Using default destination of 0 (Access Bank).
+00015A 6E??           01010         MOVWF   r0x01
+00015C 0E??           01011         MOVLW   HIGH(_intestine)
+Message[1301]: Using default destination of 0 (Access Bank).
+00015E 6E??           01012         MOVWF   r0x02
+000160 ????           01013         BANKSEL _intestine_cnt
+000162 51??           01014         MOVF    _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000164 6EE5           01015         MOVWF   POSTDEC1
+000166 50??           01016         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 22
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000168 6EE5           01017         MOVWF   POSTDEC1
+00016A 50??           01018         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00016C 6EE5           01019         MOVWF   POSTDEC1
+00016E EC?? F0??      01020         CALL    _USB_EP2_set
+000172 0E03           01021         MOVLW   0x03
+000174 26E1           01022         ADDWF   FSR1L, F
+000176 ????           01023         BANKSEL _intestine_cnt
+                      01024         .line   84; cake.c      intestine_cnt = 0;
+000178 6B??           01025         CLRF    _intestine_cnt, B
+                      01026         .line   85; cake.c      break;
+00017A D???           01027         BRA     _00138_DS_
+00017C                01028 _00120_DS_:
+                      01029         .line   87; cake.c      bite = cake;
+00017C C??? F???      01030         MOVFF   r0x00, _bite
+                      01031         .line   88; cake.c      input_state  = NUM_READ;
+000180 0E03           01032         MOVLW   0x03
+000182 ????           01033         BANKSEL _input_state
+000184 6F??           01034         MOVWF   _input_state, B
+                      01035         .line   89; cake.c      break;
+000186 D???           01036         BRA     _00138_DS_
+000188                01037 _00121_DS_:
+                      01038         .line   91; cake.c      if ( intestine_cnt+8 >= CAKE_INTESTINE_SIZE )
+000188 C??? F???      01039         MOVFF   _intestine_cnt, r0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+00018C 6A??           01040         CLRF    r0x02
+00018E 0E08           01041         MOVLW   0x08
+000190 26??           01042         ADDWF   r0x01, F
+000192 B0D8           01043         BTFSC   STATUS, 0
+000194 2A??           01044         INCF    r0x02, F
+000196 50??           01045         MOVF    r0x02, W
+000198 0F80           01046         ADDLW   0x80
+00019A 0F80           01047         ADDLW   0x80
+00019C E1??           01048         BNZ     _00217_DS_
+00019E 0E40           01049         MOVLW   0x40
+0001A0 5C??           01050         SUBWF   r0x01, W
+0001A2                01051 _00217_DS_:
+0001A2 E3??           01052         BNC     _00123_DS_
+                      01053         .line   92; cake.c      return;
+0001A4 D???           01054         BRA     _00138_DS_
+0001A6                01055 _00123_DS_:
+                      01056         .line   93; cake.c      intestine[intestine_cnt++] = DISP_COLS;
+0001A6 C??? F???      01057         MOVFF   _intestine_cnt, r0x01
+0001AA ????           01058         BANKSEL _intestine_cnt
+0001AC 2B??           01059         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0001AE 6A??           01060         CLRF    r0x02
+0001B0 0E??           01061         MOVLW   LOW(_intestine)
+0001B2 26??           01062         ADDWF   r0x01, F
+0001B4 0E??           01063         MOVLW   HIGH(_intestine)
+0001B6 22??           01064         ADDWFC  r0x02, F
+0001B8 C??? F???      01065         MOVFF   r0x01, FSR0L
+0001BC C??? F???      01066         MOVFF   r0x02, FSR0H
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 23
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0001C0 0E28           01067         MOVLW   0x28
+Message[1301]: Using default destination of 0 (Access Bank).
+0001C2 6EEF           01068         MOVWF   INDF0
+                      01069         .line   94; cake.c      intestine[intestine_cnt++] = DISP_ROWS;
+0001C4 C??? F???      01070         MOVFF   _intestine_cnt, r0x01
+0001C8 ????           01071         BANKSEL _intestine_cnt
+0001CA 2B??           01072         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0001CC 6A??           01073         CLRF    r0x02
+0001CE 0E??           01074         MOVLW   LOW(_intestine)
+0001D0 26??           01075         ADDWF   r0x01, F
+0001D2 0E??           01076         MOVLW   HIGH(_intestine)
+0001D4 22??           01077         ADDWFC  r0x02, F
+0001D6 C??? F???      01078         MOVFF   r0x01, FSR0L
+0001DA C??? F???      01079         MOVFF   r0x02, FSR0H
+0001DE 0E10           01080         MOVLW   0x10
+Message[1301]: Using default destination of 0 (Access Bank).
+0001E0 6EEF           01081         MOVWF   INDF0
+                      01082         .line   95; cake.c      intestine[intestine_cnt++] = MAX_NUM_CONTROLLERS;
+0001E2 C??? F???      01083         MOVFF   _intestine_cnt, r0x01
+0001E6 ????           01084         BANKSEL _intestine_cnt
+0001E8 2B??           01085         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0001EA 6A??           01086         CLRF    r0x02
+0001EC 0E??           01087         MOVLW   LOW(_intestine)
+0001EE 26??           01088         ADDWF   r0x01, F
+0001F0 0E??           01089         MOVLW   HIGH(_intestine)
+0001F2 22??           01090         ADDWFC  r0x02, F
+0001F4 C??? F???      01091         MOVFF   r0x01, FSR0L
+0001F8 C??? F???      01092         MOVFF   r0x02, FSR0H
+0001FC 0E08           01093         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+0001FE 6EEF           01094         MOVWF   INDF0
+                      01095         .line   96; cake.c      intestine[intestine_cnt++] = ROWS_PER_CTRL;
+000200 C??? F???      01096         MOVFF   _intestine_cnt, r0x01
+000204 ????           01097         BANKSEL _intestine_cnt
+000206 2B??           01098         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000208 6A??           01099         CLRF    r0x02
+00020A 0E??           01100         MOVLW   LOW(_intestine)
+00020C 26??           01101         ADDWF   r0x01, F
+00020E 0E??           01102         MOVLW   HIGH(_intestine)
+000210 22??           01103         ADDWFC  r0x02, F
+000212 C??? F???      01104         MOVFF   r0x01, FSR0L
+000216 C??? F???      01105         MOVFF   r0x02, FSR0H
+00021A 0E02           01106         MOVLW   0x02
+Message[1301]: Using default destination of 0 (Access Bank).
+00021C 6EEF           01107         MOVWF   INDF0
+                      01108         .line   97; cake.c      intestine[intestine_cnt++] = sizeof(lcddev);
+00021E C??? F???      01109         MOVFF   _intestine_cnt, r0x01
+000222 ????           01110         BANKSEL _intestine_cnt
+000224 2B??           01111         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 24
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000226 6A??           01112         CLRF    r0x02
+000228 0E??           01113         MOVLW   LOW(_intestine)
+00022A 26??           01114         ADDWF   r0x01, F
+00022C 0E??           01115         MOVLW   HIGH(_intestine)
+00022E 22??           01116         ADDWFC  r0x02, F
+000230 C??? F???      01117         MOVFF   r0x01, FSR0L
+000234 C??? F???      01118         MOVFF   r0x02, FSR0H
+000238 0E81           01119         MOVLW   0x81
+Message[1301]: Using default destination of 0 (Access Bank).
+00023A 6EEF           01120         MOVWF   INDF0
+                      01121         .line   98; cake.c      intestine[intestine_cnt++] = lcddev.disabled;
+00023C C??? F???      01122         MOVFF   _intestine_cnt, r0x01
+000240 ????           01123         BANKSEL _intestine_cnt
+000242 2B??           01124         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000244 6A??           01125         CLRF    r0x02
+000246 0E??           01126         MOVLW   LOW(_intestine)
+000248 26??           01127         ADDWF   r0x01, F
+00024A 0E??           01128         MOVLW   HIGH(_intestine)
+00024C 22??           01129         ADDWFC  r0x02, F
+00024E C??? F???      01130         MOVFF   _lcddev, r0x03
+000252 C??? F???      01131         MOVFF   r0x01, FSR0L
+000256 C??? F???      01132         MOVFF   r0x02, FSR0H
+00025A C??? F???      01133         MOVFF   r0x03, INDF0
+                      01134         .line   99; cake.c      intestine[intestine_cnt++] = 0;
+00025E C??? F???      01135         MOVFF   _intestine_cnt, r0x01
+000262 ????           01136         BANKSEL _intestine_cnt
+000264 2B??           01137         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000266 6A??           01138         CLRF    r0x02
+000268 0E??           01139         MOVLW   LOW(_intestine)
+00026A 26??           01140         ADDWF   r0x01, F
+00026C 0E??           01141         MOVLW   HIGH(_intestine)
+00026E 22??           01142         ADDWFC  r0x02, F
+000270 C??? F???      01143         MOVFF   r0x01, FSR0L
+000274 C??? F???      01144         MOVFF   r0x02, FSR0H
+000278 0E00           01145         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00027A 6EEF           01146         MOVWF   INDF0
+                      01147         .line   100; cake.c     intestine[intestine_cnt++] = 0;
+00027C C??? F???      01148         MOVFF   _intestine_cnt, r0x01
+000280 ????           01149         BANKSEL _intestine_cnt
+000282 2B??           01150         INCF    _intestine_cnt, F, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000284 6A??           01151         CLRF    r0x02
+000286 0E??           01152         MOVLW   LOW(_intestine)
+000288 26??           01153         ADDWF   r0x01, F
+00028A 0E??           01154         MOVLW   HIGH(_intestine)
+00028C 22??           01155         ADDWFC  r0x02, F
+00028E C??? F???      01156         MOVFF   r0x01, FSR0L
+000292 C??? F???      01157         MOVFF   r0x02, FSR0H
+000296 0E00           01158         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 25
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000298 6EEF           01159         MOVWF   INDF0
+                      01160         .line   101; cake.c     break;
+00029A D???           01161         BRA     _00138_DS_
+00029C                01162 _00124_DS_:
+                      01163         .line   103; cake.c     USB_EP2_set(&lcddev, sizeof(lcddev));
+00029C 0E??           01164         MOVLW   LOW(_lcddev)
+Message[1301]: Using default destination of 0 (Access Bank).
+00029E 6E??           01165         MOVWF   r0x01
+0002A0 0E??           01166         MOVLW   HIGH(_lcddev)
+Message[1301]: Using default destination of 0 (Access Bank).
+0002A2 6E??           01167         MOVWF   r0x02
+0002A4 0E81           01168         MOVLW   0x81
+Message[1301]: Using default destination of 0 (Access Bank).
+0002A6 6EE5           01169         MOVWF   POSTDEC1
+0002A8 50??           01170         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002AA 6EE5           01171         MOVWF   POSTDEC1
+0002AC 50??           01172         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002AE 6EE5           01173         MOVWF   POSTDEC1
+0002B0 EC?? F0??      01174         CALL    _USB_EP2_set
+0002B4 0E03           01175         MOVLW   0x03
+0002B6 26E1           01176         ADDWF   FSR1L, F
+                      01177         .line   104; cake.c     break;
+0002B8 D???           01178         BRA     _00138_DS_
+0002BA                01179 _00127_DS_:
+                      01180         .line   110; cake.c     hd44780_send(CAKE_CTRL_NR(bite), bite&CAKE_FLAG_BITS, cake);
+0002BA 0E1C           01181         MOVLW   0x1c
+0002BC ????           01182         BANKSEL _bite
+0002BE 15??           01183         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0002C0 6E??           01184         MOVWF   r0x01
+0002C2 40??           01185         RRNCF   r0x01, W
+0002C4 40E8           01186         RRNCF   WREG, W
+0002C6 0B3F           01187         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+0002C8 6E??           01188         MOVWF   r0x01
+0002CA 0E03           01189         MOVLW   0x03
+0002CC ????           01190         BANKSEL _bite
+0002CE 15??           01191         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0002D0 6E??           01192         MOVWF   r0x02
+0002D2 50??           01193         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002D4 6EE5           01194         MOVWF   POSTDEC1
+0002D6 50??           01195         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002D8 6EE5           01196         MOVWF   POSTDEC1
+0002DA 50??           01197         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002DC 6EE5           01198         MOVWF   POSTDEC1
+0002DE EC?? F0??      01199         CALL    _hd44780_send
+0002E2 0E03           01200         MOVLW   0x03
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 26
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0002E4 26E1           01201         ADDWF   FSR1L, F
+0002E6 ????           01202         BANKSEL _input_state
+                      01203         .line   111; cake.c     input_state = NORMAL;
+0002E8 6B??           01204         CLRF    _input_state, B
+                      01205         .line   112; cake.c     break;
+0002EA D???           01206         BRA     _00138_DS_
+0002EC                01207 _00128_DS_:
+                      01208         .line   114; cake.c     hd44780_send_all(bite&CAKE_FLAG_BITS, cake);
+0002EC 0E03           01209         MOVLW   0x03
+0002EE ????           01210         BANKSEL _bite
+0002F0 15??           01211         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+0002F2 6E??           01212         MOVWF   r0x01
+0002F4 50??           01213         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002F6 6EE5           01214         MOVWF   POSTDEC1
+0002F8 50??           01215         MOVF    r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0002FA 6EE5           01216         MOVWF   POSTDEC1
+0002FC EC?? F0??      01217         CALL    _hd44780_send_all
+000300 52E6           01218         MOVF    POSTINC1, F
+000302 52E6           01219         MOVF    POSTINC1, F
+000304 ????           01220         BANKSEL _input_state
+                      01221         .line   115; cake.c     input_state = NORMAL;
+000306 6B??           01222         CLRF    _input_state, B
+                      01223         .line   116; cake.c     break;
+000308 D???           01224         BRA     _00138_DS_
+00030A                01225 _00129_DS_:
+                      01226         .line   119; cake.c     cake = min(cake, CAKE_INTESTINE_SIZE-intestine_cnt); // roll to our rece
+                            ive buffer 
+00030A C??? F???      01227         MOVFF   _intestine_cnt, r0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+00030E 6A??           01228         CLRF    r0x02
+000310 50??           01229         MOVF    r0x01, W
+000312 0840           01230         SUBLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+000314 6E??           01231         MOVWF   r0x01
+000316 0E00           01232         MOVLW   0x00
+000318 56??           01233         SUBFWB  r0x02, F
+00031A C??? F???      01234         MOVFF   r0x00, r0x03
+Message[1301]: Using default destination of 0 (Access Bank).
+00031E 6A??           01235         CLRF    r0x04
+000320 50??           01236         MOVF    r0x02, W
+000322 0F80           01237         ADDLW   0x80
+Message[1301]: Using default destination of 0 (Access Bank).
+000324 6EF3           01238         MOVWF   PRODL
+000326 50??           01239         MOVF    r0x04, W
+000328 0F80           01240         ADDLW   0x80
+00032A 5CF3           01241         SUBWF   PRODL, W
+00032C E1??           01242         BNZ     _00221_DS_
+00032E 50??           01243         MOVF    r0x03, W
+000330 5C??           01244         SUBWF   r0x01, W
+000332                01245 _00221_DS_:
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 27
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000332 E2??           01246         BC      _00140_DS_
+000334 ????           01247         BANKSEL _intestine_cnt
+000336 51??           01248         MOVF    _intestine_cnt, W, B
+000338 0840           01249         SUBLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+00033A 6E??           01250         MOVWF   r0x01
+00033C D???           01251         BRA     _00141_DS_
+00033E                01252 _00140_DS_:
+00033E C??? F???      01253         MOVFF   r0x00, r0x01
+000342                01254 _00141_DS_:
+000342 C??? F???      01255         MOVFF   r0x01, r0x00
+000346                01256 _00136_DS_:
+                      01257         .line   120; cake.c     for (; cake; cake--) {
+000346 50??           01258         MOVF    r0x00, W
+000348 E0??           01259         BZ      _00130_DS_
+                      01260         .line   121; cake.c     intestine[intestine_cnt] = hd44780_recv(CAKE_CTRL_NR(bite), bite&CAKE_FL
+                            AG_BITS);
+00034A 0E??           01261         MOVLW   LOW(_intestine)
+00034C ????           01262         BANKSEL _intestine_cnt
+00034E 25??           01263         ADDWF   _intestine_cnt, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000350 6E??           01264         MOVWF   r0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000352 6A??           01265         CLRF    r0x02
+000354 0E??           01266         MOVLW   HIGH(_intestine)
+000356 22??           01267         ADDWFC  r0x02, F
+000358 0E1C           01268         MOVLW   0x1c
+00035A ????           01269         BANKSEL _bite
+00035C 15??           01270         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00035E 6E??           01271         MOVWF   r0x03
+000360 40??           01272         RRNCF   r0x03, W
+000362 40E8           01273         RRNCF   WREG, W
+000364 0B3F           01274         ANDLW   0x3f
+Message[1301]: Using default destination of 0 (Access Bank).
+000366 6E??           01275         MOVWF   r0x03
+000368 0E03           01276         MOVLW   0x03
+00036A ????           01277         BANKSEL _bite
+00036C 15??           01278         ANDWF   _bite, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+00036E 6E??           01279         MOVWF   r0x04
+000370 50??           01280         MOVF    r0x04, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000372 6EE5           01281         MOVWF   POSTDEC1
+000374 50??           01282         MOVF    r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000376 6EE5           01283         MOVWF   POSTDEC1
+000378 EC?? F0??      01284         CALL    _hd44780_recv
+Message[1301]: Using default destination of 0 (Access Bank).
+00037C 6E??           01285         MOVWF   r0x03
+00037E 52E6           01286         MOVF    POSTINC1, F
+000380 52E6           01287         MOVF    POSTINC1, F
+000382 C??? F???      01288         MOVFF   r0x01, FSR0L
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 28
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000386 C??? F???      01289         MOVFF   r0x02, FSR0H
+00038A C??? F???      01290         MOVFF   r0x03, INDF0
+00038E ????           01291         BANKSEL _intestine_cnt
+                      01292         .line   122; cake.c     intestine_cnt++;
+000390 2B??           01293         INCF    _intestine_cnt, F, B
+                      01294         .line   120; cake.c     for (; cake; cake--) {
+000392 06??           01295         DECF    r0x00, F
+000394 D???           01296         BRA     _00136_DS_
+000396                01297 _00130_DS_:
+000396 ????           01298         BANKSEL _input_state
+                      01299         .line   124; cake.c     input_state = NORMAL;
+000398 6B??           01300         CLRF    _input_state, B
+                      01301         .line   125; cake.c     break;
+00039A D???           01302         BRA     _00138_DS_
+00039C                01303 _00131_DS_:
+00039C ????           01304         BANKSEL _input_state
+                      01305         .line   127; cake.c     input_state = NORMAL;
+00039E 6B??           01306         CLRF    _input_state, B
+0003A0                01307 _00138_DS_:
+                      01308         .line   128; cake.c     }
+0003A0 CFE4 F000      01309         MOVFF   PREINC1, r0x04
+0003A4 CFE4 F000      01310         MOVFF   PREINC1, r0x03
+0003A8 CFE4 F000      01311         MOVFF   PREINC1, r0x02
+0003AC CFE4 F000      01312         MOVFF   PREINC1, r0x01
+0003B0 CFE4 F000      01313         MOVFF   PREINC1, r0x00
+0003B4 CFE4 FFD9      01314         MOVFF   PREINC1, FSR2L
+0003B8 0012           01315         RETURN  
+                      01316 
+                      01317 
+                      01318 
+                      01319 ; Statistics:
+                      01320 ; code size:     1970 (0x07b2) bytes ( 1.50%)
+                      01321 ;                 985 (0x03d9) words
+                      01322 ; udata size:      65 (0x0041) bytes ( 3.63%)
+                      01323 ; access size:      8 (0x0008) bytes
+                      01324 
+                      01325 
+                      01326         end
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+PRODL                             00000FF3
+STATUS                            00000FD8
+WREG                              00000FE8
+_00105_DS_                        0000005C
+_00106_DS_                        00000094
+_00108_DS_                        000000A2
+_00110_DS_                        000000E8
+_00112_DS_                        000000F4
+_00114_DS_                        00000102
+_00117_DS_                        0000014C
+_00119_DS_                        00000158
+_00120_DS_                        0000017C
+_00121_DS_                        00000188
+_00123_DS_                        000001A6
+_00124_DS_                        0000029C
+_00127_DS_                        000002BA
+_00128_DS_                        000002EC
+_00129_DS_                        0000030A
+_00130_DS_                        00000396
+_00131_DS_                        0000039C
+_00133_DS_                        0000010C
+_00136_DS_                        00000346
+_00138_DS_                        000003A0
+_00140_DS_                        0000033E
+_00141_DS_                        00000342
+_00195_DS_                        0000004C
+_00200_DS_                        00000072
+_00202_DS_                        0000007A
+_00204_DS_                        00000082
+_00206_DS_                        0000008A
+_00208_DS_                        00000092
+_00217_DS_                        000001A2
+_00221_DS_                        00000332
+_00226_DS_                        0000003A
+_00232_DS_                        00000118
+_00234_DS_                        000000C4
+_00239_DS_                        0000017C
+_00241_DS_                        00000124
+_00242_DS_                        00000188
+_00243_DS_                        000001AC
+_00246_DS_                        000001B8
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_00247_DS_                        000002CC
+_00250_DS_                        0000008C
+_00251_DS_                        000002EA
+_00252_DS_                        0000031C
+_00253_DS_                        0000033A
+_00254_DS_                        000003C6
+_00255_DS_                        000003CC
+_00258_DS_                        0000013C
+_00261_DS_                        00000376
+_00263_DS_                        000003D2
+_00265_DS_                        0000036E
+_00266_DS_                        00000372
+_00327_DS_                        0000007C
+_00332_DS_                        000000A2
+_00334_DS_                        000000AA
+_00336_DS_                        000000B2
+_00338_DS_                        000000BA
+_00340_DS_                        000000C2
+_00349_DS_                        000001D2
+_00353_DS_                        00000362
+_ADCON0                           00000000
+_ADCON0bits                       00000000
+_ADCON1                           00000000
+_ADCON1bits                       00000000
+_ADCON2                           00000000
+_ADCON2bits                       00000000
+_ADRES                            00000000
+_ADRESH                           00000000
+_ADRESL                           00000000
+_BAUDCON                          00000000
+_BAUDCONbits                      00000000
+_BAUDCTL                          00000000
+_BAUDCTLbits                      00000000
+_BSR                              00000000
+_CCP1AS                           00000000
+_CCP1ASbits                       00000000
+_CCP1CON                          00000000
+_CCP1CONbits                      00000000
+_CCP1DEL                          00000000
+_CCP1DELbits                      00000000
+_CCP2CON                          00000000
+_CCP2CONbits                      00000000
+_CCPR1                            00000000
+_CCPR1H                           00000000
+_CCPR1L                           00000000
+_CCPR2                            00000000
+_CCPR2H                           00000000
+_CCPR2L                           00000000
+_CMCON                            00000000
+_CMCONbits                        00000000
+_CVRCON                           00000000
+_CVRCONbits                       00000000
+_DDRA                             00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_DDRAbits                         00000000
+_DDRB                             00000000
+_DDRBbits                         00000000
+_DDRC                             00000000
+_DDRCbits                         00000000
+_ECCP1AS                          00000000
+_ECCP1ASbits                      00000000
+_ECCP1DEL                         00000000
+_ECCP1DELbits                     00000000
+_EEADR                            00000000
+_EECON1                           00000000
+_EECON1bits                       00000000
+_EECON2                           00000000
+_EEDATA                           00000000
+_FSR0H                            00000000
+_FSR0L                            00000000
+_FSR1H                            00000000
+_FSR1L                            00000000
+_FSR2H                            00000000
+_FSR2L                            00000000
+_HLVDCON                          00000000
+_HLVDCONbits                      00000000
+_INDF0                            00000000
+_INDF1                            00000000
+_INDF2                            00000000
+_INTCON                           00000000
+_INTCON2                          00000000
+_INTCON2bits                      00000000
+_INTCON3                          00000000
+_INTCON3bits                      00000000
+_INTCONbits                       00000000
+_IPR1                             00000000
+_IPR1bits                         00000000
+_IPR2                             00000000
+_IPR2bits                         00000000
+_LATA                             00000000
+_LATAbits                         00000000
+_LATB                             00000000
+_LATBbits                         00000000
+_LATC                             00000000
+_LATCbits                         00000000
+_LVDCON                           00000000
+_LVDCONbits                       00000000
+_OSCCON                           00000000
+_OSCCONbits                       00000000
+_OSCTUNE                          00000000
+_OSCTUNEbits                      00000000
+_PC                               00000000
+_PCL                              00000000
+_PCLATH                           00000000
+_PCLATU                           00000000
+_PIE1                             00000000
+_PIE1bits                         00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_PIE2                             00000000
+_PIE2bits                         00000000
+_PIR1                             00000000
+_PIR1bits                         00000000
+_PIR2                             00000000
+_PIR2bits                         00000000
+_PLUSW0                           00000000
+_PLUSW1                           00000000
+_PLUSW2                           00000000
+_PORTA                            00000000
+_PORTAbits                        00000000
+_PORTB                            00000000
+_PORTBbits                        00000000
+_PORTC                            00000000
+_PORTCbits                        00000000
+_PORTE                            00000000
+_PORTEbits                        00000000
+_POSTDEC0                         00000000
+_POSTDEC1                         00000000
+_POSTDEC2                         00000000
+_POSTINC0                         00000000
+_POSTINC1                         00000000
+_POSTINC2                         00000000
+_PR2                              00000000
+_PREINC0                          00000000
+_PREINC1                          00000000
+_PREINC2                          00000000
+_PROD                             00000000
+_PRODH                            00000000
+_PRODL                            00000000
+_RCON                             00000000
+_RCONbits                         00000000
+_RCREG                            00000000
+_RCSTA                            00000000
+_RCSTAbits                        00000000
+_SPBRG                            00000000
+_SPBRGH                           00000000
+_SSPADD                           00000000
+_SSPBUF                           00000000
+_SSPCON1                          00000000
+_SSPCON1bits                      00000000
+_SSPCON2                          00000000
+_SSPCON2bits                      00000000
+_SSPSTAT                          00000000
+_SSPSTATbits                      00000000
+_STATUS                           00000000
+_STATUSbits                       00000000
+_STKPTR                           00000000
+_STKPTRbits                       00000000
+_T0CON                            00000000
+_T0CONbits                        00000000
+_T1CON                            00000000
+_T1CONbits                        00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_T2CON                            00000000
+_T2CONbits                        00000000
+_T3CON                            00000000
+_T3CONbits                        00000000
+_TABLAT                           00000000
+_TBLPTR                           00000000
+_TBLPTRH                          00000000
+_TBLPTRL                          00000000
+_TBLPTRU                          00000000
+_TMR0                             00000000
+_TMR0H                            00000000
+_TMR0L                            00000000
+_TMR1                             00000000
+_TMR1H                            00000000
+_TMR1L                            00000000
+_TMR2                             00000000
+_TMR3                             00000000
+_TMR3H                            00000000
+_TMR3L                            00000000
+_TOS                              00000000
+_TOSH                             00000000
+_TOSL                             00000000
+_TOSU                             00000000
+_TRISA                            00000000
+_TRISAbits                        00000000
+_TRISB                            00000000
+_TRISBbits                        00000000
+_TRISC                            00000000
+_TRISCbits                        00000000
+_TXREG                            00000000
+_TXSTA                            00000000
+_TXSTAbits                        00000000
+_UADDR                            00000000
+_UADDRbits                        00000000
+_UCFG                             00000000
+_UCFGbits                         00000000
+_UCON                             00000000
+_UCONbits                         00000000
+_UEIE                             00000000
+_UEIEbits                         00000000
+_UEIR                             00000000
+_UEIRbits                         00000000
+_UEP0                             00000000
+_UEP0bits                         00000000
+_UEP1                             00000000
+_UEP10                            00000000
+_UEP10bits                        00000000
+_UEP11                            00000000
+_UEP11bits                        00000000
+_UEP12                            00000000
+_UEP12bits                        00000000
+_UEP13                            00000000
+_UEP13bits                        00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 34
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_UEP14                            00000000
+_UEP14bits                        00000000
+_UEP15                            00000000
+_UEP15bits                        00000000
+_UEP1bits                         00000000
+_UEP2                             00000000
+_UEP2bits                         00000000
+_UEP3                             00000000
+_UEP3bits                         00000000
+_UEP4                             00000000
+_UEP4bits                         00000000
+_UEP5                             00000000
+_UEP5bits                         00000000
+_UEP6                             00000000
+_UEP6bits                         00000000
+_UEP7                             00000000
+_UEP7bits                         00000000
+_UEP8                             00000000
+_UEP8bits                         00000000
+_UEP9                             00000000
+_UEP9bits                         00000000
+_UFRM                             00000000
+_UFRMH                            00000000
+_UFRMHbits                        00000000
+_UFRML                            00000000
+_UFRMLbits                        00000000
+_UIE                              00000000
+_UIEbits                          00000000
+_UIR                              00000000
+_UIRbits                          00000000
+_USB_EP2_set                      00000000
+_USTAT                            00000000
+_USTATbits                        00000000
+_WDTCON                           00000000
+_WDTCONbits                       00000000
+_WREG                             00000000
+__18F2550                         00000001
+__ACC_RAM_LOW_END                 0000005F
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+_bite                             00000000
+_cake_eat_basket                  00000000
+_cake_eat_cake                    00000000
+_hd44780_recv                     00000000
+_hd44780_send                     00000000
+_hd44780_send_all                 00000000
+_input_state                      00000001
+_intestine                        00000000
+gpasm-1.4.0 #1107 (Feb 13 2015)      cake.asm   4-21-2015  23:49:52         PAGE 35
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_intestine_cnt                    00000000
+_lcddev                           00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+r0x07                             00000007
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :   136 reported,     0 suppressed
+
+

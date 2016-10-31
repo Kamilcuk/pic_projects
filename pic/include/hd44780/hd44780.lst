@@ -1,0 +1,2719 @@
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.4.0 #8981 (May 19 2014) (Linux)
+                      00004 ; This file was generated Tue Apr 21 23:49:49 2015
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008 
+                      00009         .ident "SDCC version 3.4.0 #8981 [pic16 port]"
+                      00010         .file   "../include/hd44780/hd44780.c"
+                      00011         list    p=18f2550
+                      00012         radix   dec
+                      00013 
+                      00014 
+                      00015 ;--------------------------------------------------------
+                      00016 ; public variables in this module
+                      00017 ;--------------------------------------------------------
+  0000                00018         global  _hd44780_recv
+  0000                00019         global  _hd44780_send
+  0000                00020         global  _hd44780_send_all
+  0000                00021         global  _hd44780_init
+  0000                00022         global  _lcddev
+                      00023 
+                      00024 ;--------------------------------------------------------
+                      00025 ; extern variables in this module
+                      00026 ;--------------------------------------------------------
+  0000                00027         extern  _UFRMLbits
+  0000                00028         extern  _UFRMHbits
+  0000                00029         extern  _UIRbits
+  0000                00030         extern  _UIEbits
+  0000                00031         extern  _UEIRbits
+  0000                00032         extern  _UEIEbits
+  0000                00033         extern  _USTATbits
+  0000                00034         extern  _UCONbits
+  0000                00035         extern  _UADDRbits
+  0000                00036         extern  _UCFGbits
+  0000                00037         extern  _UEP0bits
+  0000                00038         extern  _UEP1bits
+  0000                00039         extern  _UEP2bits
+  0000                00040         extern  _UEP3bits
+  0000                00041         extern  _UEP4bits
+  0000                00042         extern  _UEP5bits
+  0000                00043         extern  _UEP6bits
+  0000                00044         extern  _UEP7bits
+  0000                00045         extern  _UEP8bits
+  0000                00046         extern  _UEP9bits
+  0000                00047         extern  _UEP10bits
+  0000                00048         extern  _UEP11bits
+  0000                00049         extern  _UEP12bits
+  0000                00050         extern  _UEP13bits
+  0000                00051         extern  _UEP14bits
+  0000                00052         extern  _UEP15bits
+  0000                00053         extern  _PORTAbits
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00054         extern  _PORTBbits
+  0000                00055         extern  _PORTCbits
+  0000                00056         extern  _PORTEbits
+  0000                00057         extern  _LATAbits
+  0000                00058         extern  _LATBbits
+  0000                00059         extern  _LATCbits
+  0000                00060         extern  _DDRAbits
+  0000                00061         extern  _TRISAbits
+  0000                00062         extern  _DDRBbits
+  0000                00063         extern  _TRISBbits
+  0000                00064         extern  _DDRCbits
+  0000                00065         extern  _TRISCbits
+  0000                00066         extern  _OSCTUNEbits
+  0000                00067         extern  _PIE1bits
+  0000                00068         extern  _PIR1bits
+  0000                00069         extern  _IPR1bits
+  0000                00070         extern  _PIE2bits
+  0000                00071         extern  _PIR2bits
+  0000                00072         extern  _IPR2bits
+  0000                00073         extern  _EECON1bits
+  0000                00074         extern  _RCSTAbits
+  0000                00075         extern  _TXSTAbits
+  0000                00076         extern  _T3CONbits
+  0000                00077         extern  _CMCONbits
+  0000                00078         extern  _CVRCONbits
+  0000                00079         extern  _CCP1ASbits
+  0000                00080         extern  _ECCP1ASbits
+  0000                00081         extern  _CCP1DELbits
+  0000                00082         extern  _ECCP1DELbits
+  0000                00083         extern  _BAUDCONbits
+  0000                00084         extern  _BAUDCTLbits
+  0000                00085         extern  _CCP2CONbits
+  0000                00086         extern  _CCP1CONbits
+  0000                00087         extern  _ADCON2bits
+  0000                00088         extern  _ADCON1bits
+  0000                00089         extern  _ADCON0bits
+  0000                00090         extern  _SSPCON2bits
+  0000                00091         extern  _SSPCON1bits
+  0000                00092         extern  _SSPSTATbits
+  0000                00093         extern  _T2CONbits
+  0000                00094         extern  _T1CONbits
+  0000                00095         extern  _RCONbits
+  0000                00096         extern  _WDTCONbits
+  0000                00097         extern  _HLVDCONbits
+  0000                00098         extern  _LVDCONbits
+  0000                00099         extern  _OSCCONbits
+  0000                00100         extern  _T0CONbits
+  0000                00101         extern  _STATUSbits
+  0000                00102         extern  _INTCON3bits
+  0000                00103         extern  _INTCON2bits
+  0000                00104         extern  _INTCONbits
+  0000                00105         extern  _STKPTRbits
+  0000                00106         extern  _UFRM
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00107         extern  _UFRML
+  0000                00108         extern  _UFRMH
+  0000                00109         extern  _UIR
+  0000                00110         extern  _UIE
+  0000                00111         extern  _UEIR
+  0000                00112         extern  _UEIE
+  0000                00113         extern  _USTAT
+  0000                00114         extern  _UCON
+  0000                00115         extern  _UADDR
+  0000                00116         extern  _UCFG
+  0000                00117         extern  _UEP0
+  0000                00118         extern  _UEP1
+  0000                00119         extern  _UEP2
+  0000                00120         extern  _UEP3
+  0000                00121         extern  _UEP4
+  0000                00122         extern  _UEP5
+  0000                00123         extern  _UEP6
+  0000                00124         extern  _UEP7
+  0000                00125         extern  _UEP8
+  0000                00126         extern  _UEP9
+  0000                00127         extern  _UEP10
+  0000                00128         extern  _UEP11
+  0000                00129         extern  _UEP12
+  0000                00130         extern  _UEP13
+  0000                00131         extern  _UEP14
+  0000                00132         extern  _UEP15
+  0000                00133         extern  _PORTA
+  0000                00134         extern  _PORTB
+  0000                00135         extern  _PORTC
+  0000                00136         extern  _PORTE
+  0000                00137         extern  _LATA
+  0000                00138         extern  _LATB
+  0000                00139         extern  _LATC
+  0000                00140         extern  _DDRA
+  0000                00141         extern  _TRISA
+  0000                00142         extern  _DDRB
+  0000                00143         extern  _TRISB
+  0000                00144         extern  _DDRC
+  0000                00145         extern  _TRISC
+  0000                00146         extern  _OSCTUNE
+  0000                00147         extern  _PIE1
+  0000                00148         extern  _PIR1
+  0000                00149         extern  _IPR1
+  0000                00150         extern  _PIE2
+  0000                00151         extern  _PIR2
+  0000                00152         extern  _IPR2
+  0000                00153         extern  _EECON1
+  0000                00154         extern  _EECON2
+  0000                00155         extern  _EEDATA
+  0000                00156         extern  _EEADR
+  0000                00157         extern  _RCSTA
+  0000                00158         extern  _TXSTA
+  0000                00159         extern  _TXREG
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00160         extern  _RCREG
+  0000                00161         extern  _SPBRG
+  0000                00162         extern  _SPBRGH
+  0000                00163         extern  _T3CON
+  0000                00164         extern  _TMR3
+  0000                00165         extern  _TMR3L
+  0000                00166         extern  _TMR3H
+  0000                00167         extern  _CMCON
+  0000                00168         extern  _CVRCON
+  0000                00169         extern  _CCP1AS
+  0000                00170         extern  _ECCP1AS
+  0000                00171         extern  _CCP1DEL
+  0000                00172         extern  _ECCP1DEL
+  0000                00173         extern  _BAUDCON
+  0000                00174         extern  _BAUDCTL
+  0000                00175         extern  _CCP2CON
+  0000                00176         extern  _CCPR2
+  0000                00177         extern  _CCPR2L
+  0000                00178         extern  _CCPR2H
+  0000                00179         extern  _CCP1CON
+  0000                00180         extern  _CCPR1
+  0000                00181         extern  _CCPR1L
+  0000                00182         extern  _CCPR1H
+  0000                00183         extern  _ADCON2
+  0000                00184         extern  _ADCON1
+  0000                00185         extern  _ADCON0
+  0000                00186         extern  _ADRES
+  0000                00187         extern  _ADRESL
+  0000                00188         extern  _ADRESH
+  0000                00189         extern  _SSPCON2
+  0000                00190         extern  _SSPCON1
+  0000                00191         extern  _SSPSTAT
+  0000                00192         extern  _SSPADD
+  0000                00193         extern  _SSPBUF
+  0000                00194         extern  _T2CON
+  0000                00195         extern  _PR2
+  0000                00196         extern  _TMR2
+  0000                00197         extern  _T1CON
+  0000                00198         extern  _TMR1
+  0000                00199         extern  _TMR1L
+  0000                00200         extern  _TMR1H
+  0000                00201         extern  _RCON
+  0000                00202         extern  _WDTCON
+  0000                00203         extern  _HLVDCON
+  0000                00204         extern  _LVDCON
+  0000                00205         extern  _OSCCON
+  0000                00206         extern  _T0CON
+  0000                00207         extern  _TMR0
+  0000                00208         extern  _TMR0L
+  0000                00209         extern  _TMR0H
+  0000                00210         extern  _STATUS
+  0000                00211         extern  _FSR2L
+  0000                00212         extern  _FSR2H
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00213         extern  _PLUSW2
+  0000                00214         extern  _PREINC2
+  0000                00215         extern  _POSTDEC2
+  0000                00216         extern  _POSTINC2
+  0000                00217         extern  _INDF2
+  0000                00218         extern  _BSR
+  0000                00219         extern  _FSR1L
+  0000                00220         extern  _FSR1H
+  0000                00221         extern  _PLUSW1
+  0000                00222         extern  _PREINC1
+  0000                00223         extern  _POSTDEC1
+  0000                00224         extern  _POSTINC1
+  0000                00225         extern  _INDF1
+  0000                00226         extern  _WREG
+  0000                00227         extern  _FSR0L
+  0000                00228         extern  _FSR0H
+  0000                00229         extern  _PLUSW0
+  0000                00230         extern  _PREINC0
+  0000                00231         extern  _POSTDEC0
+  0000                00232         extern  _POSTINC0
+  0000                00233         extern  _INDF0
+  0000                00234         extern  _INTCON3
+  0000                00235         extern  _INTCON2
+  0000                00236         extern  _INTCON
+  0000                00237         extern  _PROD
+  0000                00238         extern  _PRODL
+  0000                00239         extern  _PRODH
+  0000                00240         extern  _TABLAT
+  0000                00241         extern  _TBLPTR
+  0000                00242         extern  _TBLPTRL
+  0000                00243         extern  _TBLPTRH
+  0000                00244         extern  _TBLPTRU
+  0000                00245         extern  _PC
+  0000                00246         extern  _PCL
+  0000                00247         extern  _PCLATH
+  0000                00248         extern  _PCLATU
+  0000                00249         extern  _STKPTR
+  0000                00250         extern  _TOS
+  0000                00251         extern  _TOSL
+  0000                00252         extern  _TOSH
+  0000                00253         extern  _TOSU
+  0000                00254         extern  _delay100tcy
+  0000                00255         extern  _delay10ktcy
+                      00256 
+                      00257 ;--------------------------------------------------------
+                      00258 ;       Equates to used internal registers
+                      00259 ;--------------------------------------------------------
+  00000FD8            00260 STATUS  equ     0xfd8
+  00000FE8            00261 WREG    equ     0xfe8
+  00000FE1            00262 FSR1L   equ     0xfe1
+  00000FD9            00263 FSR2L   equ     0xfd9
+  00000FE6            00264 POSTINC1        equ     0xfe6
+  00000FE5            00265 POSTDEC1        equ     0xfe5
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  00000FE4            00266 PREINC1 equ     0xfe4
+  00000FDB            00267 PLUSW2  equ     0xfdb
+  00000FF4            00268 PRODH   equ     0xff4
+                      00269 
+                      00270 
+                      00271 ; Internal registers
+                      00272 .registers      udata_ovr       0x0000
+000000                00273 r0x00   res     1
+000001                00274 r0x01   res     1
+000002                00275 r0x02   res     1
+000003                00276 r0x03   res     1
+000004                00277 r0x04   res     1
+000005                00278 r0x05   res     1
+000006                00279 r0x06   res     1
+                      00280 
+                      00281 udata_hd44780_0 udata
+000000                00282 _lcddev res     1
+                      00283 
+                      00284 ;--------------------------------------------------------
+                      00285 ; global & static initialisations
+                      00286 ;--------------------------------------------------------
+                      00287 ; I code from now on!
+                      00288 ; ; Starting pCode block
+                      00289 ; ;ic:1:  _entry($19) :
+                      00290 ; ;ic:2:        proc _hd44780_init [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( ) fix
+                            ed}
+                      00291 S_hd44780__hd44780_init code
+000000                00292 _hd44780_init:
+                      00293         .line   404; ../include/hd44780/hd44780.c       void hd44780_init(void) 
+000000 CFD9 FFE5      00294         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00295         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00296         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00297         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00298         MOVFF   r0x02, POSTDEC1
+                      00299 ; ;ic:3:        _ADCON0 [k2 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      00300         .line   200; ../include/hd44780/hd44780.c       ADCON0=0x00; // turn off analog to digital conve
+                            rsion module
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6A??           00301         CLRF    _ADCON0
+                      00302 ; ;ic:4:        _ADCON1 [k3 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            xf {const-unsigned-char literal}
+                      00303         .line   201; ../include/hd44780/hd44780.c       ADCON1=0x0f; // set all analog to digital conver
+                            sion module inputs as digital inputs/outputs
+000016 0E0F           00304         MOVLW   0x0f
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6E??           00305         MOVWF   _ADCON1
+                      00306 ; ;ic:5:        _CMCON [k4 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            7 {const-unsigned-char literal}
+                      00307         .line   202; ../include/hd44780/hd44780.c       CMCON=0x07; // turn off comparator module
+00001A 0E07           00308         MOVLW   0x07
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6E??           00309         MOVWF   _CMCON
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00310 ; ;ic:6:        _PORTA [k5 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      00311         .line   205; ../include/hd44780/hd44780.c       PORTA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00001E 6A??           00312         CLRF    _PORTA
+                      00313 ; ;ic:7:        _LATA [k6 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x0
+                             {const-unsigned-char literal}
+                      00314         .line   206; ../include/hd44780/hd44780.c       LATA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000020 6A??           00315         CLRF    _LATA
+                      00316 ; ;ic:8:        _TRISA [k7 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      00317         .line   207; ../include/hd44780/hd44780.c       TRISA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6A??           00318         CLRF    _TRISA
+                      00319 ; ;ic:9:        _PORTB [k8 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      00320         .line   210; ../include/hd44780/hd44780.c       PORTB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000024 6A??           00321         CLRF    _PORTB
+                      00322 ; ;ic:10:       _LATB [k9 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x0
+                             {const-unsigned-char literal}
+                      00323         .line   211; ../include/hd44780/hd44780.c       LATB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000026 6A??           00324         CLRF    _LATB
+                      00325 ; ;ic:11:       _TRISB [k10 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      00326         .line   212; ../include/hd44780/hd44780.c       TRISB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000028 6A??           00327         CLRF    _TRISB
+                      00328 ; ;ic:12:       _PORTC [k11 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      00329         .line   215; ../include/hd44780/hd44780.c       PORTC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00002A 6A??           00330         CLRF    _PORTC
+                      00331 ; ;ic:13:       _LATC [k12 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      00332         .line   216; ../include/hd44780/hd44780.c       LATC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00002C 6A??           00333         CLRF    _LATC
+                      00334 ; ;ic:14:       _TRISC [k13 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      00335         .line   217; ../include/hd44780/hd44780.c       TRISC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00002E 6A??           00336         CLRF    _TRISC
+                      00337 ; ;ic:15:       _PORTB [k8 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      00338         .line   219; ../include/hd44780/hd44780.c       _hd44780_data_set_(0x00);
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6A??           00339         CLRF    _PORTB
+                      00340 ; ;ic:16:       _TRISB [k10 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            xff {const-unsigned-char literal}
+                      00341         .line   220; ../include/hd44780/hd44780.c       _hd44780_data_reverse_();
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  8
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000032 0EFF           00342         MOVLW   0xff
+Message[1301]: Using default destination of 0 (Access Bank).
+000034 6E??           00343         MOVWF   _TRISB
+                      00344 ; ;ic:17:       iTemp0 [k15 lr17:77 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[rem
+                            at] = &[_lcddev [k14 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{struct pic_device fixed} , 0x0 {const-u
+                            nsigned-char literal}]
+                      00345 ; ;ic:18:       *(iTemp0 [k15 lr17:77 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[r
+                            emat]) := 0x0 {const-unsigned-char literal}
+000036 ????           00346         BANKSEL _lcddev
+                      00347         .line   407; ../include/hd44780/hd44780.c       lcddev_init();
+000038 6B??           00348         CLRF    _lcddev, B
+                      00349 ; ;ic:19:       iTemp11 [k30 lr19:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_init_i_4_60}[r0x00 ] := 0x0 {const-unsigned-char literal}
+                      00350         .line   337; ../include/hd44780/hd44780.c       set_bit(i, lcddev.disabled);
+Message[1301]: Using default destination of 0 (Access Bank).
+00003A 6A??           00351         CLRF    r0x00
+                      00352 ; ;ic:21:  _dobody_24_1($5) :
+                      00353 ; ;ic:22:       iTemp7 [k26 lr22:24 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lc
+                            ddev} = @[iTemp0 [k15 lr17:77 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] + 
+                            0x0 {const-unsigned-char literal}]
+                      00354 ; ;ic:23:       iTemp8 [k27 lr23:24 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] =
+                             0x1 {const-unsigned-char literal} << iTemp11 [k30 lr19:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigne
+                            d-char fixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ]
+00003C                00355 _00298_DS_:
+00003C 0E01           00356         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+00003E 6E??           00357         MOVWF   r0x01
+000040 50??           00358         MOVF    r0x00, W
+000042 E0??           00359         BZ      _00327_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+000044 6CE8           00360         NEGF    WREG
+000046 90D8           00361         BCF     STATUS, 0
+000048                00362 _00328_DS_:
+000048 36??           00363         RLCF    r0x01, F
+00004A 0F01           00364         ADDLW   0x01
+00004C E3??           00365         BNC     _00328_DS_
+                      00366 ; ;ic:24:       iTemp9 [k28 lr24:25 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] =
+                             iTemp7 [k26 lr22:24 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev} | iTemp8 
+                            [k27 lr23:24 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+00004E                00367 _00327_DS_:
+00004E ????           00368         BANKSEL _lcddev
+000050 51??           00369         MOVF    _lcddev, W, B
+000052 12??           00370         IORWF   r0x01, F
+                      00371 ; ;ic:25:       *(iTemp0 [k15 lr17:77 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[r
+                            emat]) := iTemp9 [k28 lr24:25 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+000054 50??           00372         MOVF    r0x01, W
+000056 ????           00373         BANKSEL _lcddev
+000058 6F??           00374         MOVWF   _lcddev, B
+                      00375 ; ;ic:26:       iTemp11 [k30 lr19:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_init_i_4_60}[r0x00 ] = iTemp11 [k30 lr19:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char f
+                            ixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ] + 0x1 {const-unsigned-char literal}
+                      00376         .line   336; ../include/hd44780/hd44780.c       for(i=0; i<MAX_NUM_CONTROLLERS; i++)
+00005A 2A??           00377         INCF    r0x00, F
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE  9
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00378 ; ;ic:27:       iTemp12 [k31 lr27:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp11 [k30 lr
+                            19:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ] < 0
+                            x8 {const-unsigned-char literal}
+00005C 0E08           00379         MOVLW   0x08
+00005E 5C??           00380         SUBWF   r0x00, W
+000060 E3??           00381         BNC     _00298_DS_
+                      00382 ; ;ic:28:       if iTemp12 [k31 lr27:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} != 0 goto _dob
+                            ody_24_1($5)
+                      00383 ; ;ic:29:       send 0x32 {const-unsigned-char literal}{argreg = 1}
+                      00384 ; ;ic:30:       iTemp13 [k34 lr30:30 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k32 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00385         .line   341; ../include/hd44780/hd44780.c       delay10ktcy(50);
+000062 0E32           00386         MOVLW   0x32
+000064 EC?? F0??      00387         CALL    _delay10ktcy
+                      00388 ; ;ic:31:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00389 ; ;ic:32:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00390 ; ;ic:33:       iTemp14 [k38 lr33:33 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00391         .line   345; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+000068 0E30           00392         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+00006A 6EE5           00393         MOVWF   POSTDEC1
+00006C 0E00           00394         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00006E 6EE5           00395         MOVWF   POSTDEC1
+000070 EC?? F0??      00396         CALL    _hd44780_send_all
+000074 52E6           00397         MOVF    POSTINC1, F
+000076 52E6           00398         MOVF    POSTINC1, F
+                      00399 ; ;ic:34:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00400 ; ;ic:35:       iTemp15 [k39 lr35:35 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k32 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00401         .line   347; ../include/hd44780/hd44780.c       delay10ktcy(5);
+000078 0E05           00402         MOVLW   0x05
+00007A EC?? F0??      00403         CALL    _delay10ktcy
+                      00404 ; ;ic:36:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00405 ; ;ic:37:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00406 ; ;ic:38:       iTemp16 [k40 lr38:38 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00407         .line   351; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+00007E 0E30           00408         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+000080 6EE5           00409         MOVWF   POSTDEC1
+000082 0E00           00410         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000084 6EE5           00411         MOVWF   POSTDEC1
+000086 EC?? F0??      00412         CALL    _hd44780_send_all
+00008A 52E6           00413         MOVF    POSTINC1, F
+00008C 52E6           00414         MOVF    POSTINC1, F
+                      00415 ; ;ic:39:       send 0x1 {const-unsigned-char literal}{argreg = 1}
+                      00416 ; ;ic:40:       iTemp17 [k41 lr40:40 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k32 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 10
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00417         .line   353; ../include/hd44780/hd44780.c       delay10ktcy(1);
+00008E 0E01           00418         MOVLW   0x01
+000090 EC?? F0??      00419         CALL    _delay10ktcy
+                      00420 ; ;ic:41:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00421 ; ;ic:42:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00422 ; ;ic:43:       iTemp18 [k42 lr43:43 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00423         .line   357; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+000094 0E30           00424         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+000096 6EE5           00425         MOVWF   POSTDEC1
+000098 0E00           00426         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00009A 6EE5           00427         MOVWF   POSTDEC1
+00009C EC?? F0??      00428         CALL    _hd44780_send_all
+0000A0 52E6           00429         MOVF    POSTINC1, F
+0000A2 52E6           00430         MOVF    POSTINC1, F
+                      00431 ; ;ic:44:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00432 ; ;ic:45:       iTemp19 [k45 lr45:45 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k43 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00433         .line   364; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000A4 0E05           00434         MOVLW   0x05
+0000A6 EC?? F0??      00435         CALL    _delay100tcy
+                      00436 ; ;ic:46:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00437 ; ;ic:47:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00438 ; ;ic:48:       iTemp20 [k46 lr48:48 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00439         .line   368; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+0000AA 0E30           00440         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+0000AC 6EE5           00441         MOVWF   POSTDEC1
+0000AE 0E00           00442         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000B0 6EE5           00443         MOVWF   POSTDEC1
+0000B2 EC?? F0??      00444         CALL    _hd44780_send_all
+0000B6 52E6           00445         MOVF    POSTINC1, F
+0000B8 52E6           00446         MOVF    POSTINC1, F
+                      00447 ; ;ic:49:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00448 ; ;ic:50:       iTemp21 [k47 lr50:50 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k43 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00449         .line   369; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000BA 0E05           00450         MOVLW   0x05
+0000BC EC?? F0??      00451         CALL    _delay100tcy
+                      00452 ; ;ic:51:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00453 ; ;ic:52:       send 0x8 {unsigned-char literal}{argreg = 2}
+                      00454 ; ;ic:53:       iTemp22 [k48 lr53:53 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00455         .line   373; ../include/hd44780/hd44780.c       HD44780_DOOC_CURSORNOBLINK); /* display off */
+0000C0 0E08           00456         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 11
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000C2 6EE5           00457         MOVWF   POSTDEC1
+0000C4 0E00           00458         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000C6 6EE5           00459         MOVWF   POSTDEC1
+0000C8 EC?? F0??      00460         CALL    _hd44780_send_all
+0000CC 52E6           00461         MOVF    POSTINC1, F
+0000CE 52E6           00462         MOVF    POSTINC1, F
+                      00463 ; ;ic:54:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00464 ; ;ic:55:       iTemp23 [k49 lr55:55 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k43 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00465         .line   374; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000D0 0E05           00466         MOVLW   0x05
+0000D2 EC?? F0??      00467         CALL    _delay100tcy
+                      00468 ; ;ic:56:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00469 ; ;ic:57:       send 0x1 {const-unsigned-char literal}{argreg = 2}
+                      00470 ; ;ic:58:       iTemp24 [k50 lr58:58 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00471         .line   376; ../include/hd44780/hd44780.c       HD44780_CLRDISP); /* display clear */
+0000D6 0E01           00472         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+0000D8 6EE5           00473         MOVWF   POSTDEC1
+0000DA 0E00           00474         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000DC 6EE5           00475         MOVWF   POSTDEC1
+0000DE EC?? F0??      00476         CALL    _hd44780_send_all
+0000E2 52E6           00477         MOVF    POSTINC1, F
+0000E4 52E6           00478         MOVF    POSTINC1, F
+                      00479 ; ;ic:59:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00480 ; ;ic:60:       iTemp25 [k51 lr60:60 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k43 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00481         .line   377; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000E6 0E05           00482         MOVLW   0x05
+0000E8 EC?? F0??      00483         CALL    _delay100tcy
+                      00484 ; ;ic:61:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00485 ; ;ic:62:       send 0x6 {unsigned-char literal}{argreg = 2}
+                      00486 ; ;ic:63:       iTemp26 [k52 lr63:63 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00487         .line   379; ../include/hd44780/hd44780.c       HD44780_EMS_INC | HD44780_EMS_NOSHIFT);
+0000EC 0E06           00488         MOVLW   0x06
+Message[1301]: Using default destination of 0 (Access Bank).
+0000EE 6EE5           00489         MOVWF   POSTDEC1
+0000F0 0E00           00490         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000F2 6EE5           00491         MOVWF   POSTDEC1
+0000F4 EC?? F0??      00492         CALL    _hd44780_send_all
+0000F8 52E6           00493         MOVF    POSTINC1, F
+0000FA 52E6           00494         MOVF    POSTINC1, F
+                      00495 ; ;ic:64:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00496 ; ;ic:65:       iTemp27 [k53 lr65:65 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k43 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00497         .line   380; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 12
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000FC 0E05           00498         MOVLW   0x05
+0000FE EC?? F0??      00499         CALL    _delay100tcy
+                      00500 ; ;ic:66:       iTemp38 [k66 lr66:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_init_i_4_60}[r0x00 ] := 0x0 {const-unsigned-char literal}
+                      00501         .line   384; ../include/hd44780/hd44780.c       clear_bit(i, lcddev.disabled);
+Message[1301]: Using default destination of 0 (Access Bank).
+000102 6A??           00502         CLRF    r0x00
+                      00503 ; ;ic:68:  _dobody_25_1($9) :
+                      00504 ; ;ic:69:       iTemp32 [k60 lr69:72 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _l
+                            cddev} = @[iTemp0 [k15 lr17:77 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] +
+                             0x0 {const-unsigned-char literal}]
+                      00505 ; ;ic:70:       iTemp33 [k61 lr70:71 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] 
+                            = 0x1 {const-unsigned-char literal} << iTemp38 [k66 lr66:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsign
+                            ed-char fixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ]
+000104                00506 _00302_DS_:
+000104 0E01           00507         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000106 6E??           00508         MOVWF   r0x01
+000108 50??           00509         MOVF    r0x00, W
+00010A E0??           00510         BZ      _00331_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00010C 6CE8           00511         NEGF    WREG
+00010E 90D8           00512         BCF     STATUS, 0
+000110                00513 _00332_DS_:
+000110 36??           00514         RLCF    r0x01, F
+000112 0F01           00515         ADDLW   0x01
+000114 E3??           00516         BNC     _00332_DS_
+                      00517 ; ;ic:71:       iTemp34 [k62 lr71:73 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ] = not iTe
+                            mp33 [k61 lr70:71 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+000116                00518 _00331_DS_:
+000116 50??           00519         MOVF    r0x01, W
+000118 80D8           00520         BSF     STATUS, 0
+Message[1301]: Using default destination of 0 (Access Bank).
+00011A 66E8           00521         TSTFSZ  WREG
+00011C 90D8           00522         BCF     STATUS, 0
+Message[1301]: Using default destination of 0 (Access Bank).
+00011E 6A??           00523         CLRF    r0x01
+000120 36??           00524         RLCF    r0x01, F
+                      00525 ; ;ic:72:       iTemp35 [k63 lr72:73 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x02 ] = (char f
+                            ixed)iTemp32 [k60 lr69:72 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev}
+000122 ????           00526         BANKSEL _lcddev
+000124 51??           00527         MOVF    _lcddev, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000126 6E??           00528         MOVWF   r0x02
+                      00529 ; ;ic:73:       iTemp36 [k64 lr73:74 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ] = iTemp35
+                             [k63 lr72:73 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x02 ] & iTemp34 [k62 lr71:73 so:0]{ ia
+                            0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ]
+000128 50??           00530         MOVF    r0x02, W
+00012A 16??           00531         ANDWF   r0x01, F
+                      00532 ; ;ic:74:       *(iTemp0 [k15 lr17:77 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[r
+                            emat]) := iTemp36 [k64 lr73:74 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ]
+00012C 50??           00533         MOVF    r0x01, W
+00012E ????           00534         BANKSEL _lcddev
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 13
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000130 6F??           00535         MOVWF   _lcddev, B
+                      00536 ; ;ic:75:       iTemp38 [k66 lr66:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_init_i_4_60}[r0x00 ] = iTemp38 [k66 lr66:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char f
+                            ixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ] + 0x1 {const-unsigned-char literal}
+                      00537         .line   383; ../include/hd44780/hd44780.c       for(i=0; i<MAX_NUM_CONTROLLERS; i++)
+000132 2A??           00538         INCF    r0x00, F
+                      00539 ; ;ic:76:       iTemp39 [k67 lr76:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp38 [k66 lr
+                            66:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_init_i_4_60}[r0x00 ] < 0
+                            x8 {const-unsigned-char literal}
+000134 0E08           00540         MOVLW   0x08
+000136 5C??           00541         SUBWF   r0x00, W
+000138 E3??           00542         BNC     _00302_DS_
+                      00543 ; ;ic:77:       if iTemp39 [k67 lr76:77 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} != 0 goto _dob
+                            ody_25_1($9)
+                      00544 ; ;ic:78:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00545 ; ;ic:79:       send 0x38 {unsigned-char literal}{argreg = 2}
+                      00546 ; ;ic:80:       iTemp40 [k68 lr80:80 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00547         .line   422; ../include/hd44780/hd44780.c       hd44780_write_inst_all( HD44780_FS_DATAWIDTH8BIT
+                             |
+00013A 0E38           00548         MOVLW   0x38
+Message[1301]: Using default destination of 0 (Access Bank).
+00013C 6EE5           00549         MOVWF   POSTDEC1
+00013E 0E00           00550         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000140 6EE5           00551         MOVWF   POSTDEC1
+000142 EC?? F0??      00552         CALL    _hd44780_send_all
+000146 52E6           00553         MOVF    POSTINC1, F
+000148 52E6           00554         MOVF    POSTINC1, F
+                      00555 ; ;ic:81:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00556 ; ;ic:82:       send 0xe {unsigned-char literal}{argreg = 2}
+                      00557 ; ;ic:83:       iTemp41 [k69 lr83:83 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00558         .line   425; ../include/hd44780/hd44780.c       hd44780_write_inst_all( HD44780_DOOC_DISPLAYON |
+00014A 0E0E           00559         MOVLW   0x0e
+Message[1301]: Using default destination of 0 (Access Bank).
+00014C 6EE5           00560         MOVWF   POSTDEC1
+00014E 0E00           00561         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000150 6EE5           00562         MOVWF   POSTDEC1
+000152 EC?? F0??      00563         CALL    _hd44780_send_all
+000156 52E6           00564         MOVF    POSTINC1, F
+000158 52E6           00565         MOVF    POSTINC1, F
+                      00566 ; ;ic:84:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00567 ; ;ic:85:       send 0x1 {const-unsigned-char literal}{argreg = 2}
+                      00568 ; ;ic:86:       iTemp42 [k70 lr86:86 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00569         .line   428; ../include/hd44780/hd44780.c       hd44780_write_inst_all( HD44780_CLRDISP);
+00015A 0E01           00570         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 14
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00015C 6EE5           00571         MOVWF   POSTDEC1
+00015E 0E00           00572         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000160 6EE5           00573         MOVWF   POSTDEC1
+000162 EC?? F0??      00574         CALL    _hd44780_send_all
+000166 52E6           00575         MOVF    POSTINC1, F
+000168 52E6           00576         MOVF    POSTINC1, F
+                      00577 ; ;ic:87:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00578 ; ;ic:88:       send 0x6 {unsigned-char literal}{argreg = 2}
+                      00579 ; ;ic:89:       iTemp43 [k71 lr89:89 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k35 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00580         .line   429; ../include/hd44780/hd44780.c       hd44780_write_inst_all( HD44780_EMS_INC | HD4478
+                            0_EMS_NOSHIFT);
+00016A 0E06           00581         MOVLW   0x06
+Message[1301]: Using default destination of 0 (Access Bank).
+00016C 6EE5           00582         MOVWF   POSTDEC1
+00016E 0E00           00583         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000170 6EE5           00584         MOVWF   POSTDEC1
+000172 EC?? F0??      00585         CALL    _hd44780_send_all
+000176 52E6           00586         MOVF    POSTINC1, F
+000178 52E6           00587         MOVF    POSTINC1, F
+                      00588 ; ;ic:90:  _return($18) :
+                      00589 ; ;ic:91:       eproc _hd44780_init [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( ) fi
+                            xed}
+00017A CFE4 F000      00590         MOVFF   PREINC1, r0x02
+00017E CFE4 F000      00591         MOVFF   PREINC1, r0x01
+000182 CFE4 F000      00592         MOVFF   PREINC1, r0x00
+000186 CFE4 FFD9      00593         MOVFF   PREINC1, FSR2L
+00018A 0012           00594         RETURN  
+                      00595 
+                      00596 ; ; Starting pCode block
+                      00597 ; ;ic:1:  _entry($14) :
+                      00598 ; ;ic:2:        proc _hd44780_initialize_by_instruction [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{
+                            void function ( ) fixed}
+                      00599 S_hd44780__hd44780_initialize_by_instruction    code
+000000                00600 _hd44780_initialize_by_instruction:
+                      00601         .line   331; ../include/hd44780/hd44780.c       __once void hd44780_initialize_by_instruction(vo
+                            id)
+000000 CFD9 FFE5      00602         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00603         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00604         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00605         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00606         MOVFF   r0x02, POSTDEC1
+                      00607 ; ;ic:3:        iTemp9 [k15 lr3:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd4
+                            4780_initialize_by_instruction_i_1_49}[r0x00 ] := 0x0 {const-unsigned-char literal}
+                      00608         .line   337; ../include/hd44780/hd44780.c       set_bit(i, lcddev.disabled);
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6A??           00609         CLRF    r0x00
+                      00610 ; ;ic:5:  _dobody_24($1) :
+                      00611 ; ;ic:6:        iTemp1 [k5 lr6:62 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat
+                            ] = &[_lcddev [k4 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{struct pic_device fixed} , 0x0 {const-unsi
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 15
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                            gned-char literal}]
+                      00612 ; ;ic:7:        iTemp5 [k11 lr7:9 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcdd
+                            ev} = @[iTemp1 [k5 lr6:62 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] + 0x0 
+                            {const-unsigned-char literal}]
+                      00613 ; ;ic:8:        iTemp6 [k12 lr8:9 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] = 0
+                            x1 {const-unsigned-char literal} << iTemp9 [k15 lr3:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-ch
+                            ar fixed}{ sir@ _hd44780_initialize_by_instruction_i_1_49}[r0x00 ]
+000016                00614 _00257_DS_:
+000016 0E01           00615         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6E??           00616         MOVWF   r0x01
+00001A 50??           00617         MOVF    r0x00, W
+00001C E0??           00618         BZ      _00282_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00001E 6CE8           00619         NEGF    WREG
+000020 90D8           00620         BCF     STATUS, 0
+000022                00621 _00283_DS_:
+000022 36??           00622         RLCF    r0x01, F
+000024 0F01           00623         ADDLW   0x01
+000026 E3??           00624         BNC     _00283_DS_
+                      00625 ; ;ic:9:        iTemp7 [k13 lr9:10 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] = 
+                            iTemp5 [k11 lr7:9 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev} | iTemp6 [k1
+                            2 lr8:9 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+000028                00626 _00282_DS_:
+000028 ????           00627         BANKSEL _lcddev
+00002A 51??           00628         MOVF    _lcddev, W, B
+00002C 12??           00629         IORWF   r0x01, F
+                      00630 ; ;ic:10:       *(iTemp1 [k5 lr6:62 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[rem
+                            at]) := iTemp7 [k13 lr9:10 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+00002E 50??           00631         MOVF    r0x01, W
+000030 ????           00632         BANKSEL _lcddev
+000032 6F??           00633         MOVWF   _lcddev, B
+                      00634 ; ;ic:11:       iTemp9 [k15 lr3:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd4
+                            4780_initialize_by_instruction_i_1_49}[r0x00 ] = iTemp9 [k15 lr3:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0
+                            }{unsigned-char fixed}{ sir@ _hd44780_initialize_by_instruction_i_1_49}[r0x00 ] + 0x1 {const-unsigned-ch
+                            ar literal}
+                      00635         .line   336; ../include/hd44780/hd44780.c       for(i=0; i<MAX_NUM_CONTROLLERS; i++)
+000034 2A??           00636         INCF    r0x00, F
+                      00637 ; ;ic:12:       iTemp10 [k16 lr12:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp9 [k15 lr3
+                            :13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_initialize_by_instruction_
+                            i_1_49}[r0x00 ] < 0x8 {const-unsigned-char literal}
+000036 0E08           00638         MOVLW   0x08
+000038 5C??           00639         SUBWF   r0x00, W
+00003A E3??           00640         BNC     _00257_DS_
+                      00641 ; ;ic:13:       if iTemp10 [k16 lr12:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} != 0 goto _dob
+                            ody_24($1)
+                      00642 ; ;ic:14:       send 0x32 {const-unsigned-char literal}{argreg = 1}
+                      00643 ; ;ic:15:       iTemp11 [k19 lr15:15 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k17 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00644         .line   341; ../include/hd44780/hd44780.c       delay10ktcy(50);
+00003C 0E32           00645         MOVLW   0x32
+00003E EC?? F0??      00646         CALL    _delay10ktcy
+                      00647 ; ;ic:16:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 16
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00648 ; ;ic:17:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00649 ; ;ic:18:       iTemp12 [k23 lr18:18 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00650         .line   345; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+000042 0E30           00651         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+000044 6EE5           00652         MOVWF   POSTDEC1
+000046 0E00           00653         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000048 6EE5           00654         MOVWF   POSTDEC1
+00004A EC?? F0??      00655         CALL    _hd44780_send_all
+00004E 52E6           00656         MOVF    POSTINC1, F
+000050 52E6           00657         MOVF    POSTINC1, F
+                      00658 ; ;ic:19:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00659 ; ;ic:20:       iTemp13 [k24 lr20:20 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k17 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00660         .line   347; ../include/hd44780/hd44780.c       delay10ktcy(5);
+000052 0E05           00661         MOVLW   0x05
+000054 EC?? F0??      00662         CALL    _delay10ktcy
+                      00663 ; ;ic:21:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00664 ; ;ic:22:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00665 ; ;ic:23:       iTemp14 [k25 lr23:23 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00666         .line   351; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+000058 0E30           00667         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+00005A 6EE5           00668         MOVWF   POSTDEC1
+00005C 0E00           00669         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00005E 6EE5           00670         MOVWF   POSTDEC1
+000060 EC?? F0??      00671         CALL    _hd44780_send_all
+000064 52E6           00672         MOVF    POSTINC1, F
+000066 52E6           00673         MOVF    POSTINC1, F
+                      00674 ; ;ic:24:       send 0x1 {const-unsigned-char literal}{argreg = 1}
+                      00675 ; ;ic:25:       iTemp15 [k26 lr25:25 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay10kt
+                            cy [k17 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00676         .line   353; ../include/hd44780/hd44780.c       delay10ktcy(1);
+000068 0E01           00677         MOVLW   0x01
+00006A EC?? F0??      00678         CALL    _delay10ktcy
+                      00679 ; ;ic:26:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00680 ; ;ic:27:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00681 ; ;ic:28:       iTemp16 [k27 lr28:28 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00682         .line   357; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+00006E 0E30           00683         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+000070 6EE5           00684         MOVWF   POSTDEC1
+000072 0E00           00685         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000074 6EE5           00686         MOVWF   POSTDEC1
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 17
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000076 EC?? F0??      00687         CALL    _hd44780_send_all
+00007A 52E6           00688         MOVF    POSTINC1, F
+00007C 52E6           00689         MOVF    POSTINC1, F
+                      00690 ; ;ic:29:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00691 ; ;ic:30:       iTemp17 [k30 lr30:30 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k28 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00692         .line   364; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+00007E 0E05           00693         MOVLW   0x05
+000080 EC?? F0??      00694         CALL    _delay100tcy
+                      00695 ; ;ic:31:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00696 ; ;ic:32:       send 0x30 {unsigned-char literal}{argreg = 2}
+                      00697 ; ;ic:33:       iTemp18 [k31 lr33:33 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00698         .line   368; ../include/hd44780/hd44780.c       HD44780_FS_5x8DOTS);
+000084 0E30           00699         MOVLW   0x30
+Message[1301]: Using default destination of 0 (Access Bank).
+000086 6EE5           00700         MOVWF   POSTDEC1
+000088 0E00           00701         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00008A 6EE5           00702         MOVWF   POSTDEC1
+00008C EC?? F0??      00703         CALL    _hd44780_send_all
+000090 52E6           00704         MOVF    POSTINC1, F
+000092 52E6           00705         MOVF    POSTINC1, F
+                      00706 ; ;ic:34:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00707 ; ;ic:35:       iTemp19 [k32 lr35:35 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k28 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00708         .line   369; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+000094 0E05           00709         MOVLW   0x05
+000096 EC?? F0??      00710         CALL    _delay100tcy
+                      00711 ; ;ic:36:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00712 ; ;ic:37:       send 0x8 {unsigned-char literal}{argreg = 2}
+                      00713 ; ;ic:38:       iTemp20 [k33 lr38:38 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00714         .line   373; ../include/hd44780/hd44780.c       HD44780_DOOC_CURSORNOBLINK); /* display off */
+00009A 0E08           00715         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+00009C 6EE5           00716         MOVWF   POSTDEC1
+00009E 0E00           00717         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000A0 6EE5           00718         MOVWF   POSTDEC1
+0000A2 EC?? F0??      00719         CALL    _hd44780_send_all
+0000A6 52E6           00720         MOVF    POSTINC1, F
+0000A8 52E6           00721         MOVF    POSTINC1, F
+                      00722 ; ;ic:39:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00723 ; ;ic:40:       iTemp21 [k34 lr40:40 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k28 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00724         .line   374; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000AA 0E05           00725         MOVLW   0x05
+0000AC EC?? F0??      00726         CALL    _delay100tcy
+                      00727 ; ;ic:41:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00728 ; ;ic:42:       send 0x1 {const-unsigned-char literal}{argreg = 2}
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 18
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00729 ; ;ic:43:       iTemp22 [k35 lr43:43 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00730         .line   376; ../include/hd44780/hd44780.c       HD44780_CLRDISP); /* display clear */
+0000B0 0E01           00731         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+0000B2 6EE5           00732         MOVWF   POSTDEC1
+0000B4 0E00           00733         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000B6 6EE5           00734         MOVWF   POSTDEC1
+0000B8 EC?? F0??      00735         CALL    _hd44780_send_all
+0000BC 52E6           00736         MOVF    POSTINC1, F
+0000BE 52E6           00737         MOVF    POSTINC1, F
+                      00738 ; ;ic:44:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00739 ; ;ic:45:       iTemp23 [k36 lr45:45 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k28 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00740         .line   377; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000C0 0E05           00741         MOVLW   0x05
+0000C2 EC?? F0??      00742         CALL    _delay100tcy
+                      00743 ; ;ic:46:       send 0x0 {const-unsigned-char literal}{argreg = 1}
+                      00744 ; ;ic:47:       send 0x6 {unsigned-char literal}{argreg = 2}
+                      00745 ; ;ic:48:       iTemp24 [k37 lr48:48 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _hd44780_s
+                            end_all [k20 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed, unsigned-c
+                            har fixed) fixed}
+                      00746         .line   379; ../include/hd44780/hd44780.c       HD44780_EMS_INC | HD44780_EMS_NOSHIFT);
+0000C6 0E06           00747         MOVLW   0x06
+Message[1301]: Using default destination of 0 (Access Bank).
+0000C8 6EE5           00748         MOVWF   POSTDEC1
+0000CA 0E00           00749         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+0000CC 6EE5           00750         MOVWF   POSTDEC1
+0000CE EC?? F0??      00751         CALL    _hd44780_send_all
+0000D2 52E6           00752         MOVF    POSTINC1, F
+0000D4 52E6           00753         MOVF    POSTINC1, F
+                      00754 ; ;ic:49:       send 0x5 {const-unsigned-char literal}{argreg = 1}
+                      00755 ; ;ic:50:       iTemp25 [k38 lr50:50 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call _delay100t
+                            cy [k28 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+                      00756         .line   380; ../include/hd44780/hd44780.c       NORMAL_DELAY();
+0000D6 0E05           00757         MOVLW   0x05
+0000D8 EC?? F0??      00758         CALL    _delay100tcy
+                      00759 ; ;ic:51:       iTemp36 [k51 lr51:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_initialize_by_instruction_i_1_49}[r0x00 ] := 0x0 {const-unsigned-char literal}
+                      00760         .line   384; ../include/hd44780/hd44780.c       clear_bit(i, lcddev.disabled);
+Message[1301]: Using default destination of 0 (Access Bank).
+0000DC 6A??           00761         CLRF    r0x00
+                      00762 ; ;ic:53:  _dobody_25($5) :
+                      00763 ; ;ic:54:       iTemp30 [k45 lr54:57 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _l
+                            cddev} = @[iTemp1 [k5 lr6:62 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] + 0
+                            x0 {const-unsigned-char literal}]
+                      00764 ; ;ic:55:       iTemp31 [k46 lr55:56 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ] 
+                            = 0x1 {const-unsigned-char literal} << iTemp36 [k51 lr51:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsign
+                            ed-char fixed}{ sir@ _hd44780_initialize_by_instruction_i_1_49}[r0x00 ]
+0000DE                00765 _00261_DS_:
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 19
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000DE 0E01           00766         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+0000E0 6E??           00767         MOVWF   r0x01
+0000E2 50??           00768         MOVF    r0x00, W
+0000E4 E0??           00769         BZ      _00286_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+0000E6 6CE8           00770         NEGF    WREG
+0000E8 90D8           00771         BCF     STATUS, 0
+0000EA                00772 _00287_DS_:
+0000EA 36??           00773         RLCF    r0x01, F
+0000EC 0F01           00774         ADDLW   0x01
+0000EE E3??           00775         BNC     _00287_DS_
+                      00776 ; ;ic:56:       iTemp32 [k47 lr56:58 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ] = not iTe
+                            mp31 [k46 lr55:56 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+0000F0                00777 _00286_DS_:
+0000F0 50??           00778         MOVF    r0x01, W
+0000F2 80D8           00779         BSF     STATUS, 0
+Message[1301]: Using default destination of 0 (Access Bank).
+0000F4 66E8           00780         TSTFSZ  WREG
+0000F6 90D8           00781         BCF     STATUS, 0
+Message[1301]: Using default destination of 0 (Access Bank).
+0000F8 6A??           00782         CLRF    r0x01
+0000FA 36??           00783         RLCF    r0x01, F
+                      00784 ; ;ic:57:       iTemp33 [k48 lr57:58 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x02 ] = (char f
+                            ixed)iTemp30 [k45 lr54:57 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev}
+0000FC ????           00785         BANKSEL _lcddev
+0000FE 51??           00786         MOVF    _lcddev, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000100 6E??           00787         MOVWF   r0x02
+                      00788 ; ;ic:58:       iTemp34 [k49 lr58:59 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ] = iTemp33
+                             [k48 lr57:58 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x02 ] & iTemp32 [k47 lr56:58 so:0]{ ia
+                            0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ]
+000102 50??           00789         MOVF    r0x02, W
+000104 16??           00790         ANDWF   r0x01, F
+                      00791 ; ;ic:59:       *(iTemp1 [k5 lr6:62 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[rem
+                            at]) := iTemp34 [k49 lr58:59 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed}[r0x01 ]
+000106 50??           00792         MOVF    r0x01, W
+000108 ????           00793         BANKSEL _lcddev
+00010A 6F??           00794         MOVWF   _lcddev, B
+                      00795 ; ;ic:60:       iTemp36 [k51 lr51:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _h
+                            d44780_initialize_by_instruction_i_1_49}[r0x00 ] = iTemp36 [k51 lr51:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0
+                             dp0}{unsigned-char fixed}{ sir@ _hd44780_initialize_by_instruction_i_1_49}[r0x00 ] + 0x1 {const-unsigne
+                            d-char literal}
+                      00796         .line   383; ../include/hd44780/hd44780.c       for(i=0; i<MAX_NUM_CONTROLLERS; i++)
+00010C 2A??           00797         INCF    r0x00, F
+                      00798 ; ;ic:61:       iTemp37 [k52 lr61:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp36 [k51 lr
+                            51:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_initialize_by_instructio
+                            n_i_1_49}[r0x00 ] < 0x8 {const-unsigned-char literal}
+00010E 0E08           00799         MOVLW   0x08
+000110 5C??           00800         SUBWF   r0x00, W
+000112 E3??           00801         BNC     _00261_DS_
+                      00802 ; ;ic:62:       if iTemp37 [k52 lr61:62 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} != 0 goto _dob
+                            ody_25($5)
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 20
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00803 ; ;ic:63:  _return($13) :
+                      00804 ; ;ic:64:       eproc _hd44780_initialize_by_instruction [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}
+                            {void function ( ) fixed}
+000114 CFE4 F000      00805         MOVFF   PREINC1, r0x02
+000118 CFE4 F000      00806         MOVFF   PREINC1, r0x01
+00011C CFE4 F000      00807         MOVFF   PREINC1, r0x00
+000120 CFE4 FFD9      00808         MOVFF   PREINC1, FSR2L
+000124 0012           00809         RETURN  
+                      00810 
+                      00811 ; ; Starting pCode block
+                      00812 ; ;ic:1:  _entry($25) :
+                      00813 ; ;ic:2:        proc _hd44780_send_all [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( u
+                            nsigned-char fixed, unsigned-char fixed) fixed}
+                      00814 S_hd44780__hd44780_send_all     code
+000000                00815 _hd44780_send_all:
+                      00816         .line   289; ../include/hd44780/hd44780.c       void hd44780_send_all(u8 flags, u8 command)
+000000 CFD9 FFE5      00817         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00818         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00819         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00820         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00821         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00822         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00823         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00824         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00825         MOVFF   r0x06, POSTDEC1
+                      00826 ; ;ic:3: iTemp0 [k2 lr3:24 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_sen
+                            d_all_flags_1_39}[r0x00 ] = recv _hd44780_send_all [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void 
+                            function ( unsigned-char fixed, unsigned-char fixed) fixed}
+000024 0E02           00827         MOVLW   0x02
+000026 CFDB F000      00828         MOVFF   PLUSW2, r0x00
+                      00829 ; ;ic:4: iTemp1 [k4 lr4:21 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_sen
+                            d_all_command_1_39}[r0x01 ] = recv _hd44780_send_all [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{voi
+                            d function ( unsigned-char fixed, unsigned-char fixed) fixed}
+00002A 0E03           00830         MOVLW   0x03
+00002C CFDB F000      00831         MOVFF   PLUSW2, r0x01
+                      00832 ; ;ic:5:        iTemp3 [k9 lr5:19 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat
+                            ] = &[_lcddev [k8 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{struct pic_device fixed} , 0x0 {const-unsi
+                            gned-char literal}]
+                      00833 ; ;ic:6:        iTemp12 [k21 lr6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd
+                            44780_send_all_i_1_40}[r0x02 ] := 0x0 {const-unsigned-char literal}
+                      00834         .line   296; ../include/hd44780/hd44780.c       for (i=0; i<MAX_NUM_CONTROLLERS ; i++) {
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6A??           00835         CLRF    r0x02
+                      00836 ; ;ic:8:  _forbody_1($22) :
+                      00837 ; ;ic:9:        iTemp5 [k12 lr9:11 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcd
+                            dev} = @[iTemp3 [k9 lr5:19 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] + 0x0
+                             {const-unsigned-char literal}]
+                      00838 ; ;ic:10:       iTemp7 [k14 lr10:12 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] = 0x1
+                             {int literal} << iTemp12 [k21 lr6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _
+                            hd44780_send_all_i_1_40}[r0x02 ]
+000032                00839 _00236_DS_:
+                      00840         .line   297; ../include/hd44780/hd44780.c       if ( !test_bit(i, lcddev.disabled) )
+000032 0E01           00841         MOVLW   0x01
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 21
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+000034 6E??           00842         MOVWF   r0x03
+000036 0E00           00843         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000038 6E??           00844         MOVWF   r0x04
+00003A 50??           00845         MOVF    r0x02, W
+00003C E0??           00846         BZ      _00250_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00003E 6CE8           00847         NEGF    WREG
+000040 90D8           00848         BCF     STATUS, 0
+000042                00849 _00251_DS_:
+000042 36??           00850         RLCF    r0x03, F
+000044 36??           00851         RLCF    r0x04, F
+000046 0F01           00852         ADDLW   0x01
+000048 E3??           00853         BNC     _00251_DS_
+                      00854 ; ;ic:11:       iTemp8 [k15 lr11:12 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x05 r0x06 ] = (in
+                            t register)iTemp5 [k12 lr9:11 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev}
+00004A                00855 _00250_DS_:
+00004A C??? F???      00856         MOVFF   _lcddev, r0x05
+Message[1301]: Using default destination of 0 (Access Bank).
+00004E 6A??           00857         CLRF    r0x06
+                      00858 ; ;ic:12:       iTemp9 [k16 lr12:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] = iTe
+                            mp8 [k15 lr11:12 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x05 r0x06 ] & iTemp7 [k14 lr10:12 so
+                            :0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ]
+000050 50??           00859         MOVF    r0x05, W
+000052 16??           00860         ANDWF   r0x03, F
+000054 50??           00861         MOVF    r0x06, W
+000056 16??           00862         ANDWF   r0x04, F
+                      00863 ; ;ic:13:       if iTemp9 [k16 lr12:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] !=
+                             0 goto _forcontinue_1($23)
+000058 50??           00864         MOVF    r0x03, W
+00005A 10??           00865         IORWF   r0x04, W
+00005C E1??           00866         BNZ     _00237_DS_
+                      00867 ; ;ic:14:       send iTemp12 [k21 lr6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir
+                            @ _hd44780_send_all_i_1_40}[r0x02 ]{argreg = 1}
+                      00868 ; ;ic:15:       iTemp10 [k19 lr15:15 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call __hd44780_
+                            wait_for_ready_ [k17 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fi
+                            xed}
+                      00869         .line   298; ../include/hd44780/hd44780.c       _hd44780_wait_for_ready_(i);
+00005E 50??           00870         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000060 6EE5           00871         MOVWF   POSTDEC1
+000062 EC?? F0??      00872         CALL    __hd44780_wait_for_ready_
+000066 52E6           00873         MOVF    POSTINC1, F
+                      00874 ; ;ic:16:  _forcontinue_1($23) :
+                      00875 ; ;ic:17:       iTemp12 [k21 lr6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd
+                            44780_send_all_i_1_40}[r0x02 ] = iTemp12 [k21 lr6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char
+                             fixed}{ sir@ _hd44780_send_all_i_1_40}[r0x02 ] + 0x1 {const-unsigned-char literal}
+000068                00876 _00237_DS_:
+                      00877         .line   296; ../include/hd44780/hd44780.c       for (i=0; i<MAX_NUM_CONTROLLERS ; i++) {
+000068 2A??           00878         INCF    r0x02, F
+                      00879 ; ;ic:18:       iTemp13 [k22 lr18:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp12 [k21 lr
+                            6:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_send_all_i_1_40}[r0x02 ] 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 22
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                            < 0x8 {const-unsigned-char literal}
+00006A 0E08           00880         MOVLW   0x08
+00006C 5C??           00881         SUBWF   r0x02, W
+00006E E3??           00882         BNC     _00236_DS_
+                      00883 ; ;ic:19:       if iTemp13 [k22 lr18:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} != 0 goto _for
+                            body_1($22)
+                      00884 ; ;ic:20:       _TRISB [k24 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      00885         .line   303; ../include/hd44780/hd44780.c       _hd44780_data_forward_();
+Message[1301]: Using default destination of 0 (Access Bank).
+000070 6A??           00886         CLRF    _TRISB
+                      00887 ; ;ic:21:       _PORTB [k25 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := i
+                            Temp1 [k4 lr4:21 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_send_all_comm
+                            and_1_39}[r0x01 ]
+                      00888         .line   304; ../include/hd44780/hd44780.c       _hd44780_data_set_(command);
+000072 C??? F???      00889         MOVFF   r0x01, _PORTB
+                      00890 ; ;ic:22:       iTemp15 [k27 lr22:23 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k26 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      00891 ; ;ic:23:       iTemp16 [k29 lr23:24 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7
+                            ,1} near* fixed}[remat] := iTemp15 [k27 lr22:23 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {7,1} near* fixed}[remat]
+                      00892 ; ;ic:24:       *(iTemp16 [k29 lr23:24 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {7,1} near* fixed}[remat]) := iTemp0 [k2 lr3:24 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixe
+                            d}{ sir@ _hd44780_send_all_flags_1_39}[r0x00 ]
+                      00893         .line   305; ../include/hd44780/hd44780.c       _hd44780_capable_(flags);
+000076 50??           00894         MOVF    r0x00, W
+000078 0B01           00895         ANDLW   0x01
+00007A 40E8           00896         RRNCF   WREG, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00007C 6EF4           00897         MOVWF   PRODH
+00007E 50??           00898         MOVF    _PORTCbits, W
+000080 0B7F           00899         ANDLW   0x7f
+000082 10F4           00900         IORWF   PRODH, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000084 6E??           00901         MOVWF   _PORTCbits
+                      00902 ; ;ic:25: inline
+000086 0000           00903         nop 
+                      00904 ; ;ic:26: inline
+000088 0000           00905         nop 
+                      00906 ; ;ic:27: inline
+00008A 0000           00907         nop 
+                      00908 ; ;ic:28: inline
+00008C 0000           00909         nop 
+                      00910 ; ;ic:29:       iTemp17 [k30 lr29:30 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k26 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      00911 ; ;ic:30:       iTemp18 [k32 lr30:31 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp17 [k30 lr29:30 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {6,1} near* fixed}[remat]
+                      00912 ; ;ic:31:       *(iTemp18 [k32 lr30:31 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x1 {const-unsigned-char literal}
+                      00913         .line   306; ../include/hd44780/hd44780.c       _hd44780_enable_all_(flags);
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 23
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00008E 8C??           00914         BSF     _PORTCbits, 6
+                      00915 ; ;ic:32: inline
+000090 0000           00916         nop 
+                      00917 ; ;ic:33: inline
+000092 0000           00918         nop 
+                      00919 ; ;ic:34: inline
+000094 0000           00920         nop 
+                      00921 ; ;ic:35: inline
+000096 0000           00922         nop 
+                      00923 ; ;ic:36: inline
+000098 0000           00924         nop 
+                      00925 ; ;ic:37: inline
+00009A 0000           00926         nop 
+                      00927 ; ;ic:38: inline
+00009C 0000           00928         nop 
+                      00929 ; ;ic:39: inline
+00009E 0000           00930         nop 
+                      00931 ; ;ic:40: inline
+0000A0 0000           00932         nop 
+                      00933 ; ;ic:41: inline
+0000A2 0000           00934         nop 
+                      00935 ; ;ic:42: inline
+0000A4 0000           00936         nop 
+                      00937 ; ;ic:43: inline
+0000A6 0000           00938         nop 
+                      00939 ; ;ic:44: inline
+0000A8 0000           00940         nop 
+                      00941 ; ;ic:45: inline
+0000AA 0000           00942         nop 
+                      00943 ; ;ic:46: inline
+0000AC 0000           00944         nop 
+                      00945 ; ;ic:47: inline
+0000AE 0000           00946         nop 
+                      00947 ; ;ic:48: inline
+0000B0 0000           00948         nop 
+                      00949 ; ;ic:49: inline
+0000B2 0000           00950         nop 
+                      00951 ; ;ic:50: inline
+0000B4 0000           00952         nop 
+                      00953 ; ;ic:51: inline
+0000B6 0000           00954         nop 
+                      00955 ; ;ic:52: inline
+0000B8 0000           00956         nop 
+                      00957 ; ;ic:53: inline
+0000BA 0000           00958         nop 
+                      00959 ; ;ic:54: inline
+0000BC 0000           00960         nop 
+                      00961 ; ;ic:55: inline
+0000BE 0000           00962         nop 
+                      00963 ; ;ic:56: inline
+0000C0 0000           00964         nop 
+                      00965 ; ;ic:57: inline
+0000C2 0000           00966         nop 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 24
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00967 ; ;ic:58: inline
+0000C4 0000           00968         nop 
+                      00969 ; ;ic:59: inline
+0000C6 0000           00970         nop 
+                      00971 ; ;ic:60: inline
+0000C8 0000           00972         nop 
+                      00973 ; ;ic:61: inline
+0000CA 0000           00974         nop 
+                      00975 ; ;ic:62:       iTemp19 [k33 lr62:63 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k26 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      00976 ; ;ic:63:       iTemp20 [k35 lr63:64 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp19 [k33 lr62:63 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {6,1} near* fixed}[remat]
+                      00977 ; ;ic:64:       *(iTemp20 [k35 lr63:64 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x0 {const-unsigned-char literal}
+                      00978         .line   307; ../include/hd44780/hd44780.c       _hd44780_disable_(flags);
+0000CC 9C??           00979         BCF     _PORTCbits, 6
+                      00980 ; ;ic:65: inline
+0000CE 0000           00981         nop 
+                      00982 ; ;ic:66: inline
+0000D0 0000           00983         nop 
+                      00984 ; ;ic:67: inline
+0000D2 0000           00985         nop 
+                      00986 ; ;ic:68: inline
+0000D4 0000           00987         nop 
+                      00988 ; ;ic:69: inline
+0000D6 0000           00989         nop 
+                      00990 ; ;ic:70: inline
+0000D8 0000           00991         nop 
+                      00992 ; ;ic:71: inline
+0000DA 0000           00993         nop 
+                      00994 ; ;ic:72: inline
+0000DC 0000           00995         nop 
+                      00996 ; ;ic:73: inline
+0000DE 0000           00997         nop 
+                      00998 ; ;ic:74: inline
+0000E0 0000           00999         nop 
+                      01000 ; ;ic:75: inline
+0000E2 0000           01001         nop 
+                      01002 ; ;ic:76: inline
+0000E4 0000           01003         nop 
+                      01004 ; ;ic:77: inline
+0000E6 0000           01005         nop 
+                      01006 ; ;ic:78: inline
+0000E8 0000           01007         nop 
+                      01008 ; ;ic:79: inline
+0000EA 0000           01009         nop 
+                      01010 ; ;ic:80: inline
+0000EC 0000           01011         nop 
+                      01012 ; ;ic:81: inline
+0000EE 0000           01013         nop 
+                      01014 ; ;ic:82: inline
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 25
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000F0 0000           01015         nop 
+                      01016 ; ;ic:83: inline
+0000F2 0000           01017         nop 
+                      01018 ; ;ic:84: inline
+0000F4 0000           01019         nop 
+                      01020 ; ;ic:85: inline
+0000F6 0000           01021         nop 
+                      01022 ; ;ic:86: inline
+0000F8 0000           01023         nop 
+                      01024 ; ;ic:87: inline
+0000FA 0000           01025         nop 
+                      01026 ; ;ic:88: inline
+0000FC 0000           01027         nop 
+                      01028 ; ;ic:89: inline
+0000FE 0000           01029         nop 
+                      01030 ; ;ic:90: inline
+000100 0000           01031         nop 
+                      01032 ; ;ic:91: inline
+000102 0000           01033         nop 
+                      01034 ; ;ic:92: inline
+000104 0000           01035         nop 
+                      01036 ; ;ic:93: inline
+000106 0000           01037         nop 
+                      01038 ; ;ic:94: inline
+000108 0000           01039         nop 
+                      01040 ; ;ic:95:  _return($24) :
+                      01041 ; ;ic:96:       eproc _hd44780_send_all [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( 
+                            unsigned-char fixed, unsigned-char fixed) fixed}
+00010A CFE4 F000      01042         MOVFF   PREINC1, r0x06
+00010E CFE4 F000      01043         MOVFF   PREINC1, r0x05
+000112 CFE4 F000      01044         MOVFF   PREINC1, r0x04
+000116 CFE4 F000      01045         MOVFF   PREINC1, r0x03
+00011A CFE4 F000      01046         MOVFF   PREINC1, r0x02
+00011E CFE4 F000      01047         MOVFF   PREINC1, r0x01
+000122 CFE4 F000      01048         MOVFF   PREINC1, r0x00
+000126 CFE4 FFD9      01049         MOVFF   PREINC1, FSR2L
+00012A 0012           01050         RETURN  
+                      01051 
+                      01052 ; ; Starting pCode block
+                      01053 ; ;ic:1:  _entry($24) :
+                      01054 ; ;ic:2:        proc _hd44780_send [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsig
+                            ned-char fixed, unsigned-char fixed, unsigned-char fixed) fixed}
+                      01055 S_hd44780__hd44780_send code
+000000                01056 _hd44780_send:
+                      01057         .line   262; ../include/hd44780/hd44780.c       void hd44780_send(unsigned char ctrl_nr, unsigne
+                            d char flags, unsigned char command)
+000000 CFD9 FFE5      01058         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01059         MOVFF   FSR1L, FSR2L
+000008 C??? F???      01060         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      01061         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      01062         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      01063         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      01064         MOVFF   r0x04, POSTDEC1
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 26
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001C C??? F???      01065         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      01066         MOVFF   r0x06, POSTDEC1
+                      01067 ; ;ic:3: iTemp0 [k2 lr3:18 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_sen
+                            d_ctrl_nr_1_31}[r0x00 ] = recv _hd44780_send [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void functi
+                            on ( unsigned-char fixed, unsigned-char fixed, unsigned-char fixed) fixed}
+000024 0E02           01068         MOVLW   0x02
+000026 CFDB F000      01069         MOVFF   PLUSW2, r0x00
+                      01070 ; ;ic:4: iTemp1 [k4 lr4:24 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_sen
+                            d_flags_1_31}[r0x01 ] = recv _hd44780_send [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function
+                             ( unsigned-char fixed, unsigned-char fixed, unsigned-char fixed) fixed}
+00002A 0E03           01071         MOVLW   0x03
+00002C CFDB F000      01072         MOVFF   PLUSW2, r0x01
+                      01073 ; ;ic:5: iTemp2 [k6 lr5:21 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_sen
+                            d_command_1_31}[r0x02 ] = recv _hd44780_send [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void functi
+                            on ( unsigned-char fixed, unsigned-char fixed, unsigned-char fixed) fixed}
+000030 0E04           01074         MOVLW   0x04
+000032 CFDB F000      01075         MOVFF   PLUSW2, r0x02
+                      01076 ; ;ic:6:        iTemp3 [k8 lr6:7 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} = iTemp0 [k2 lr3:18 s
+                            o:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_send_ctrl_nr_1_31}[r0x00 ] > 0x
+                            8 {const-unsigned-char literal}
+                      01077         .line   264; ../include/hd44780/hd44780.c       if ( ctrl_nr > MAX_NUM_CONTROLLERS ) return;
+000036 0E09           01078         MOVLW   0x09
+000038 5C??           01079         SUBWF   r0x00, W
+00003A E3??           01080         BNC     _00179_DS_
+                      01081 ; ;ic:7:        if iTemp3 [k8 lr6:7 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{char fixed} == 0 goto __iffals
+                            e_1($2)
+                      01082 ; ;ic:8:        ret
+00003C D???           01083         BRA     _00200_DS_
+                      01084 ; ;ic:9:  __iffalse_1($2) :
+                      01085 ; ;ic:10:       iTemp4 [k10 lr10:11 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[rem
+                            at] = &[_lcddev [k9 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{struct pic_device fixed} , 0x0 {const-un
+                            signed-char literal}]
+                      01086 ; ;ic:11:       iTemp6 [k13 lr11:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lc
+                            ddev} = @[iTemp4 [k10 lr10:11 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[remat] + 
+                            0x0 {const-unsigned-char literal}]
+                      01087 ; ;ic:12:       iTemp8 [k15 lr12:14 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] = 0x1
+                             {int literal} << iTemp0 [k2 lr3:18 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd
+                            44780_send_ctrl_nr_1_31}[r0x00 ]
+00003E                01088 _00179_DS_:
+                      01089         .line   265; ../include/hd44780/hd44780.c       if ( test_bit(ctrl_nr, lcddev.disabled) ) return
+                            ;
+00003E 0E01           01090         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000040 6E??           01091         MOVWF   r0x03
+000042 0E00           01092         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000044 6E??           01093         MOVWF   r0x04
+000046 50??           01094         MOVF    r0x00, W
+000048 E0??           01095         BZ      _00209_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00004A 6CE8           01096         NEGF    WREG
+00004C 90D8           01097         BCF     STATUS, 0
+00004E                01098 _00210_DS_:
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 27
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00004E 36??           01099         RLCF    r0x03, F
+000050 36??           01100         RLCF    r0x04, F
+000052 0F01           01101         ADDLW   0x01
+000054 E3??           01102         BNC     _00210_DS_
+                      01103 ; ;ic:13:       iTemp9 [k16 lr13:14 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x05 r0x06 ] = (in
+                            t register)iTemp6 [k13 lr11:13 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev}
+000056                01104 _00209_DS_:
+000056 C??? F???      01105         MOVFF   _lcddev, r0x05
+Message[1301]: Using default destination of 0 (Access Bank).
+00005A 6A??           01106         CLRF    r0x06
+                      01107 ; ;ic:14:       iTemp10 [k17 lr14:15 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] = iT
+                            emp9 [k16 lr13:14 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x05 r0x06 ] & iTemp8 [k15 lr12:14 s
+                            o:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ]
+00005C 50??           01108         MOVF    r0x05, W
+00005E 16??           01109         ANDWF   r0x03, F
+000060 50??           01110         MOVF    r0x06, W
+000062 16??           01111         ANDWF   r0x04, F
+                      01112 ; ;ic:15:       if iTemp10 [k17 lr14:15 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{int fixed}[r0x03 r0x04 ] =
+                            = 0 goto __iffalse_2($4)
+000064 50??           01113         MOVF    r0x03, W
+000066 10??           01114         IORWF   r0x04, W
+000068 E0??           01115         BZ      _00181_DS_
+                      01116 ; ;ic:16:       ret
+00006A D???           01117         BRA     _00200_DS_
+                      01118 ; ;ic:17:  __iffalse_2($4) :
+                      01119 ; ;ic:18:       send iTemp0 [k2 lr3:18 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ 
+                            _hd44780_send_ctrl_nr_1_31}[r0x00 ]{argreg = 1}
+                      01120 ; ;ic:19:       iTemp11 [k20 lr19:19 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fixed} = call __hd44780_
+                            wait_for_ready_ [k18 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsigned-char fixed) fi
+                            xed}
+00006C                01121 _00181_DS_:
+                      01122         .line   267; ../include/hd44780/hd44780.c       _hd44780_wait_for_ready_(ctrl_nr);
+00006C 50??           01123         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00006E 6EE5           01124         MOVWF   POSTDEC1
+000070 EC?? F0??      01125         CALL    __hd44780_wait_for_ready_
+000074 52E6           01126         MOVF    POSTINC1, F
+                      01127 ; ;ic:20:       _TRISB [k22 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      01128         .line   271; ../include/hd44780/hd44780.c       _hd44780_data_forward_();
+Message[1301]: Using default destination of 0 (Access Bank).
+000076 6A??           01129         CLRF    _TRISB
+                      01130 ; ;ic:21:       _PORTB [k23 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := i
+                            Temp2 [k6 lr5:21 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _hd44780_send_command_
+                            1_31}[r0x02 ]
+                      01131         .line   272; ../include/hd44780/hd44780.c       _hd44780_data_set_(command);
+000078 C??? F???      01132         MOVFF   r0x02, _PORTB
+                      01133 ; ;ic:22:       iTemp13 [k25 lr22:23 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k24 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01134 ; ;ic:23:       iTemp14 [k27 lr23:24 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7
+                            ,1} near* fixed}[remat] := iTemp13 [k25 lr22:23 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {7,1} near* fixed}[remat]
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 28
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01135 ; ;ic:24:       *(iTemp14 [k27 lr23:24 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {7,1} near* fixed}[remat]) := iTemp1 [k4 lr4:24 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixe
+                            d}{ sir@ _hd44780_send_flags_1_31}[r0x01 ]
+                      01136         .line   273; ../include/hd44780/hd44780.c       _hd44780_capable_(flags);
+00007C 50??           01137         MOVF    r0x01, W
+00007E 0B01           01138         ANDLW   0x01
+000080 40E8           01139         RRNCF   WREG, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000082 6EF4           01140         MOVWF   PRODH
+000084 50??           01141         MOVF    _PORTCbits, W
+000086 0B7F           01142         ANDLW   0x7f
+000088 10F4           01143         IORWF   PRODH, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00008A 6E??           01144         MOVWF   _PORTCbits
+                      01145 ; ;ic:25: inline
+00008C 0000           01146         nop 
+                      01147 ; ;ic:26: inline
+00008E 0000           01148         nop 
+                      01149 ; ;ic:27: inline
+000090 0000           01150         nop 
+                      01151 ; ;ic:28: inline
+000092 0000           01152         nop 
+                      01153 ; ;ic:29:       iTemp15 [k28 lr29:30 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k24 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01154 ; ;ic:30:       iTemp16 [k30 lr30:31 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp15 [k28 lr29:30 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {6,1} near* fixed}[remat]
+                      01155 ; ;ic:31:       *(iTemp16 [k30 lr30:31 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x1 {const-unsigned-char literal}
+                      01156         .line   274; ../include/hd44780/hd44780.c       _hd44780_enable_(flags, ctrl_nr);
+000094 8C??           01157         BSF     _PORTCbits, 6
+                      01158 ; ;ic:32: inline
+000096 0000           01159         nop 
+                      01160 ; ;ic:33: inline
+000098 0000           01161         nop 
+                      01162 ; ;ic:34: inline
+00009A 0000           01163         nop 
+                      01164 ; ;ic:35: inline
+00009C 0000           01165         nop 
+                      01166 ; ;ic:36: inline
+00009E 0000           01167         nop 
+                      01168 ; ;ic:37: inline
+0000A0 0000           01169         nop 
+                      01170 ; ;ic:38: inline
+0000A2 0000           01171         nop 
+                      01172 ; ;ic:39: inline
+0000A4 0000           01173         nop 
+                      01174 ; ;ic:40: inline
+0000A6 0000           01175         nop 
+                      01176 ; ;ic:41: inline
+0000A8 0000           01177         nop 
+                      01178 ; ;ic:42: inline
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 29
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000AA 0000           01179         nop 
+                      01180 ; ;ic:43: inline
+0000AC 0000           01181         nop 
+                      01182 ; ;ic:44: inline
+0000AE 0000           01183         nop 
+                      01184 ; ;ic:45: inline
+0000B0 0000           01185         nop 
+                      01186 ; ;ic:46: inline
+0000B2 0000           01187         nop 
+                      01188 ; ;ic:47: inline
+0000B4 0000           01189         nop 
+                      01190 ; ;ic:48: inline
+0000B6 0000           01191         nop 
+                      01192 ; ;ic:49: inline
+0000B8 0000           01193         nop 
+                      01194 ; ;ic:50: inline
+0000BA 0000           01195         nop 
+                      01196 ; ;ic:51: inline
+0000BC 0000           01197         nop 
+                      01198 ; ;ic:52: inline
+0000BE 0000           01199         nop 
+                      01200 ; ;ic:53: inline
+0000C0 0000           01201         nop 
+                      01202 ; ;ic:54: inline
+0000C2 0000           01203         nop 
+                      01204 ; ;ic:55: inline
+0000C4 0000           01205         nop 
+                      01206 ; ;ic:56: inline
+0000C6 0000           01207         nop 
+                      01208 ; ;ic:57: inline
+0000C8 0000           01209         nop 
+                      01210 ; ;ic:58: inline
+0000CA 0000           01211         nop 
+                      01212 ; ;ic:59: inline
+0000CC 0000           01213         nop 
+                      01214 ; ;ic:60: inline
+0000CE 0000           01215         nop 
+                      01216 ; ;ic:61: inline
+0000D0 0000           01217         nop 
+                      01218 ; ;ic:62:       iTemp17 [k31 lr62:63 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k24 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct 
+                            __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01219 ; ;ic:63:       iTemp18 [k33 lr63:64 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp17 [k31 lr62:63 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {6,1} near* fixed}[remat]
+                      01220 ; ;ic:64:       *(iTemp18 [k33 lr63:64 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x0 {const-unsigned-char literal}
+                      01221         .line   275; ../include/hd44780/hd44780.c       _hd44780_disable_(flags);
+0000D2 9C??           01222         BCF     _PORTCbits, 6
+                      01223 ; ;ic:65: inline
+0000D4 0000           01224         nop 
+                      01225 ; ;ic:66: inline
+0000D6 0000           01226         nop 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 30
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01227 ; ;ic:67: inline
+0000D8 0000           01228         nop 
+                      01229 ; ;ic:68: inline
+0000DA 0000           01230         nop 
+                      01231 ; ;ic:69: inline
+0000DC 0000           01232         nop 
+                      01233 ; ;ic:70: inline
+0000DE 0000           01234         nop 
+                      01235 ; ;ic:71: inline
+0000E0 0000           01236         nop 
+                      01237 ; ;ic:72: inline
+0000E2 0000           01238         nop 
+                      01239 ; ;ic:73: inline
+0000E4 0000           01240         nop 
+                      01241 ; ;ic:74: inline
+0000E6 0000           01242         nop 
+                      01243 ; ;ic:75: inline
+0000E8 0000           01244         nop 
+                      01245 ; ;ic:76: inline
+0000EA 0000           01246         nop 
+                      01247 ; ;ic:77: inline
+0000EC 0000           01248         nop 
+                      01249 ; ;ic:78: inline
+0000EE 0000           01250         nop 
+                      01251 ; ;ic:79: inline
+0000F0 0000           01252         nop 
+                      01253 ; ;ic:80: inline
+0000F2 0000           01254         nop 
+                      01255 ; ;ic:81: inline
+0000F4 0000           01256         nop 
+                      01257 ; ;ic:82: inline
+0000F6 0000           01258         nop 
+                      01259 ; ;ic:83: inline
+0000F8 0000           01260         nop 
+                      01261 ; ;ic:84: inline
+0000FA 0000           01262         nop 
+                      01263 ; ;ic:85: inline
+0000FC 0000           01264         nop 
+                      01265 ; ;ic:86: inline
+0000FE 0000           01266         nop 
+                      01267 ; ;ic:87: inline
+000100 0000           01268         nop 
+                      01269 ; ;ic:88: inline
+000102 0000           01270         nop 
+                      01271 ; ;ic:89: inline
+000104 0000           01272         nop 
+                      01273 ; ;ic:90: inline
+000106 0000           01274         nop 
+                      01275 ; ;ic:91: inline
+000108 0000           01276         nop 
+                      01277 ; ;ic:92: inline
+00010A 0000           01278         nop 
+                      01279 ; ;ic:93: inline
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 31
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00010C 0000           01280         nop 
+                      01281 ; ;ic:94: inline
+00010E 0000           01282         nop 
+                      01283 ; ;ic:95:  _return($23) :
+                      01284 ; ;ic:96:       eproc _hd44780_send [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( unsi
+                            gned-char fixed, unsigned-char fixed, unsigned-char fixed) fixed}
+000110                01285 _00200_DS_:
+000110 CFE4 F000      01286         MOVFF   PREINC1, r0x06
+000114 CFE4 F000      01287         MOVFF   PREINC1, r0x05
+000118 CFE4 F000      01288         MOVFF   PREINC1, r0x04
+00011C CFE4 F000      01289         MOVFF   PREINC1, r0x03
+000120 CFE4 F000      01290         MOVFF   PREINC1, r0x02
+000124 CFE4 F000      01291         MOVFF   PREINC1, r0x01
+000128 CFE4 F000      01292         MOVFF   PREINC1, r0x00
+00012C CFE4 FFD9      01293         MOVFF   PREINC1, FSR2L
+000130 0012           01294         RETURN  
+                      01295 
+                      01296 ; ; Starting pCode block
+                      01297 ; ;ic:1:  _entry($2) :
+                      01298 ; ;ic:2:        proc _hd44780_recv [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char functio
+                            n ( unsigned-char fixed, unsigned-char fixed) fixed}
+                      01299 S_hd44780__hd44780_recv code
+000000                01300 _hd44780_recv:
+                      01301         .line   254; ../include/hd44780/hd44780.c       unsigned char hd44780_recv(unsigned char ctrl_nr
+                            , unsigned char flags)
+000000 CFD9 FFE5      01302         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01303         MOVFF   FSR1L, FSR2L
+                      01304 ; ;ic:3:        ret 0x1 {const-unsigned-char literal}
+                      01305         .line   258; ../include/hd44780/hd44780.c       return 1;
+000008 0E01           01306         MOVLW   0x01
+                      01307 ; ;ic:4:  _return($1) :
+                      01308 ; ;ic:5:        eproc _hd44780_recv [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char functi
+                            on ( unsigned-char fixed, unsigned-char fixed) fixed}
+00000A CFE4 FFD9      01309         MOVFF   PREINC1, FSR2L
+00000E 0012           01310         RETURN  
+                      01311 
+                      01312 ; ; Starting pCode block
+                      01313 ; ;ic:1:  _entry($2) :
+                      01314 ; ;ic:2:        proc _hd44780_init_port [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function ( 
+                            ) fixed}
+                      01315 S_hd44780__hd44780_init_port    code
+000000                01316 _hd44780_init_port:
+                      01317         .line   198; ../include/hd44780/hd44780.c       __once void hd44780_init_port(void)
+000000 CFD9 FFE5      01318         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01319         MOVFF   FSR1L, FSR2L
+                      01320 ; ;ic:3:        _ADCON0 [k2 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      01321         .line   200; ../include/hd44780/hd44780.c       ADCON0=0x00; // turn off analog to digital conve
+                            rsion module
+Message[1301]: Using default destination of 0 (Access Bank).
+000008 6A??           01322         CLRF    _ADCON0
+                      01323 ; ;ic:4:        _ADCON1 [k3 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            xf {const-unsigned-char literal}
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 32
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01324         .line   201; ../include/hd44780/hd44780.c       ADCON1=0x0f; // set all analog to digital conver
+                            sion module inputs as digital inputs/outputs
+00000A 0E0F           01325         MOVLW   0x0f
+Message[1301]: Using default destination of 0 (Access Bank).
+00000C 6E??           01326         MOVWF   _ADCON1
+                      01327 ; ;ic:5:        _CMCON [k4 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            7 {const-unsigned-char literal}
+                      01328         .line   202; ../include/hd44780/hd44780.c       CMCON=0x07; // turn off comparator module
+00000E 0E07           01329         MOVLW   0x07
+Message[1301]: Using default destination of 0 (Access Bank).
+000010 6E??           01330         MOVWF   _CMCON
+                      01331 ; ;ic:6:        _PORTA [k5 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      01332         .line   205; ../include/hd44780/hd44780.c       PORTA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000012 6A??           01333         CLRF    _PORTA
+                      01334 ; ;ic:7:        _LATA [k6 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x0
+                             {const-unsigned-char literal}
+                      01335         .line   206; ../include/hd44780/hd44780.c       LATA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6A??           01336         CLRF    _LATA
+                      01337 ; ;ic:8:        _TRISA [k7 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      01338         .line   207; ../include/hd44780/hd44780.c       TRISA=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000016 6A??           01339         CLRF    _TRISA
+                      01340 ; ;ic:9:        _PORTB [k8 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      01341         .line   210; ../include/hd44780/hd44780.c       PORTB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6A??           01342         CLRF    _PORTB
+                      01343 ; ;ic:10:       _LATB [k9 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x0
+                             {const-unsigned-char literal}
+                      01344         .line   211; ../include/hd44780/hd44780.c       LATB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00001A 6A??           01345         CLRF    _LATB
+                      01346 ; ;ic:11:       _TRISB [k10 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      01347         .line   212; ../include/hd44780/hd44780.c       TRISB=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6A??           01348         CLRF    _TRISB
+                      01349 ; ;ic:12:       _PORTC [k11 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+                      01350         .line   215; ../include/hd44780/hd44780.c       PORTC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+00001E 6A??           01351         CLRF    _PORTC
+                      01352 ; ;ic:13:       _LATC [k12 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      01353         .line   216; ../include/hd44780/hd44780.c       LATC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000020 6A??           01354         CLRF    _LATC
+                      01355 ; ;ic:14:       _TRISC [k13 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            x0 {const-unsigned-char literal}
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 33
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01356         .line   217; ../include/hd44780/hd44780.c       TRISC=0x00;
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6A??           01357         CLRF    _TRISC
+                      01358 ; ;ic:15:       _PORTB [k8 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            0 {const-unsigned-char literal}
+                      01359         .line   219; ../include/hd44780/hd44780.c       _hd44780_data_set_(0x00);
+Message[1301]: Using default destination of 0 (Access Bank).
+000024 6A??           01360         CLRF    _PORTB
+                      01361 ; ;ic:16:       _TRISB [k10 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0
+                            xff {const-unsigned-char literal}
+                      01362         .line   220; ../include/hd44780/hd44780.c       _hd44780_data_reverse_();
+000026 0EFF           01363         MOVLW   0xff
+Message[1301]: Using default destination of 0 (Access Bank).
+000028 6E??           01364         MOVWF   _TRISB
+                      01365 ; ;ic:17:  _return($1) :
+                      01366 ; ;ic:18:       eproc _hd44780_init_port [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void function (
+                             ) fixed}
+00002A CFE4 FFD9      01367         MOVFF   PREINC1, FSR2L
+00002E 0012           01368         RETURN  
+                      01369 
+                      01370 ; ; Starting pCode block
+                      01371 ; ;ic:1:  _entry($44) :
+                      01372 ; ;ic:2:        proc __hd44780_wait_for_ready_ [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void func
+                            tion ( unsigned-char fixed) fixed}
+                      01373 S_hd44780___hd44780_wait_for_ready_     code
+000000                01374 __hd44780_wait_for_ready_:
+                      01375         .line   167; ../include/hd44780/hd44780.c       static void _hd44780_wait_for_ready_(unsigned ch
+                            ar ctrl_nr)
+000000 CFD9 FFE5      01376         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      01377         MOVFF   FSR1L, FSR2L
+000008 C??? F???      01378         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      01379         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      01380         MOVFF   r0x02, POSTDEC1
+                      01381 ; ;ic:3: iTemp0 [k2 lr3:158 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ __hd44780_w
+                            ait_for_ready__ctrl_nr_1_11}[r0x00 ] = recv __hd44780_wait_for_ready_ [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 
+                            nos0 ru0 dp0}{void function ( unsigned-char fixed) fixed}
+000014 0E02           01382         MOVLW   0x02
+000016 CFDB F000      01383         MOVFF   PLUSW2, r0x00
+                      01384 ; ;ic:4:        _TRISB [k4 lr0:0 so:0]{ ia1 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-char sfr} := 0x
+                            ff {const-unsigned-char literal}
+                      01385         .line   172; ../include/hd44780/hd44780.c       _hd44780_data_reverse_();
+00001A 0EFF           01386         MOVLW   0xff
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6E??           01387         MOVWF   _TRISB
+                      01388 ; ;ic:5:        iTemp1 [k6 lr5:6 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,1} 
+                            near* fixed}[remat] = &[_PORTCbits [k5 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct __000
+                            00129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01389 ; ;ic:6:        iTemp2 [k8 lr6:7 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,1} 
+                            near* fixed}[remat] := iTemp1 [k6 lr5:6 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield
+                             {7,1} near* fixed}[remat]
+                      01390 ; ;ic:7:        *(iTemp2 [k8 lr6:7 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,1
+                            } near* fixed}[remat]) := 0x0 {unsigned-char literal}
+                      01391         .line   173; ../include/hd44780/hd44780.c       _hd44780_capable_(RW_READ | RS_INST);
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 34
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00001E 9E??           01392         BCF     _PORTCbits, 7
+                      01393 ; ;ic:8: inline
+000020 0000           01394         nop 
+                      01395 ; ;ic:9: inline
+000022 0000           01396         nop 
+                      01397 ; ;ic:10: inline
+000024 0000           01398         nop 
+                      01399 ; ;ic:11: inline
+000026 0000           01400         nop 
+                      01401 ; ;ic:12:       iTemp3 [k9 lr12:13 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6,1
+                            } near* fixed}[remat] = &[_PORTCbits [k5 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct __0
+                            0000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01402 ; ;ic:13:       iTemp4 [k11 lr13:14 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6,
+                            1} near* fixed}[remat] := iTemp3 [k9 lr12:13 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bit
+                            field {6,1} near* fixed}[remat]
+                      01403 ; ;ic:14:       *(iTemp4 [k11 lr13:14 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {
+                            6,1} near* fixed}[remat]) := 0x1 {const-unsigned-char literal}
+                      01404         .line   174; ../include/hd44780/hd44780.c       _hd44780_enable_(RW_READ | RS_INST, ctrl_nr);
+000028 8C??           01405         BSF     _PORTCbits, 6
+                      01406 ; ;ic:15: inline
+00002A 0000           01407         nop 
+                      01408 ; ;ic:16: inline
+00002C 0000           01409         nop 
+                      01410 ; ;ic:17: inline
+00002E 0000           01411         nop 
+                      01412 ; ;ic:18: inline
+000030 0000           01413         nop 
+                      01414 ; ;ic:19: inline
+000032 0000           01415         nop 
+                      01416 ; ;ic:20: inline
+000034 0000           01417         nop 
+                      01418 ; ;ic:21: inline
+000036 0000           01419         nop 
+                      01420 ; ;ic:22: inline
+000038 0000           01421         nop 
+                      01422 ; ;ic:23: inline
+00003A 0000           01423         nop 
+                      01424 ; ;ic:24: inline
+00003C 0000           01425         nop 
+                      01426 ; ;ic:25: inline
+00003E 0000           01427         nop 
+                      01428 ; ;ic:26: inline
+000040 0000           01429         nop 
+                      01430 ; ;ic:27: inline
+000042 0000           01431         nop 
+                      01432 ; ;ic:28: inline
+000044 0000           01433         nop 
+                      01434 ; ;ic:29: inline
+000046 0000           01435         nop 
+                      01436 ; ;ic:30: inline
+000048 0000           01437         nop 
+                      01438 ; ;ic:31: inline
+00004A 0000           01439         nop 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 35
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01440 ; ;ic:32: inline
+00004C 0000           01441         nop 
+                      01442 ; ;ic:33: inline
+00004E 0000           01443         nop 
+                      01444 ; ;ic:34: inline
+000050 0000           01445         nop 
+                      01446 ; ;ic:35: inline
+000052 0000           01447         nop 
+                      01448 ; ;ic:36: inline
+000054 0000           01449         nop 
+                      01450 ; ;ic:37: inline
+000056 0000           01451         nop 
+                      01452 ; ;ic:38: inline
+000058 0000           01453         nop 
+                      01454 ; ;ic:39: inline
+00005A 0000           01455         nop 
+                      01456 ; ;ic:40: inline
+00005C 0000           01457         nop 
+                      01458 ; ;ic:41: inline
+00005E 0000           01459         nop 
+                      01460 ; ;ic:42: inline
+000060 0000           01461         nop 
+                      01462 ; ;ic:43: inline
+000062 0000           01463         nop 
+                      01464 ; ;ic:44: inline
+000064 0000           01465         nop 
+                      01466 ; ;ic:45:       iTemp13 [k25 lr45:155 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-int fixed}{ sir@ __
+                            hd44780_wait_for_ready__count_1_12}[r0x01 r0x02 ] := 0xffff {const-unsigned-int literal}
+                      01467         .line   175; ../include/hd44780/hd44780.c       for ( count = BUSYFLAG_STUCK; count && _hd44780_
+                            data_get_busyflag_(); --count ) {
+000066 0EFF           01468         MOVLW   0xff
+Message[1301]: Using default destination of 0 (Access Bank).
+000068 6E??           01469         MOVWF   r0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+00006A 6E??           01470         MOVWF   r0x02
+                      01471 ; ;ic:47:  _forcond_0($41) :
+                      01472 ; ;ic:48:       if iTemp13 [k25 lr45:155 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-int fixed}{ sir@
+                             __hd44780_wait_for_ready__count_1_12}[r0x01 r0x02 ] == 0 goto _dobody_9($31)
+00006C                01473 _00145_DS_:
+00006C 50??           01474         MOVF    r0x01, W
+00006E 10??           01475         IORWF   r0x02, W
+000070 B4D8           01476         BTFSC   STATUS, 2
+000072 D???           01477         BRA     _00135_DS_
+                      01478 ; ;ic:49:       iTemp6 [k15 lr49:50 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,
+                            1} near* fixed}[remat] = &[_PORTBbits [k14 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct _
+                            _00000122 fixed} , 0x0 {const-unsigned-char literal}]
+                      01479 ; ;ic:50:       iTemp7 [k17 lr50:51 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,
+                            1} near* fixed}[remat] := iTemp6 [k15 lr49:50 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bi
+                            tfield {7,1} near* fixed}[remat]
+                      01480 ; ;ic:51:       iTemp8 [k18 lr51:52 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-bitfield {7,
+                            1} fixed}[bad ] = @[iTemp7 [k17 lr50:51 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield
+                             {7,1} near* fixed}[remat] + 0x0 {const-unsigned-char literal}]
+000074 AE??           01481         BTFSS   _PORTBbits, 7
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 36
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000076 D???           01482         BRA     _00135_DS_
+                      01483 ; ;ic:52:       if iTemp8 [k18 lr51:52 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {7,1} fixed}[bad ] == 0 goto _dobody_9($31)
+                      01484 ; ;ic:53:       iTemp9 [k19 lr53:54 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6,
+                            1} near* fixed}[remat] = &[_PORTCbits [k5 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct __
+                            00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01485 ; ;ic:54:       iTemp10 [k21 lr54:55 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp9 [k19 lr53:54 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-b
+                            itfield {6,1} near* fixed}[remat]
+                      01486 ; ;ic:55:       *(iTemp10 [k21 lr54:55 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x0 {const-unsigned-char literal}
+                      01487         .line   176; ../include/hd44780/hd44780.c       _hd44780_disable_(RW_READ | RS_INST);
+000078 9C??           01488         BCF     _PORTCbits, 6
+                      01489 ; ;ic:56: inline
+00007A 0000           01490         nop 
+                      01491 ; ;ic:57: inline
+00007C 0000           01492         nop 
+                      01493 ; ;ic:58: inline
+00007E 0000           01494         nop 
+                      01495 ; ;ic:59: inline
+000080 0000           01496         nop 
+                      01497 ; ;ic:60: inline
+000082 0000           01498         nop 
+                      01499 ; ;ic:61: inline
+000084 0000           01500         nop 
+                      01501 ; ;ic:62: inline
+000086 0000           01502         nop 
+                      01503 ; ;ic:63: inline
+000088 0000           01504         nop 
+                      01505 ; ;ic:64: inline
+00008A 0000           01506         nop 
+                      01507 ; ;ic:65: inline
+00008C 0000           01508         nop 
+                      01509 ; ;ic:66: inline
+00008E 0000           01510         nop 
+                      01511 ; ;ic:67: inline
+000090 0000           01512         nop 
+                      01513 ; ;ic:68: inline
+000092 0000           01514         nop 
+                      01515 ; ;ic:69: inline
+000094 0000           01516         nop 
+                      01517 ; ;ic:70: inline
+000096 0000           01518         nop 
+                      01519 ; ;ic:71: inline
+000098 0000           01520         nop 
+                      01521 ; ;ic:72: inline
+00009A 0000           01522         nop 
+                      01523 ; ;ic:73: inline
+00009C 0000           01524         nop 
+                      01525 ; ;ic:74: inline
+00009E 0000           01526         nop 
+                      01527 ; ;ic:75: inline
+0000A0 0000           01528         nop 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 37
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01529 ; ;ic:76: inline
+0000A2 0000           01530         nop 
+                      01531 ; ;ic:77: inline
+0000A4 0000           01532         nop 
+                      01533 ; ;ic:78: inline
+0000A6 0000           01534         nop 
+                      01535 ; ;ic:79: inline
+0000A8 0000           01536         nop 
+                      01537 ; ;ic:80: inline
+0000AA 0000           01538         nop 
+                      01539 ; ;ic:81: inline
+0000AC 0000           01540         nop 
+                      01541 ; ;ic:82: inline
+0000AE 0000           01542         nop 
+                      01543 ; ;ic:83: inline
+0000B0 0000           01544         nop 
+                      01545 ; ;ic:84: inline
+0000B2 0000           01546         nop 
+                      01547 ; ;ic:85: inline
+0000B4 0000           01548         nop 
+                      01549 ; ;ic:86:       iTemp11 [k22 lr86:87 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] = &[_PORTCbits [k5 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct _
+                            _00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01550 ; ;ic:87:       iTemp12 [k24 lr87:88 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield {6
+                            ,1} near* fixed}[remat] := iTemp11 [k22 lr86:87 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-
+                            bitfield {6,1} near* fixed}[remat]
+                      01551 ; ;ic:88:       *(iTemp12 [k24 lr87:88 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat]) := 0x1 {const-unsigned-char literal}
+                      01552         .line   180; ../include/hd44780/hd44780.c       _hd44780_enable_(RW_READ | RS_INST, ctrl_nr);
+0000B6 8C??           01553         BSF     _PORTCbits, 6
+                      01554 ; ;ic:89: inline
+0000B8 0000           01555         nop 
+                      01556 ; ;ic:90: inline
+0000BA 0000           01557         nop 
+                      01558 ; ;ic:91: inline
+0000BC 0000           01559         nop 
+                      01560 ; ;ic:92: inline
+0000BE 0000           01561         nop 
+                      01562 ; ;ic:93: inline
+0000C0 0000           01563         nop 
+                      01564 ; ;ic:94: inline
+0000C2 0000           01565         nop 
+                      01566 ; ;ic:95: inline
+0000C4 0000           01567         nop 
+                      01568 ; ;ic:96: inline
+0000C6 0000           01569         nop 
+                      01570 ; ;ic:97: inline
+0000C8 0000           01571         nop 
+                      01572 ; ;ic:98: inline
+0000CA 0000           01573         nop 
+                      01574 ; ;ic:99: inline
+0000CC 0000           01575         nop 
+                      01576 ; ;ic:100: inline
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 38
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000CE 0000           01577         nop 
+                      01578 ; ;ic:101: inline
+0000D0 0000           01579         nop 
+                      01580 ; ;ic:102: inline
+0000D2 0000           01581         nop 
+                      01582 ; ;ic:103: inline
+0000D4 0000           01583         nop 
+                      01584 ; ;ic:104: inline
+0000D6 0000           01585         nop 
+                      01586 ; ;ic:105: inline
+0000D8 0000           01587         nop 
+                      01588 ; ;ic:106: inline
+0000DA 0000           01589         nop 
+                      01590 ; ;ic:107: inline
+0000DC 0000           01591         nop 
+                      01592 ; ;ic:108: inline
+0000DE 0000           01593         nop 
+                      01594 ; ;ic:109: inline
+0000E0 0000           01595         nop 
+                      01596 ; ;ic:110: inline
+0000E2 0000           01597         nop 
+                      01598 ; ;ic:111: inline
+0000E4 0000           01599         nop 
+                      01600 ; ;ic:112: inline
+0000E6 0000           01601         nop 
+                      01602 ; ;ic:113: inline
+0000E8 0000           01603         nop 
+                      01604 ; ;ic:114: inline
+0000EA 0000           01605         nop 
+                      01606 ; ;ic:115: inline
+0000EC 0000           01607         nop 
+                      01608 ; ;ic:116: inline
+0000EE 0000           01609         nop 
+                      01610 ; ;ic:117: inline
+0000F0 0000           01611         nop 
+                      01612 ; ;ic:118: inline
+0000F2 0000           01613         nop 
+                      01614 ; ;ic:119:      iTemp13 [k25 lr45:155 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-int fixed}{ sir@ __
+                            hd44780_wait_for_ready__count_1_12}[r0x01 r0x02 ] = iTemp13 [k25 lr45:155 so:0]{ ia0 a2p0 re0 rm0 nos0 r
+                            u0 dp0}{unsigned-int fixed}{ sir@ __hd44780_wait_for_ready__count_1_12}[r0x01 r0x02 ] - 0x1 {const-unsig
+                            ned-char literal}
+                      01615         .line   175; ../include/hd44780/hd44780.c       for ( count = BUSYFLAG_STUCK; count && _hd44780_
+                            data_get_busyflag_(); --count ) {
+0000F4 0EFF           01616         MOVLW   0xff
+0000F6 26??           01617         ADDWF   r0x01, F
+0000F8 22??           01618         ADDWFC  r0x02, F
+                      01619 ; ;ic:120:       goto _forcond_0($41)
+0000FA D???           01620         BRA     _00145_DS_
+                      01621 ; ;ic:121:  _dobody_9($31) :
+                      01622 ; ;ic:122:      iTemp14 [k26 lr122:123 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+                            {6,1} near* fixed}[remat] = &[_PORTCbits [k5 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{volatile-struct
+                             __00000129 fixed} , 0x0 {const-unsigned-char literal}]
+                      01623 ; ;ic:123:      iTemp15 [k28 lr123:124 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfield 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 39
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                            {6,1} near* fixed}[remat] := iTemp14 [k26 lr122:123 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsig
+                            ned-bitfield {6,1} near* fixed}[remat]
+                      01624 ; ;ic:124:      *(iTemp15 [k28 lr123:124 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{volatile-unsigned-bitfiel
+                            d {6,1} near* fixed}[remat]) := 0x0 {const-unsigned-char literal}
+0000FC                01625 _00135_DS_:
+                      01626         .line   182; ../include/hd44780/hd44780.c       _hd44780_disable_(RW_READ | RS_INST);
+0000FC 9C??           01627         BCF     _PORTCbits, 6
+                      01628 ; ;ic:125: inline
+0000FE 0000           01629         nop 
+                      01630 ; ;ic:126: inline
+000100 0000           01631         nop 
+                      01632 ; ;ic:127: inline
+000102 0000           01633         nop 
+                      01634 ; ;ic:128: inline
+000104 0000           01635         nop 
+                      01636 ; ;ic:129: inline
+000106 0000           01637         nop 
+                      01638 ; ;ic:130: inline
+000108 0000           01639         nop 
+                      01640 ; ;ic:131: inline
+00010A 0000           01641         nop 
+                      01642 ; ;ic:132: inline
+00010C 0000           01643         nop 
+                      01644 ; ;ic:133: inline
+00010E 0000           01645         nop 
+                      01646 ; ;ic:134: inline
+000110 0000           01647         nop 
+                      01648 ; ;ic:135: inline
+000112 0000           01649         nop 
+                      01650 ; ;ic:136: inline
+000114 0000           01651         nop 
+                      01652 ; ;ic:137: inline
+000116 0000           01653         nop 
+                      01654 ; ;ic:138: inline
+000118 0000           01655         nop 
+                      01656 ; ;ic:139: inline
+00011A 0000           01657         nop 
+                      01658 ; ;ic:140: inline
+00011C 0000           01659         nop 
+                      01660 ; ;ic:141: inline
+00011E 0000           01661         nop 
+                      01662 ; ;ic:142: inline
+000120 0000           01663         nop 
+                      01664 ; ;ic:143: inline
+000122 0000           01665         nop 
+                      01666 ; ;ic:144: inline
+000124 0000           01667         nop 
+                      01668 ; ;ic:145: inline
+000126 0000           01669         nop 
+                      01670 ; ;ic:146: inline
+000128 0000           01671         nop 
+                      01672 ; ;ic:147: inline
+00012A 0000           01673         nop 
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 40
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      01674 ; ;ic:148: inline
+00012C 0000           01675         nop 
+                      01676 ; ;ic:149: inline
+00012E 0000           01677         nop 
+                      01678 ; ;ic:150: inline
+000130 0000           01679         nop 
+                      01680 ; ;ic:151: inline
+000132 0000           01681         nop 
+                      01682 ; ;ic:152: inline
+000134 0000           01683         nop 
+                      01684 ; ;ic:153: inline
+000136 0000           01685         nop 
+                      01686 ; ;ic:154: inline
+000138 0000           01687         nop 
+                      01688 ; ;ic:155:      if iTemp13 [k25 lr45:155 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-int fixed}{ sir@
+                             __hd44780_wait_for_ready__count_1_12}[r0x01 r0x02 ] != 0 goto _return($43)
+                      01689         .line   188; ../include/hd44780/hd44780.c       if ( !count ) {
+00013A 50??           01690         MOVF    r0x01, W
+00013C 10??           01691         IORWF   r0x02, W
+00013E E1??           01692         BNZ     _00147_DS_
+                      01693 ; ;ic:156:      iTemp16 [k30 lr156:160 so:0]{ ia0 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[
+                            remat] = &[_lcddev [k29 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{struct pic_device fixed} , 0x0 {cons
+                            t-unsigned-char literal}]
+                      01694 ; ;ic:157:      iTemp20 [k36 lr157:159 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ 
+                            _lcddev} = @[iTemp16 [k30 lr156:160 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed}[rem
+                            at] + 0x0 {const-unsigned-char literal}]
+                      01695 ; ;ic:158:      iTemp21 [k37 lr158:159 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 
+                            ] = 0x1 {const-unsigned-char literal} << iTemp0 [k2 lr3:158 so:0]{ ia0 a2p0 re1 rm0 nos0 ru0 dp0}{unsign
+                            ed-char fixed}{ sir@ __hd44780_wait_for_ready__ctrl_nr_1_11}[r0x00 ]
+                      01696         .line   191; ../include/hd44780/hd44780.c       set_bit(ctrl_nr, lcddev.disabled);
+000140 0E01           01697         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000142 6E??           01698         MOVWF   r0x01
+000144 50??           01699         MOVF    r0x00, W
+000146 E0??           01700         BZ      _00162_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+000148 6CE8           01701         NEGF    WREG
+00014A 90D8           01702         BCF     STATUS, 0
+00014C                01703 _00163_DS_:
+00014C 36??           01704         RLCF    r0x01, F
+00014E 0F01           01705         ADDLW   0x01
+000150 E3??           01706         BNC     _00163_DS_
+                      01707 ; ;ic:159:      iTemp22 [k38 lr159:160 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x00 
+                            ] = iTemp20 [k36 lr157:159 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}{ sir@ _lcddev} | i
+                            Temp21 [k37 lr158:159 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x01 ]
+000152                01708 _00162_DS_:
+000152 50??           01709         MOVF    r0x01, W
+000154 ????           01710         BANKSEL _lcddev
+000156 11??           01711         IORWF   _lcddev, W, B
+Message[1301]: Using default destination of 0 (Access Bank).
+000158 6E??           01712         MOVWF   r0x00
+                      01713 ; ;ic:160:      *(iTemp16 [k30 lr156:160 so:0]{ ia1 a2p0 re0 rm1 nos0 ru0 dp0}{unsigned-char near* fixed
+                            }[remat]) := iTemp22 [k38 lr159:160 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{unsigned-char fixed}[r0x00 ]
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 41
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00015A 50??           01714         MOVF    r0x00, W
+00015C ????           01715         BANKSEL _lcddev
+00015E 6F??           01716         MOVWF   _lcddev, B
+                      01717 ; ;ic:161:  _return($43) :
+                      01718 ; ;ic:162:      eproc __hd44780_wait_for_ready_ [k1 lr0:0 so:0]{ ia0 a2p0 re0 rm0 nos0 ru0 dp0}{void fun
+                            ction ( unsigned-char fixed) fixed}
+000160                01719 _00147_DS_:
+000160 CFE4 F000      01720         MOVFF   PREINC1, r0x02
+000164 CFE4 F000      01721         MOVFF   PREINC1, r0x01
+000168 CFE4 F000      01722         MOVFF   PREINC1, r0x00
+00016C CFE4 FFD9      01723         MOVFF   PREINC1, FSR2L
+000170 0012           01724         RETURN  
+                      01725 
+                      01726 
+                      01727 
+                      01728 ; Statistics:
+                      01729 ; code size:     1730 (0x06c2) bytes ( 1.32%)
+                      01730 ;                 865 (0x0361) words
+                      01731 ; udata size:       1 (0x0001) bytes ( 0.06%)
+                      01732 ; access size:      7 (0x0007) bytes
+                      01733 
+                      01734 
+                      01735         end
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+PRODH                             00000FF4
+STATUS                            00000FD8
+WREG                              00000FE8
+_00135_DS_                        000000FC
+_00145_DS_                        0000006C
+_00147_DS_                        00000160
+_00162_DS_                        00000152
+_00163_DS_                        0000014C
+_00179_DS_                        0000003E
+_00181_DS_                        0000006C
+_00200_DS_                        00000110
+_00209_DS_                        00000056
+_00210_DS_                        0000004E
+_00236_DS_                        00000032
+_00237_DS_                        00000068
+_00250_DS_                        0000004A
+_00251_DS_                        00000042
+_00257_DS_                        00000016
+_00261_DS_                        000000DE
+_00282_DS_                        00000028
+_00283_DS_                        00000022
+_00286_DS_                        000000F0
+_00287_DS_                        000000EA
+_00298_DS_                        0000003C
+_00302_DS_                        00000104
+_00327_DS_                        0000004E
+_00328_DS_                        00000048
+_00331_DS_                        00000116
+_00332_DS_                        00000110
+_ADCON0                           00000000
+_ADCON0bits                       00000000
+_ADCON1                           00000000
+_ADCON1bits                       00000000
+_ADCON2                           00000000
+_ADCON2bits                       00000000
+_ADRES                            00000000
+_ADRESH                           00000000
+_ADRESL                           00000000
+_BAUDCON                          00000000
+_BAUDCONbits                      00000000
+_BAUDCTL                          00000000
+_BAUDCTLbits                      00000000
+_BSR                              00000000
+_CCP1AS                           00000000
+_CCP1ASbits                       00000000
+_CCP1CON                          00000000
+_CCP1CONbits                      00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CCP1DEL                          00000000
+_CCP1DELbits                      00000000
+_CCP2CON                          00000000
+_CCP2CONbits                      00000000
+_CCPR1                            00000000
+_CCPR1H                           00000000
+_CCPR1L                           00000000
+_CCPR2                            00000000
+_CCPR2H                           00000000
+_CCPR2L                           00000000
+_CMCON                            00000000
+_CMCONbits                        00000000
+_CVRCON                           00000000
+_CVRCONbits                       00000000
+_DDRA                             00000000
+_DDRAbits                         00000000
+_DDRB                             00000000
+_DDRBbits                         00000000
+_DDRC                             00000000
+_DDRCbits                         00000000
+_ECCP1AS                          00000000
+_ECCP1ASbits                      00000000
+_ECCP1DEL                         00000000
+_ECCP1DELbits                     00000000
+_EEADR                            00000000
+_EECON1                           00000000
+_EECON1bits                       00000000
+_EECON2                           00000000
+_EEDATA                           00000000
+_FSR0H                            00000000
+_FSR0L                            00000000
+_FSR1H                            00000000
+_FSR1L                            00000000
+_FSR2H                            00000000
+_FSR2L                            00000000
+_HLVDCON                          00000000
+_HLVDCONbits                      00000000
+_INDF0                            00000000
+_INDF1                            00000000
+_INDF2                            00000000
+_INTCON                           00000000
+_INTCON2                          00000000
+_INTCON2bits                      00000000
+_INTCON3                          00000000
+_INTCON3bits                      00000000
+_INTCONbits                       00000000
+_IPR1                             00000000
+_IPR1bits                         00000000
+_IPR2                             00000000
+_IPR2bits                         00000000
+_LATA                             00000000
+_LATAbits                         00000000
+_LATB                             00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_LATBbits                         00000000
+_LATC                             00000000
+_LATCbits                         00000000
+_LVDCON                           00000000
+_LVDCONbits                       00000000
+_OSCCON                           00000000
+_OSCCONbits                       00000000
+_OSCTUNE                          00000000
+_OSCTUNEbits                      00000000
+_PC                               00000000
+_PCL                              00000000
+_PCLATH                           00000000
+_PCLATU                           00000000
+_PIE1                             00000000
+_PIE1bits                         00000000
+_PIE2                             00000000
+_PIE2bits                         00000000
+_PIR1                             00000000
+_PIR1bits                         00000000
+_PIR2                             00000000
+_PIR2bits                         00000000
+_PLUSW0                           00000000
+_PLUSW1                           00000000
+_PLUSW2                           00000000
+_PORTA                            00000000
+_PORTAbits                        00000000
+_PORTB                            00000000
+_PORTBbits                        00000000
+_PORTC                            00000000
+_PORTCbits                        00000000
+_PORTE                            00000000
+_PORTEbits                        00000000
+_POSTDEC0                         00000000
+_POSTDEC1                         00000000
+_POSTDEC2                         00000000
+_POSTINC0                         00000000
+_POSTINC1                         00000000
+_POSTINC2                         00000000
+_PR2                              00000000
+_PREINC0                          00000000
+_PREINC1                          00000000
+_PREINC2                          00000000
+_PROD                             00000000
+_PRODH                            00000000
+_PRODL                            00000000
+_RCON                             00000000
+_RCONbits                         00000000
+_RCREG                            00000000
+_RCSTA                            00000000
+_RCSTAbits                        00000000
+_SPBRG                            00000000
+_SPBRGH                           00000000
+_SSPADD                           00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_SSPBUF                           00000000
+_SSPCON1                          00000000
+_SSPCON1bits                      00000000
+_SSPCON2                          00000000
+_SSPCON2bits                      00000000
+_SSPSTAT                          00000000
+_SSPSTATbits                      00000000
+_STATUS                           00000000
+_STATUSbits                       00000000
+_STKPTR                           00000000
+_STKPTRbits                       00000000
+_T0CON                            00000000
+_T0CONbits                        00000000
+_T1CON                            00000000
+_T1CONbits                        00000000
+_T2CON                            00000000
+_T2CONbits                        00000000
+_T3CON                            00000000
+_T3CONbits                        00000000
+_TABLAT                           00000000
+_TBLPTR                           00000000
+_TBLPTRH                          00000000
+_TBLPTRL                          00000000
+_TBLPTRU                          00000000
+_TMR0                             00000000
+_TMR0H                            00000000
+_TMR0L                            00000000
+_TMR1                             00000000
+_TMR1H                            00000000
+_TMR1L                            00000000
+_TMR2                             00000000
+_TMR3                             00000000
+_TMR3H                            00000000
+_TMR3L                            00000000
+_TOS                              00000000
+_TOSH                             00000000
+_TOSL                             00000000
+_TOSU                             00000000
+_TRISA                            00000000
+_TRISAbits                        00000000
+_TRISB                            00000000
+_TRISBbits                        00000000
+_TRISC                            00000000
+_TRISCbits                        00000000
+_TXREG                            00000000
+_TXSTA                            00000000
+_TXSTAbits                        00000000
+_UADDR                            00000000
+_UADDRbits                        00000000
+_UCFG                             00000000
+_UCFGbits                         00000000
+_UCON                             00000000
+_UCONbits                         00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_UEIE                             00000000
+_UEIEbits                         00000000
+_UEIR                             00000000
+_UEIRbits                         00000000
+_UEP0                             00000000
+_UEP0bits                         00000000
+_UEP1                             00000000
+_UEP10                            00000000
+_UEP10bits                        00000000
+_UEP11                            00000000
+_UEP11bits                        00000000
+_UEP12                            00000000
+_UEP12bits                        00000000
+_UEP13                            00000000
+_UEP13bits                        00000000
+_UEP14                            00000000
+_UEP14bits                        00000000
+_UEP15                            00000000
+_UEP15bits                        00000000
+_UEP1bits                         00000000
+_UEP2                             00000000
+_UEP2bits                         00000000
+_UEP3                             00000000
+_UEP3bits                         00000000
+_UEP4                             00000000
+_UEP4bits                         00000000
+_UEP5                             00000000
+_UEP5bits                         00000000
+_UEP6                             00000000
+_UEP6bits                         00000000
+_UEP7                             00000000
+_UEP7bits                         00000000
+_UEP8                             00000000
+_UEP8bits                         00000000
+_UEP9                             00000000
+_UEP9bits                         00000000
+_UFRM                             00000000
+_UFRMH                            00000000
+_UFRMHbits                        00000000
+_UFRML                            00000000
+_UFRMLbits                        00000000
+_UIE                              00000000
+_UIEbits                          00000000
+_UIR                              00000000
+_UIRbits                          00000000
+_USTAT                            00000000
+_USTATbits                        00000000
+_WDTCON                           00000000
+_WDTCONbits                       00000000
+_WREG                             00000000
+__18F2550                         00000001
+__ACC_RAM_LOW_END                 0000005F
+__CODE_END                        00007FFF
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/hd   4-21-2015  23:49:49         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+__CODE_START                      00000000
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__hd44780_wait_for_ready_         00000000
+_delay100tcy                      00000000
+_delay10ktcy                      00000000
+_hd44780_init                     00000000
+_hd44780_init_port                00000000
+_hd44780_initialize_by_instruction  00000000
+_hd44780_recv                     00000000
+_hd44780_send                     00000000
+_hd44780_send_all                 00000000
+_lcddev                           00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :   105 reported,     0 suppressed
+
+

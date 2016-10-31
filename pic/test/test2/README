@@ -1,0 +1,4 @@
+the blinking leds on all ports assembler implementation with PLL clock on 16Mhz oscillator
+(refer to file for changing osccilator speed)
+based on test 1 maked by erricous@free.fr downloaded from http://erricous.free.fr/ELECTRON/test4550_en.html. All regarts to him
+I only backed it to linux software -> i added extern somthing lines

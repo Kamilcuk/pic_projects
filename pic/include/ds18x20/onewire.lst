@@ -1,0 +1,1321 @@
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  1
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.4.0 #8981 (May 19 2014) (Linux)
+                      00004 ; This file was generated Tue Apr 21 23:49:51 2015
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008 
+                      00009         .ident "SDCC version 3.4.0 #8981 [pic16 port]"
+                      00010         .file   "../include/ds18x20/onewire.c"
+                      00011         list    p=18f2550
+                      00012         radix   dec
+                      00013 
+                      00014 
+                      00015 ;--------------------------------------------------------
+                      00016 ; public variables in this module
+                      00017 ;--------------------------------------------------------
+  0000                00018         global  _ow_reset
+  0000                00019         global  _ow_bit_io
+  0000                00020         global  _ow_byte_wr
+  0000                00021         global  _ow_byte_rd
+  0000                00022         global  _ow_rom_search
+  0000                00023         global  _ow_command_intern
+  0000                00024         global  _ow_byte_wr_with_parasite_enable
+                      00025 
+                      00026 ;--------------------------------------------------------
+                      00027 ; extern variables in this module
+                      00028 ;--------------------------------------------------------
+  0000                00029         extern  _UFRMLbits
+  0000                00030         extern  _UFRMHbits
+  0000                00031         extern  _UIRbits
+  0000                00032         extern  _UIEbits
+  0000                00033         extern  _UEIRbits
+  0000                00034         extern  _UEIEbits
+  0000                00035         extern  _USTATbits
+  0000                00036         extern  _UCONbits
+  0000                00037         extern  _UADDRbits
+  0000                00038         extern  _UCFGbits
+  0000                00039         extern  _UEP0bits
+  0000                00040         extern  _UEP1bits
+  0000                00041         extern  _UEP2bits
+  0000                00042         extern  _UEP3bits
+  0000                00043         extern  _UEP4bits
+  0000                00044         extern  _UEP5bits
+  0000                00045         extern  _UEP6bits
+  0000                00046         extern  _UEP7bits
+  0000                00047         extern  _UEP8bits
+  0000                00048         extern  _UEP9bits
+  0000                00049         extern  _UEP10bits
+  0000                00050         extern  _UEP11bits
+  0000                00051         extern  _UEP12bits
+  0000                00052         extern  _UEP13bits
+  0000                00053         extern  _UEP14bits
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  2
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00054         extern  _UEP15bits
+  0000                00055         extern  _PORTAbits
+  0000                00056         extern  _PORTBbits
+  0000                00057         extern  _PORTCbits
+  0000                00058         extern  _PORTEbits
+  0000                00059         extern  _LATAbits
+  0000                00060         extern  _LATBbits
+  0000                00061         extern  _LATCbits
+  0000                00062         extern  _DDRAbits
+  0000                00063         extern  _TRISAbits
+  0000                00064         extern  _DDRBbits
+  0000                00065         extern  _TRISBbits
+  0000                00066         extern  _DDRCbits
+  0000                00067         extern  _TRISCbits
+  0000                00068         extern  _OSCTUNEbits
+  0000                00069         extern  _PIE1bits
+  0000                00070         extern  _PIR1bits
+  0000                00071         extern  _IPR1bits
+  0000                00072         extern  _PIE2bits
+  0000                00073         extern  _PIR2bits
+  0000                00074         extern  _IPR2bits
+  0000                00075         extern  _EECON1bits
+  0000                00076         extern  _RCSTAbits
+  0000                00077         extern  _TXSTAbits
+  0000                00078         extern  _T3CONbits
+  0000                00079         extern  _CMCONbits
+  0000                00080         extern  _CVRCONbits
+  0000                00081         extern  _CCP1ASbits
+  0000                00082         extern  _ECCP1ASbits
+  0000                00083         extern  _CCP1DELbits
+  0000                00084         extern  _ECCP1DELbits
+  0000                00085         extern  _BAUDCONbits
+  0000                00086         extern  _BAUDCTLbits
+  0000                00087         extern  _CCP2CONbits
+  0000                00088         extern  _CCP1CONbits
+  0000                00089         extern  _ADCON2bits
+  0000                00090         extern  _ADCON1bits
+  0000                00091         extern  _ADCON0bits
+  0000                00092         extern  _SSPCON2bits
+  0000                00093         extern  _SSPCON1bits
+  0000                00094         extern  _SSPSTATbits
+  0000                00095         extern  _T2CONbits
+  0000                00096         extern  _T1CONbits
+  0000                00097         extern  _RCONbits
+  0000                00098         extern  _WDTCONbits
+  0000                00099         extern  _HLVDCONbits
+  0000                00100         extern  _LVDCONbits
+  0000                00101         extern  _OSCCONbits
+  0000                00102         extern  _T0CONbits
+  0000                00103         extern  _STATUSbits
+  0000                00104         extern  _INTCON3bits
+  0000                00105         extern  _INTCON2bits
+  0000                00106         extern  _INTCONbits
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  3
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00107         extern  _STKPTRbits
+  0000                00108         extern  _UFRM
+  0000                00109         extern  _UFRML
+  0000                00110         extern  _UFRMH
+  0000                00111         extern  _UIR
+  0000                00112         extern  _UIE
+  0000                00113         extern  _UEIR
+  0000                00114         extern  _UEIE
+  0000                00115         extern  _USTAT
+  0000                00116         extern  _UCON
+  0000                00117         extern  _UADDR
+  0000                00118         extern  _UCFG
+  0000                00119         extern  _UEP0
+  0000                00120         extern  _UEP1
+  0000                00121         extern  _UEP2
+  0000                00122         extern  _UEP3
+  0000                00123         extern  _UEP4
+  0000                00124         extern  _UEP5
+  0000                00125         extern  _UEP6
+  0000                00126         extern  _UEP7
+  0000                00127         extern  _UEP8
+  0000                00128         extern  _UEP9
+  0000                00129         extern  _UEP10
+  0000                00130         extern  _UEP11
+  0000                00131         extern  _UEP12
+  0000                00132         extern  _UEP13
+  0000                00133         extern  _UEP14
+  0000                00134         extern  _UEP15
+  0000                00135         extern  _PORTA
+  0000                00136         extern  _PORTB
+  0000                00137         extern  _PORTC
+  0000                00138         extern  _PORTE
+  0000                00139         extern  _LATA
+  0000                00140         extern  _LATB
+  0000                00141         extern  _LATC
+  0000                00142         extern  _DDRA
+  0000                00143         extern  _TRISA
+  0000                00144         extern  _DDRB
+  0000                00145         extern  _TRISB
+  0000                00146         extern  _DDRC
+  0000                00147         extern  _TRISC
+  0000                00148         extern  _OSCTUNE
+  0000                00149         extern  _PIE1
+  0000                00150         extern  _PIR1
+  0000                00151         extern  _IPR1
+  0000                00152         extern  _PIE2
+  0000                00153         extern  _PIR2
+  0000                00154         extern  _IPR2
+  0000                00155         extern  _EECON1
+  0000                00156         extern  _EECON2
+  0000                00157         extern  _EEDATA
+  0000                00158         extern  _EEADR
+  0000                00159         extern  _RCSTA
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  4
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00160         extern  _TXSTA
+  0000                00161         extern  _TXREG
+  0000                00162         extern  _RCREG
+  0000                00163         extern  _SPBRG
+  0000                00164         extern  _SPBRGH
+  0000                00165         extern  _T3CON
+  0000                00166         extern  _TMR3
+  0000                00167         extern  _TMR3L
+  0000                00168         extern  _TMR3H
+  0000                00169         extern  _CMCON
+  0000                00170         extern  _CVRCON
+  0000                00171         extern  _CCP1AS
+  0000                00172         extern  _ECCP1AS
+  0000                00173         extern  _CCP1DEL
+  0000                00174         extern  _ECCP1DEL
+  0000                00175         extern  _BAUDCON
+  0000                00176         extern  _BAUDCTL
+  0000                00177         extern  _CCP2CON
+  0000                00178         extern  _CCPR2
+  0000                00179         extern  _CCPR2L
+  0000                00180         extern  _CCPR2H
+  0000                00181         extern  _CCP1CON
+  0000                00182         extern  _CCPR1
+  0000                00183         extern  _CCPR1L
+  0000                00184         extern  _CCPR1H
+  0000                00185         extern  _ADCON2
+  0000                00186         extern  _ADCON1
+  0000                00187         extern  _ADCON0
+  0000                00188         extern  _ADRES
+  0000                00189         extern  _ADRESL
+  0000                00190         extern  _ADRESH
+  0000                00191         extern  _SSPCON2
+  0000                00192         extern  _SSPCON1
+  0000                00193         extern  _SSPSTAT
+  0000                00194         extern  _SSPADD
+  0000                00195         extern  _SSPBUF
+  0000                00196         extern  _T2CON
+  0000                00197         extern  _PR2
+  0000                00198         extern  _TMR2
+  0000                00199         extern  _T1CON
+  0000                00200         extern  _TMR1
+  0000                00201         extern  _TMR1L
+  0000                00202         extern  _TMR1H
+  0000                00203         extern  _RCON
+  0000                00204         extern  _WDTCON
+  0000                00205         extern  _HLVDCON
+  0000                00206         extern  _LVDCON
+  0000                00207         extern  _OSCCON
+  0000                00208         extern  _T0CON
+  0000                00209         extern  _TMR0
+  0000                00210         extern  _TMR0L
+  0000                00211         extern  _TMR0H
+  0000                00212         extern  _STATUS
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  0000                00213         extern  _FSR2L
+  0000                00214         extern  _FSR2H
+  0000                00215         extern  _PLUSW2
+  0000                00216         extern  _PREINC2
+  0000                00217         extern  _POSTDEC2
+  0000                00218         extern  _POSTINC2
+  0000                00219         extern  _INDF2
+  0000                00220         extern  _BSR
+  0000                00221         extern  _FSR1L
+  0000                00222         extern  _FSR1H
+  0000                00223         extern  _PLUSW1
+  0000                00224         extern  _PREINC1
+  0000                00225         extern  _POSTDEC1
+  0000                00226         extern  _POSTINC1
+  0000                00227         extern  _INDF1
+  0000                00228         extern  _WREG
+  0000                00229         extern  _FSR0L
+  0000                00230         extern  _FSR0H
+  0000                00231         extern  _PLUSW0
+  0000                00232         extern  _PREINC0
+  0000                00233         extern  _POSTDEC0
+  0000                00234         extern  _POSTINC0
+  0000                00235         extern  _INDF0
+  0000                00236         extern  _INTCON3
+  0000                00237         extern  _INTCON2
+  0000                00238         extern  _INTCON
+  0000                00239         extern  _PROD
+  0000                00240         extern  _PRODL
+  0000                00241         extern  _PRODH
+  0000                00242         extern  _TABLAT
+  0000                00243         extern  _TBLPTR
+  0000                00244         extern  _TBLPTRL
+  0000                00245         extern  _TBLPTRH
+  0000                00246         extern  _TBLPTRU
+  0000                00247         extern  _PC
+  0000                00248         extern  _PCL
+  0000                00249         extern  _PCLATH
+  0000                00250         extern  _PCLATU
+  0000                00251         extern  _STKPTR
+  0000                00252         extern  _TOS
+  0000                00253         extern  _TOSL
+  0000                00254         extern  _TOSH
+  0000                00255         extern  _TOSU
+  0000                00256         extern  __delay_us
+                      00257 
+                      00258 ;--------------------------------------------------------
+                      00259 ;       Equates to used internal registers
+                      00260 ;--------------------------------------------------------
+  00000FD8            00261 STATUS  equ     0xfd8
+  00000FE8            00262 WREG    equ     0xfe8
+  00000FE9            00263 FSR0L   equ     0xfe9
+  00000FEA            00264 FSR0H   equ     0xfea
+  00000FE1            00265 FSR1L   equ     0xfe1
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  6
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+  00000FD9            00266 FSR2L   equ     0xfd9
+  00000FEF            00267 INDF0   equ     0xfef
+  00000FE6            00268 POSTINC1        equ     0xfe6
+  00000FE5            00269 POSTDEC1        equ     0xfe5
+  00000FE4            00270 PREINC1 equ     0xfe4
+  00000FDB            00271 PLUSW2  equ     0xfdb
+                      00272 
+                      00273 
+                      00274 ; Internal registers
+                      00275 .registers      udata_ovr       0x0000
+000000                00276 r0x00   res     1
+000001                00277 r0x01   res     1
+000002                00278 r0x02   res     1
+000003                00279 r0x03   res     1
+000004                00280 r0x04   res     1
+000005                00281 r0x05   res     1
+000006                00282 r0x06   res     1
+000007                00283 r0x07   res     1
+000008                00284 r0x08   res     1
+                      00285 
+                      00286 ;--------------------------------------------------------
+                      00287 ; global & static initialisations
+                      00288 ;--------------------------------------------------------
+                      00289 ; I code from now on!
+                      00290 ; ; Starting pCode block
+                      00291 S_onewire__ow_command_intern    code
+000000                00292 _ow_command_intern:
+                      00293         .line   229; ../include/ds18x20/onewire.c       void ow_command_intern( uint8_t command, __near 
+                            uint8_t *id, uint8_t with_parasite_enable )
+000000 CFD9 FFE5      00294         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00295         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00296         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00297         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00298         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00299         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00300         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00301         MOVFF   r0x05, POSTDEC1
+000020 0E02           00302         MOVLW   0x02
+000022 CFDB F000      00303         MOVFF   PLUSW2, r0x00
+000026 0E03           00304         MOVLW   0x03
+000028 CFDB F000      00305         MOVFF   PLUSW2, r0x01
+00002C 0E04           00306         MOVLW   0x04
+00002E CFDB F000      00307         MOVFF   PLUSW2, r0x02
+000032 0E05           00308         MOVLW   0x05
+000034 CFDB F000      00309         MOVFF   PLUSW2, r0x03
+                      00310         .line   233; ../include/ds18x20/onewire.c       ow_reset();
+000038 EC?? F0??      00311         CALL    _ow_reset
+                      00312         .line   235; ../include/ds18x20/onewire.c       if( id ) {
+00003C 50??           00313         MOVF    r0x01, W
+00003E 10??           00314         IORWF   r0x02, W
+000040 E0??           00315         BZ      _00258_DS_
+                      00316         .line   236; ../include/ds18x20/onewire.c       ow_byte_wr( OW_MATCH_ROM );     // to a single d
+                            evice
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  7
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000042 0E55           00317         MOVLW   0x55
+Message[1301]: Using default destination of 0 (Access Bank).
+000044 6EE5           00318         MOVWF   POSTDEC1
+000046 EC?? F0??      00319         CALL    _ow_byte_wr
+00004A 52E6           00320         MOVF    POSTINC1, F
+                      00321         .line   238; ../include/ds18x20/onewire.c       do {
+00004C 0E08           00322         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+00004E 6E??           00323         MOVWF   r0x04
+000050                00324 _00254_DS_:
+                      00325         .line   239; ../include/ds18x20/onewire.c       ow_byte_wr( *id );
+000050 C??? F???      00326         MOVFF   r0x01, FSR0L
+000054 C??? F???      00327         MOVFF   r0x02, FSR0H
+000058 CFEF F000      00328         MOVFF   INDF0, r0x05
+00005C 50??           00329         MOVF    r0x05, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00005E 6EE5           00330         MOVWF   POSTDEC1
+000060 EC?? F0??      00331         CALL    _ow_byte_wr
+000064 52E6           00332         MOVF    POSTINC1, F
+                      00333         .line   240; ../include/ds18x20/onewire.c       id++;
+000066 4A??           00334         INFSNZ  r0x01, F
+000068 2A??           00335         INCF    r0x02, F
+                      00336         .line   241; ../include/ds18x20/onewire.c       } while( --i );
+00006A 2E??           00337         DECFSZ  r0x04, F
+00006C D???           00338         BRA     _00254_DS_
+00006E D???           00339         BRA     _00259_DS_
+000070                00340 _00258_DS_:
+                      00341         .line   244; ../include/ds18x20/onewire.c       ow_byte_wr( OW_SKIP_ROM );      // to all device
+                            s
+000070 0ECC           00342         MOVLW   0xcc
+Message[1301]: Using default destination of 0 (Access Bank).
+000072 6EE5           00343         MOVWF   POSTDEC1
+000074 EC?? F0??      00344         CALL    _ow_byte_wr
+000078 52E6           00345         MOVF    POSTINC1, F
+00007A                00346 _00259_DS_:
+                      00347         .line   247; ../include/ds18x20/onewire.c       if ( with_parasite_enable  ) {
+00007A 50??           00348         MOVF    r0x03, W
+00007C E0??           00349         BZ      _00261_DS_
+                      00350         .line   248; ../include/ds18x20/onewire.c       ow_byte_wr_with_parasite_enable( command );
+00007E 50??           00351         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000080 6EE5           00352         MOVWF   POSTDEC1
+000082 EC?? F0??      00353         CALL    _ow_byte_wr_with_parasite_enable
+000086 52E6           00354         MOVF    POSTINC1, F
+000088 D???           00355         BRA     _00263_DS_
+00008A                00356 _00261_DS_:
+                      00357         .line   250; ../include/ds18x20/onewire.c       ow_byte_wr( command );
+00008A 50??           00358         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00008C 6EE5           00359         MOVWF   POSTDEC1
+00008E EC?? F0??      00360         CALL    _ow_byte_wr
+000092 52E6           00361         MOVF    POSTINC1, F
+000094                00362 _00263_DS_:
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  8
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000094 CFE4 F000      00363         MOVFF   PREINC1, r0x05
+000098 CFE4 F000      00364         MOVFF   PREINC1, r0x04
+00009C CFE4 F000      00365         MOVFF   PREINC1, r0x03
+0000A0 CFE4 F000      00366         MOVFF   PREINC1, r0x02
+0000A4 CFE4 F000      00367         MOVFF   PREINC1, r0x01
+0000A8 CFE4 F000      00368         MOVFF   PREINC1, r0x00
+0000AC CFE4 FFD9      00369         MOVFF   PREINC1, FSR2L
+0000B0 0012           00370         RETURN  
+                      00371 
+                      00372 ; ; Starting pCode block
+                      00373 S_onewire__ow_rom_search        code
+000000                00374 _ow_rom_search:
+                      00375         .line   180; ../include/ds18x20/onewire.c       uint8_t ow_rom_search( uint8_t diff, __near uint
+                            8_t *id )
+000000 CFD9 FFE5      00376         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00377         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00378         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00379         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00380         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00381         MOVFF   r0x03, POSTDEC1
+000018 C??? F???      00382         MOVFF   r0x04, POSTDEC1
+00001C C??? F???      00383         MOVFF   r0x05, POSTDEC1
+000020 C??? F???      00384         MOVFF   r0x06, POSTDEC1
+000024 C??? F???      00385         MOVFF   r0x07, POSTDEC1
+000028 C??? F???      00386         MOVFF   r0x08, POSTDEC1
+00002C 0E02           00387         MOVLW   0x02
+00002E CFDB F000      00388         MOVFF   PLUSW2, r0x00
+000032 0E03           00389         MOVLW   0x03
+000034 CFDB F000      00390         MOVFF   PLUSW2, r0x01
+000038 0E04           00391         MOVLW   0x04
+00003A CFDB F000      00392         MOVFF   PLUSW2, r0x02
+                      00393         .line   185; ../include/ds18x20/onewire.c       if( ow_reset() ) {
+00003E EC?? F0??      00394         CALL    _ow_reset
+Message[1301]: Using default destination of 0 (Access Bank).
+000042 6E??           00395         MOVWF   r0x03
+000044 50??           00396         MOVF    r0x03, W
+000046 E0??           00397         BZ      _00191_DS_
+                      00398         .line   186; ../include/ds18x20/onewire.c       return OW_PRESENCE_ERR;         // error, no dev
+                            ice found <--- early exit!
+Message[1301]: Using default destination of 0 (Access Bank).
+000048 68E8           00399         SETF    WREG
+00004A D???           00400         BRA     _00211_DS_
+00004C                00401 _00191_DS_:
+                      00402         .line   189; ../include/ds18x20/onewire.c       ow_byte_wr( OW_SEARCH_ROM );        // ROM searc
+                            h command
+00004C 0EF0           00403         MOVLW   0xf0
+Message[1301]: Using default destination of 0 (Access Bank).
+00004E 6EE5           00404         MOVWF   POSTDEC1
+000050 EC?? F0??      00405         CALL    _ow_byte_wr
+000054 52E6           00406         MOVF    POSTINC1, F
+                      00407         .line   190; ../include/ds18x20/onewire.c       next_diff = OW_LAST_DEVICE;         // unchanged
+                             on last device
+Message[1301]: Using default destination of 0 (Access Bank).
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE  9
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000056 6A??           00408         CLRF    r0x03
+                      00409         .line   192; ../include/ds18x20/onewire.c       i = OW_ROMCODE_SIZE * 8;            // 8 bytes
+000058 0E40           00410         MOVLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+00005A 6E??           00411         MOVWF   r0x04
+00005C                00412 _00220_DS_:
+                      00413         .line   196; ../include/ds18x20/onewire.c       do {
+00005C C??? F???      00414         MOVFF   r0x04, r0x05
+000060 0E08           00415         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+000062 6E??           00416         MOVWF   r0x06
+000064                00417 _00205_DS_:
+                      00418         .line   197; ../include/ds18x20/onewire.c       b = ow_bit_io( 1 );         // read bit
+000064 0E01           00419         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000066 6EE5           00420         MOVWF   POSTDEC1
+000068 EC?? F0??      00421         CALL    _ow_bit_io
+Message[1301]: Using default destination of 0 (Access Bank).
+00006C 6E??           00422         MOVWF   r0x07
+00006E 52E6           00423         MOVF    POSTINC1, F
+                      00424         .line   198; ../include/ds18x20/onewire.c       if( ow_bit_io( 1 ) ) {      // read complement b
+                            it
+000070 0E01           00425         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000072 6EE5           00426         MOVWF   POSTDEC1
+000074 EC?? F0??      00427         CALL    _ow_bit_io
+Message[1301]: Using default destination of 0 (Access Bank).
+000078 6E??           00428         MOVWF   r0x08
+00007A 52E6           00429         MOVF    POSTINC1, F
+00007C 50??           00430         MOVF    r0x08, W
+00007E E0??           00431         BZ      _00201_DS_
+                      00432         .line   199; ../include/ds18x20/onewire.c       if( b ) {               // 0b11
+000080 50??           00433         MOVF    r0x07, W
+000082 E0??           00434         BZ      _00202_DS_
+                      00435         .line   200; ../include/ds18x20/onewire.c       return OW_DATA_ERR; // data error <--- early exi
+                            t!
+000084 0EFE           00436         MOVLW   0xfe
+000086 D???           00437         BRA     _00211_DS_
+000088                00438 _00201_DS_:
+                      00439         .line   204; ../include/ds18x20/onewire.c       if( !b ) {              // 0b00 = 2 devices
+000088 50??           00440         MOVF    r0x07, W
+00008A E1??           00441         BNZ     _00202_DS_
+                      00442         .line   205; ../include/ds18x20/onewire.c       if( diff > i || ((*id & 1) && diff != i) ) {
+00008C 50??           00443         MOVF    r0x00, W
+00008E 5C??           00444         SUBWF   r0x05, W
+000090 E3??           00445         BNC     _00194_DS_
+000092 C??? F???      00446         MOVFF   r0x01, FSR0L
+000096 C??? F???      00447         MOVFF   r0x02, FSR0H
+00009A CFEF F000      00448         MOVFF   INDF0, r0x08
+00009E A0??           00449         BTFSS   r0x08, 0
+0000A0 D???           00450         BRA     _00202_DS_
+0000A2 50??           00451         MOVF    r0x00, W
+0000A4 18??           00452         XORWF   r0x05, W
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 10
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0000A6 E0??           00453         BZ      _00202_DS_
+0000A8                00454 _00194_DS_:
+                      00455         .line   206; ../include/ds18x20/onewire.c       b = 1;          // now 1
+0000A8 0E01           00456         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+0000AA 6E??           00457         MOVWF   r0x07
+                      00458         .line   207; ../include/ds18x20/onewire.c       next_diff = i;  // next pass 0
+0000AC C??? F???      00459         MOVFF   r0x05, r0x03
+0000B0                00460 _00202_DS_:
+                      00461         .line   211; ../include/ds18x20/onewire.c       ow_bit_io( b );             // write bit
+0000B0 50??           00462         MOVF    r0x07, W
+Message[1301]: Using default destination of 0 (Access Bank).
+0000B2 6EE5           00463         MOVWF   POSTDEC1
+0000B4 EC?? F0??      00464         CALL    _ow_bit_io
+0000B8 52E6           00465         MOVF    POSTINC1, F
+                      00466         .line   212; ../include/ds18x20/onewire.c       *id >>= 1;
+0000BA C??? F???      00467         MOVFF   r0x01, FSR0L
+0000BE C??? F???      00468         MOVFF   r0x02, FSR0H
+0000C2 CFEF F000      00469         MOVFF   INDF0, r0x08
+0000C6 40??           00470         RRNCF   r0x08, W
+0000C8 0B7F           00471         ANDLW   0x7f
+Message[1301]: Using default destination of 0 (Access Bank).
+0000CA 6E??           00472         MOVWF   r0x08
+0000CC C??? F???      00473         MOVFF   r0x01, FSR0L
+0000D0 C??? F???      00474         MOVFF   r0x02, FSR0H
+0000D4 C??? F???      00475         MOVFF   r0x08, INDF0
+                      00476         .line   213; ../include/ds18x20/onewire.c       if( b ) {
+0000D8 50??           00477         MOVF    r0x07, W
+0000DA E0??           00478         BZ      _00204_DS_
+                      00479         .line   214; ../include/ds18x20/onewire.c       *id |= 0x80;            // store bit
+0000DC C??? F???      00480         MOVFF   r0x01, FSR0L
+0000E0 C??? F???      00481         MOVFF   r0x02, FSR0H
+0000E4 CFEF F000      00482         MOVFF   INDF0, r0x07
+0000E8 8E??           00483         BSF     r0x07, 7
+0000EA C??? F???      00484         MOVFF   r0x01, FSR0L
+0000EE C??? F???      00485         MOVFF   r0x02, FSR0H
+0000F2 C??? F???      00486         MOVFF   r0x07, INDF0
+0000F6                00487 _00204_DS_:
+                      00488         .line   217; ../include/ds18x20/onewire.c       i--;
+0000F6 06??           00489         DECF    r0x05, F
+0000F8 C??? F???      00490         MOVFF   r0x05, r0x04
+                      00491         .line   219; ../include/ds18x20/onewire.c       } while( --j );
+0000FC 2E??           00492         DECFSZ  r0x06, F
+0000FE D???           00493         BRA     _00205_DS_
+                      00494         .line   221; ../include/ds18x20/onewire.c       id++;                           // next byte
+000100 4A??           00495         INFSNZ  r0x01, F
+000102 2A??           00496         INCF    r0x02, F
+                      00497         .line   223; ../include/ds18x20/onewire.c       } while( i );
+000104 50??           00498         MOVF    r0x05, W
+000106 A4D8           00499         BTFSS   STATUS, 2
+000108 D???           00500         BRA     _00220_DS_
+                      00501         .line   225; ../include/ds18x20/onewire.c       return next_diff;                   // to contin
+                            ue search
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 11
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00010A 50??           00502         MOVF    r0x03, W
+00010C                00503 _00211_DS_:
+00010C CFE4 F000      00504         MOVFF   PREINC1, r0x08
+000110 CFE4 F000      00505         MOVFF   PREINC1, r0x07
+000114 CFE4 F000      00506         MOVFF   PREINC1, r0x06
+000118 CFE4 F000      00507         MOVFF   PREINC1, r0x05
+00011C CFE4 F000      00508         MOVFF   PREINC1, r0x04
+000120 CFE4 F000      00509         MOVFF   PREINC1, r0x03
+000124 CFE4 F000      00510         MOVFF   PREINC1, r0x02
+000128 CFE4 F000      00511         MOVFF   PREINC1, r0x01
+00012C CFE4 F000      00512         MOVFF   PREINC1, r0x00
+000130 CFE4 FFD9      00513         MOVFF   PREINC1, FSR2L
+000134 0012           00514         RETURN  
+                      00515 
+                      00516 ; ; Starting pCode block
+                      00517 S_onewire__ow_byte_rd   code
+000000                00518 _ow_byte_rd:
+                      00519         .line   172; ../include/ds18x20/onewire.c       uint8_t ow_byte_rd( void )
+000000 CFD9 FFE5      00520         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00521         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00522         MOVFF   r0x00, POSTDEC1
+                      00523         .line   176; ../include/ds18x20/onewire.c       return ow_byte_wr( 0xFF ); 
+00000C 0EFF           00524         MOVLW   0xff
+Message[1301]: Using default destination of 0 (Access Bank).
+00000E 6EE5           00525         MOVWF   POSTDEC1
+000010 EC?? F0??      00526         CALL    _ow_byte_wr
+Message[1301]: Using default destination of 0 (Access Bank).
+000014 6E??           00527         MOVWF   r0x00
+000016 52E6           00528         MOVF    POSTINC1, F
+000018 50??           00529         MOVF    r0x00, W
+00001A CFE4 F000      00530         MOVFF   PREINC1, r0x00
+00001E CFE4 FFD9      00531         MOVFF   PREINC1, FSR2L
+000022 0012           00532         RETURN  
+                      00533 
+                      00534 ; ; Starting pCode block
+                      00535 S_onewire__ow_byte_wr_with_parasite_enable      code
+000000                00536 _ow_byte_wr_with_parasite_enable:
+                      00537         .line   152; ../include/ds18x20/onewire.c       uint8_t ow_byte_wr_with_parasite_enable( uint8_t
+                             b )
+000000 CFD9 FFE5      00538         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00539         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00540         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00541         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00542         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00543         MOVFF   r0x03, POSTDEC1
+000018 0E02           00544         MOVLW   0x02
+00001A CFDB F000      00545         MOVFF   PLUSW2, r0x00
+                      00546         .line   156; ../include/ds18x20/onewire.c       do {
+00001E 0E08           00547         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+000020 6E??           00548         MOVWF   r0x01
+000022                00549 _00161_DS_:
+                      00550         .line   157; ../include/ds18x20/onewire.c       if ( i != 1 ) {
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 12
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000022 50??           00551         MOVF    r0x01, W
+000024 0A01           00552         XORLW   0x01
+000026 E0??           00553         BZ      _00157_DS_
+                      00554         .line   158; ../include/ds18x20/onewire.c       j = ow_bit_io_intern( b & 1, 0 );
+000028 0E01           00555         MOVLW   0x01
+00002A 14??           00556         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00002C 6E??           00557         MOVWF   r0x02
+00002E 0E00           00558         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6EE5           00559         MOVWF   POSTDEC1
+000032 50??           00560         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000034 6EE5           00561         MOVWF   POSTDEC1
+000036 EC?? F0??      00562         CALL    _ow_bit_io_intern
+Message[1301]: Using default destination of 0 (Access Bank).
+00003A 6E??           00563         MOVWF   r0x02
+00003C 52E6           00564         MOVF    POSTINC1, F
+00003E 52E6           00565         MOVF    POSTINC1, F
+000040 D???           00566         BRA     _00158_DS_
+000042                00567 _00157_DS_:
+                      00568         .line   160; ../include/ds18x20/onewire.c       j = ow_bit_io_intern( b & 1, 1 );
+000042 0E01           00569         MOVLW   0x01
+000044 14??           00570         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000046 6E??           00571         MOVWF   r0x03
+000048 0E01           00572         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+00004A 6EE5           00573         MOVWF   POSTDEC1
+00004C 50??           00574         MOVF    r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00004E 6EE5           00575         MOVWF   POSTDEC1
+000050 EC?? F0??      00576         CALL    _ow_bit_io_intern
+Message[1301]: Using default destination of 0 (Access Bank).
+000054 6E??           00577         MOVWF   r0x02
+000056 52E6           00578         MOVF    POSTINC1, F
+000058 52E6           00579         MOVF    POSTINC1, F
+00005A                00580 _00158_DS_:
+                      00581         .line   162; ../include/ds18x20/onewire.c       b >>= 1;
+00005A 90D8           00582         BCF     STATUS, 0
+00005C 32??           00583         RRCF    r0x00, F
+                      00584         .line   163; ../include/ds18x20/onewire.c       if( j ) {
+00005E 50??           00585         MOVF    r0x02, W
+000060 E0??           00586         BZ      _00162_DS_
+                      00587         .line   164; ../include/ds18x20/onewire.c       b |= 0x80;
+000062 8E??           00588         BSF     r0x00, 7
+000064                00589 _00162_DS_:
+                      00590         .line   166; ../include/ds18x20/onewire.c       } while( --i );
+000064 2E??           00591         DECFSZ  r0x01, F
+000066 D???           00592         BRA     _00161_DS_
+                      00593         .line   168; ../include/ds18x20/onewire.c       return b;
+000068 50??           00594         MOVF    r0x00, W
+00006A CFE4 F000      00595         MOVFF   PREINC1, r0x03
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 13
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+00006E CFE4 F000      00596         MOVFF   PREINC1, r0x02
+000072 CFE4 F000      00597         MOVFF   PREINC1, r0x01
+000076 CFE4 F000      00598         MOVFF   PREINC1, r0x00
+00007A CFE4 FFD9      00599         MOVFF   PREINC1, FSR2L
+00007E 0012           00600         RETURN  
+                      00601 
+                      00602 ; ; Starting pCode block
+                      00603 S_onewire__ow_byte_wr   code
+000000                00604 _ow_byte_wr:
+                      00605         .line   137; ../include/ds18x20/onewire.c       uint8_t ow_byte_wr( uint8_t b )
+000000 CFD9 FFE5      00606         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00607         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00608         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00609         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00610         MOVFF   r0x02, POSTDEC1
+000014 0E02           00611         MOVLW   0x02
+000016 CFDB F000      00612         MOVFF   PLUSW2, r0x00
+                      00613         .line   141; ../include/ds18x20/onewire.c       do {
+00001A 0E08           00614         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6E??           00615         MOVWF   r0x01
+00001E                00616 _00148_DS_:
+                      00617         .line   142; ../include/ds18x20/onewire.c       j = ow_bit_io( b & 1 );
+00001E 0E01           00618         MOVLW   0x01
+000020 14??           00619         ANDWF   r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6E??           00620         MOVWF   r0x02
+000024 50??           00621         MOVF    r0x02, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000026 6EE5           00622         MOVWF   POSTDEC1
+000028 EC?? F0??      00623         CALL    _ow_bit_io
+Message[1301]: Using default destination of 0 (Access Bank).
+00002C 6E??           00624         MOVWF   r0x02
+00002E 52E6           00625         MOVF    POSTINC1, F
+                      00626         .line   143; ../include/ds18x20/onewire.c       b >>= 1;
+000030 90D8           00627         BCF     STATUS, 0
+000032 32??           00628         RRCF    r0x00, F
+                      00629         .line   144; ../include/ds18x20/onewire.c       if( j ) {
+000034 50??           00630         MOVF    r0x02, W
+000036 E0??           00631         BZ      _00149_DS_
+                      00632         .line   145; ../include/ds18x20/onewire.c       b |= 0x80;
+000038 8E??           00633         BSF     r0x00, 7
+00003A                00634 _00149_DS_:
+                      00635         .line   147; ../include/ds18x20/onewire.c       } while( --i );
+00003A 2E??           00636         DECFSZ  r0x01, F
+00003C D???           00637         BRA     _00148_DS_
+                      00638         .line   149; ../include/ds18x20/onewire.c       return b;
+00003E 50??           00639         MOVF    r0x00, W
+000040 CFE4 F000      00640         MOVFF   PREINC1, r0x02
+000044 CFE4 F000      00641         MOVFF   PREINC1, r0x01
+000048 CFE4 F000      00642         MOVFF   PREINC1, r0x00
+00004C CFE4 FFD9      00643         MOVFF   PREINC1, FSR2L
+000050 0012           00644         RETURN  
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 14
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+                      00645 
+                      00646 ; ; Starting pCode block
+                      00647 S_onewire__ow_bit_io    code
+000000                00648 _ow_bit_io:
+                      00649         .line   132; ../include/ds18x20/onewire.c       uint8_t ow_bit_io( uint8_t b )
+000000 CFD9 FFE5      00650         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00651         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00652         MOVFF   r0x00, POSTDEC1
+00000C 0E02           00653         MOVLW   0x02
+00000E CFDB F000      00654         MOVFF   PLUSW2, r0x00
+                      00655         .line   134; ../include/ds18x20/onewire.c       return ow_bit_io_intern( b & 1, 0 );
+000012 0E01           00656         MOVLW   0x01
+000014 16??           00657         ANDWF   r0x00, F
+000016 0E00           00658         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000018 6EE5           00659         MOVWF   POSTDEC1
+00001A 50??           00660         MOVF    r0x00, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00001C 6EE5           00661         MOVWF   POSTDEC1
+00001E EC?? F0??      00662         CALL    _ow_bit_io_intern
+Message[1301]: Using default destination of 0 (Access Bank).
+000022 6E??           00663         MOVWF   r0x00
+000024 52E6           00664         MOVF    POSTINC1, F
+000026 52E6           00665         MOVF    POSTINC1, F
+000028 50??           00666         MOVF    r0x00, W
+00002A CFE4 F000      00667         MOVFF   PREINC1, r0x00
+00002E CFE4 FFD9      00668         MOVFF   PREINC1, FSR2L
+000032 0012           00669         RETURN  
+                      00670 
+                      00671 ; ; Starting pCode block
+                      00672 S_onewire__ow_bit_io_intern     code
+000000                00673 _ow_bit_io_intern:
+                      00674         .line   90; ../include/ds18x20/onewire.c        static uint8_t ow_bit_io_intern( uint8_t b, uint
+                            8_t with_parasite_enable )
+000000 CFD9 FFE5      00675         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00676         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00677         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00678         MOVFF   r0x01, POSTDEC1
+000010 C??? F???      00679         MOVFF   r0x02, POSTDEC1
+000014 C??? F???      00680         MOVFF   r0x03, POSTDEC1
+000018 0E02           00681         MOVLW   0x02
+00001A CFDB F000      00682         MOVFF   PLUSW2, r0x00
+00001E 0E03           00683         MOVLW   0x03
+000020 CFDB F000      00684         MOVFF   PLUSW2, r0x01
+                      00685         .line   92; ../include/ds18x20/onewire.c        ATOMIC_BLOCK (
+000024 C??? F???      00686         MOVFF   _INTCON, r0x02
+000028 50??           00687         MOVF    _INTCON, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00002A 6E??           00688         MOVWF   r0x03
+00002C 0E3F           00689         MOVLW   0x3f
+00002E 14??           00690         ANDWF   r0x03, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000030 6E??           00691         MOVWF   _INTCON
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 15
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000032 9C??           00692         BCF     _TRISBbits, 6
+000034 0E00           00693         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000036 6EE5           00694         MOVWF   POSTDEC1
+000038 0E07           00695         MOVLW   0x07
+Message[1301]: Using default destination of 0 (Access Bank).
+00003A 6EE5           00696         MOVWF   POSTDEC1
+00003C EC?? F0??      00697         CALL    __delay_us
+000040 52E6           00698         MOVF    POSTINC1, F
+000042 52E6           00699         MOVF    POSTINC1, F
+000044 50??           00700         MOVF    r0x00, W
+000046 E0??           00701         BZ      _00122_DS_
+000048 8C??           00702         BSF     _TRISBbits, 6
+00004A                00703 _00122_DS_:
+00004A 0E00           00704         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00004C 6EE5           00705         MOVWF   POSTDEC1
+00004E 0E08           00706         MOVLW   0x08
+Message[1301]: Using default destination of 0 (Access Bank).
+000050 6EE5           00707         MOVWF   POSTDEC1
+000052 EC?? F0??      00708         CALL    __delay_us
+000056 52E6           00709         MOVF    POSTINC1, F
+000058 52E6           00710         MOVF    POSTINC1, F
+00005A BC??           00711         BTFSC   _PORTBbits, 6
+00005C D???           00712         BRA     _00124_DS_
+Message[1301]: Using default destination of 0 (Access Bank).
+00005E 6A??           00713         CLRF    r0x00
+000060                00714 _00124_DS_:
+000060 0E00           00715         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000062 6EE5           00716         MOVWF   POSTDEC1
+000064 0E26           00717         MOVLW   0x26
+Message[1301]: Using default destination of 0 (Access Bank).
+000066 6EE5           00718         MOVWF   POSTDEC1
+000068 EC?? F0??      00719         CALL    __delay_us
+00006C 52E6           00720         MOVF    POSTINC1, F
+00006E 52E6           00721         MOVF    POSTINC1, F
+000070 8C??           00722         BSF     _TRISBbits, 6
+000072 50??           00723         MOVF    r0x01, W
+000074 E0??           00724         BZ      _00131_DS_
+000076 9C??           00725         BCF     _TRISBbits, 6
+000078 8C??           00726         BSF     _PORTBbits, 6
+00007A 8E??           00727         BSF     _PORTBbits, 7
+00007C                00728 _00131_DS_:
+00007C C??? F???      00729         MOVFF   r0x02, _INTCON
+                      00730         .line   127; ../include/ds18x20/onewire.c       _delay_us(OW_RECOVERY_TIME); // may be increased
+                             for longer wires
+000080 0E00           00731         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+000082 6EE5           00732         MOVWF   POSTDEC1
+000084 0E0A           00733         MOVLW   0x0a
+Message[1301]: Using default destination of 0 (Access Bank).
+000086 6EE5           00734         MOVWF   POSTDEC1
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 16
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+000088 EC?? F0??      00735         CALL    __delay_us
+00008C 52E6           00736         MOVF    POSTINC1, F
+00008E 52E6           00737         MOVF    POSTINC1, F
+                      00738         .line   129; ../include/ds18x20/onewire.c       return b;
+000090 50??           00739         MOVF    r0x00, W
+000092 CFE4 F000      00740         MOVFF   PREINC1, r0x03
+000096 CFE4 F000      00741         MOVFF   PREINC1, r0x02
+00009A CFE4 F000      00742         MOVFF   PREINC1, r0x01
+00009E CFE4 F000      00743         MOVFF   PREINC1, r0x00
+0000A2 CFE4 FFD9      00744         MOVFF   PREINC1, FSR2L
+0000A6 0012           00745         RETURN  
+                      00746 
+                      00747 ; ; Starting pCode block
+                      00748 S_onewire__ow_reset     code
+000000                00749 _ow_reset:
+                      00750         .line   49; ../include/ds18x20/onewire.c        uint8_t ow_reset(void)
+000000 CFD9 FFE5      00751         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00752         MOVFF   FSR1L, FSR2L
+000008 C??? F???      00753         MOVFF   r0x00, POSTDEC1
+00000C C??? F???      00754         MOVFF   r0x01, POSTDEC1
+                      00755         .line   53; ../include/ds18x20/onewire.c        ow_parasite_disable();
+000010 8C??           00756         BSF     _TRISBbits, 6
+000012 9E??           00757         BCF     _PORTBbits, 7
+                      00758         .line   55; ../include/ds18x20/onewire.c        ATOMIC_BLOCK (
+000014 C??? F???      00759         MOVFF   _INTCON, r0x00
+000018 50??           00760         MOVF    _INTCON, W
+Message[1301]: Using default destination of 0 (Access Bank).
+00001A 6E??           00761         MOVWF   r0x01
+00001C 0E3F           00762         MOVLW   0x3f
+00001E 14??           00763         ANDWF   r0x01, W
+Message[1301]: Using default destination of 0 (Access Bank).
+000020 6E??           00764         MOVWF   _INTCON
+000022 9C??           00765         BCF     _PORTBbits, 6
+000024 9C??           00766         BCF     _TRISBbits, 6
+000026 0E01           00767         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000028 6EE5           00768         MOVWF   POSTDEC1
+00002A 0EE0           00769         MOVLW   0xe0
+Message[1301]: Using default destination of 0 (Access Bank).
+00002C 6EE5           00770         MOVWF   POSTDEC1
+00002E EC?? F0??      00771         CALL    __delay_us
+000032 52E6           00772         MOVF    POSTINC1, F
+000034 52E6           00773         MOVF    POSTINC1, F
+000036 8C??           00774         BSF     _TRISBbits, 6
+000038 0E00           00775         MOVLW   0x00
+Message[1301]: Using default destination of 0 (Access Bank).
+00003A 6EE5           00776         MOVWF   POSTDEC1
+00003C 0E40           00777         MOVLW   0x40
+Message[1301]: Using default destination of 0 (Access Bank).
+00003E 6EE5           00778         MOVWF   POSTDEC1
+000040 EC?? F0??      00779         CALL    __delay_us
+000044 52E6           00780         MOVF    POSTINC1, F
+000046 52E6           00781         MOVF    POSTINC1, F
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 17
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+Message[1301]: Using default destination of 0 (Access Bank).
+000048 6A??           00782         CLRF    r0x01
+00004A BC??           00783         BTFSC   _PORTBbits, 6
+00004C 2A??           00784         INCF    r0x01, F
+00004E C??? F???      00785         MOVFF   r0x00, _INTCON
+                      00786         .line   74; ../include/ds18x20/onewire.c        _delay_us(480 - 64);       // was 480-66
+000052 0E01           00787         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000054 6EE5           00788         MOVWF   POSTDEC1
+000056 0EA0           00789         MOVLW   0xa0
+Message[1301]: Using default destination of 0 (Access Bank).
+000058 6EE5           00790         MOVWF   POSTDEC1
+00005A EC?? F0??      00791         CALL    __delay_us
+00005E 52E6           00792         MOVF    POSTINC1, F
+000060 52E6           00793         MOVF    POSTINC1, F
+                      00794         .line   75; ../include/ds18x20/onewire.c        if( OW_GET_IN() == 0 ) {
+000062 BC??           00795         BTFSC   _PORTBbits, 6
+000064 D???           00796         BRA     _00115_DS_
+                      00797         .line   76; ../include/ds18x20/onewire.c        err = 1;             // short circuit, expected 
+                            low but got high
+000066 0E01           00798         MOVLW   0x01
+Message[1301]: Using default destination of 0 (Access Bank).
+000068 6E??           00799         MOVWF   r0x01
+00006A                00800 _00115_DS_:
+                      00801         .line   79; ../include/ds18x20/onewire.c        return err;
+00006A 50??           00802         MOVF    r0x01, W
+00006C CFE4 F000      00803         MOVFF   PREINC1, r0x01
+000070 CFE4 F000      00804         MOVFF   PREINC1, r0x00
+000074 CFE4 FFD9      00805         MOVFF   PREINC1, FSR2L
+000078 0012           00806         RETURN  
+                      00807 
+                      00808 
+                      00809 
+                      00810 ; Statistics:
+                      00811 ; code size:     1076 (0x0434) bytes ( 0.82%)
+                      00812 ;                 538 (0x021a) words
+                      00813 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00814 ; access size:      9 (0x0009) bytes
+                      00815 
+                      00816 
+                      00817         end
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+INDF0                             00000FEF
+PLUSW2                            00000FDB
+POSTDEC1                          00000FE5
+POSTINC1                          00000FE6
+PREINC1                           00000FE4
+STATUS                            00000FD8
+WREG                              00000FE8
+_00115_DS_                        0000006A
+_00122_DS_                        0000004A
+_00124_DS_                        00000060
+_00131_DS_                        0000007C
+_00148_DS_                        0000001E
+_00149_DS_                        0000003A
+_00157_DS_                        00000042
+_00158_DS_                        0000005A
+_00161_DS_                        00000022
+_00162_DS_                        00000064
+_00191_DS_                        0000004C
+_00194_DS_                        000000A8
+_00201_DS_                        00000088
+_00202_DS_                        000000B0
+_00204_DS_                        000000F6
+_00205_DS_                        00000064
+_00211_DS_                        0000010C
+_00220_DS_                        0000005C
+_00254_DS_                        00000050
+_00258_DS_                        00000070
+_00259_DS_                        0000007A
+_00261_DS_                        0000008A
+_00263_DS_                        00000094
+_ADCON0                           00000000
+_ADCON0bits                       00000000
+_ADCON1                           00000000
+_ADCON1bits                       00000000
+_ADCON2                           00000000
+_ADCON2bits                       00000000
+_ADRES                            00000000
+_ADRESH                           00000000
+_ADRESL                           00000000
+_BAUDCON                          00000000
+_BAUDCONbits                      00000000
+_BAUDCTL                          00000000
+_BAUDCTLbits                      00000000
+_BSR                              00000000
+_CCP1AS                           00000000
+_CCP1ASbits                       00000000
+_CCP1CON                          00000000
+_CCP1CONbits                      00000000
+_CCP1DEL                          00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CCP1DELbits                      00000000
+_CCP2CON                          00000000
+_CCP2CONbits                      00000000
+_CCPR1                            00000000
+_CCPR1H                           00000000
+_CCPR1L                           00000000
+_CCPR2                            00000000
+_CCPR2H                           00000000
+_CCPR2L                           00000000
+_CMCON                            00000000
+_CMCONbits                        00000000
+_CVRCON                           00000000
+_CVRCONbits                       00000000
+_DDRA                             00000000
+_DDRAbits                         00000000
+_DDRB                             00000000
+_DDRBbits                         00000000
+_DDRC                             00000000
+_DDRCbits                         00000000
+_ECCP1AS                          00000000
+_ECCP1ASbits                      00000000
+_ECCP1DEL                         00000000
+_ECCP1DELbits                     00000000
+_EEADR                            00000000
+_EECON1                           00000000
+_EECON1bits                       00000000
+_EECON2                           00000000
+_EEDATA                           00000000
+_FSR0H                            00000000
+_FSR0L                            00000000
+_FSR1H                            00000000
+_FSR1L                            00000000
+_FSR2H                            00000000
+_FSR2L                            00000000
+_HLVDCON                          00000000
+_HLVDCONbits                      00000000
+_INDF0                            00000000
+_INDF1                            00000000
+_INDF2                            00000000
+_INTCON                           00000000
+_INTCON2                          00000000
+_INTCON2bits                      00000000
+_INTCON3                          00000000
+_INTCON3bits                      00000000
+_INTCONbits                       00000000
+_IPR1                             00000000
+_IPR1bits                         00000000
+_IPR2                             00000000
+_IPR2bits                         00000000
+_LATA                             00000000
+_LATAbits                         00000000
+_LATB                             00000000
+_LATBbits                         00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_LATC                             00000000
+_LATCbits                         00000000
+_LVDCON                           00000000
+_LVDCONbits                       00000000
+_OSCCON                           00000000
+_OSCCONbits                       00000000
+_OSCTUNE                          00000000
+_OSCTUNEbits                      00000000
+_PC                               00000000
+_PCL                              00000000
+_PCLATH                           00000000
+_PCLATU                           00000000
+_PIE1                             00000000
+_PIE1bits                         00000000
+_PIE2                             00000000
+_PIE2bits                         00000000
+_PIR1                             00000000
+_PIR1bits                         00000000
+_PIR2                             00000000
+_PIR2bits                         00000000
+_PLUSW0                           00000000
+_PLUSW1                           00000000
+_PLUSW2                           00000000
+_PORTA                            00000000
+_PORTAbits                        00000000
+_PORTB                            00000000
+_PORTBbits                        00000000
+_PORTC                            00000000
+_PORTCbits                        00000000
+_PORTE                            00000000
+_PORTEbits                        00000000
+_POSTDEC0                         00000000
+_POSTDEC1                         00000000
+_POSTDEC2                         00000000
+_POSTINC0                         00000000
+_POSTINC1                         00000000
+_POSTINC2                         00000000
+_PR2                              00000000
+_PREINC0                          00000000
+_PREINC1                          00000000
+_PREINC2                          00000000
+_PROD                             00000000
+_PRODH                            00000000
+_PRODL                            00000000
+_RCON                             00000000
+_RCONbits                         00000000
+_RCREG                            00000000
+_RCSTA                            00000000
+_RCSTAbits                        00000000
+_SPBRG                            00000000
+_SPBRGH                           00000000
+_SSPADD                           00000000
+_SSPBUF                           00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_SSPCON1                          00000000
+_SSPCON1bits                      00000000
+_SSPCON2                          00000000
+_SSPCON2bits                      00000000
+_SSPSTAT                          00000000
+_SSPSTATbits                      00000000
+_STATUS                           00000000
+_STATUSbits                       00000000
+_STKPTR                           00000000
+_STKPTRbits                       00000000
+_T0CON                            00000000
+_T0CONbits                        00000000
+_T1CON                            00000000
+_T1CONbits                        00000000
+_T2CON                            00000000
+_T2CONbits                        00000000
+_T3CON                            00000000
+_T3CONbits                        00000000
+_TABLAT                           00000000
+_TBLPTR                           00000000
+_TBLPTRH                          00000000
+_TBLPTRL                          00000000
+_TBLPTRU                          00000000
+_TMR0                             00000000
+_TMR0H                            00000000
+_TMR0L                            00000000
+_TMR1                             00000000
+_TMR1H                            00000000
+_TMR1L                            00000000
+_TMR2                             00000000
+_TMR3                             00000000
+_TMR3H                            00000000
+_TMR3L                            00000000
+_TOS                              00000000
+_TOSH                             00000000
+_TOSL                             00000000
+_TOSU                             00000000
+_TRISA                            00000000
+_TRISAbits                        00000000
+_TRISB                            00000000
+_TRISBbits                        00000000
+_TRISC                            00000000
+_TRISCbits                        00000000
+_TXREG                            00000000
+_TXSTA                            00000000
+_TXSTAbits                        00000000
+_UADDR                            00000000
+_UADDRbits                        00000000
+_UCFG                             00000000
+_UCFGbits                         00000000
+_UCON                             00000000
+_UCONbits                         00000000
+_UEIE                             00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_UEIEbits                         00000000
+_UEIR                             00000000
+_UEIRbits                         00000000
+_UEP0                             00000000
+_UEP0bits                         00000000
+_UEP1                             00000000
+_UEP10                            00000000
+_UEP10bits                        00000000
+_UEP11                            00000000
+_UEP11bits                        00000000
+_UEP12                            00000000
+_UEP12bits                        00000000
+_UEP13                            00000000
+_UEP13bits                        00000000
+_UEP14                            00000000
+_UEP14bits                        00000000
+_UEP15                            00000000
+_UEP15bits                        00000000
+_UEP1bits                         00000000
+_UEP2                             00000000
+_UEP2bits                         00000000
+_UEP3                             00000000
+_UEP3bits                         00000000
+_UEP4                             00000000
+_UEP4bits                         00000000
+_UEP5                             00000000
+_UEP5bits                         00000000
+_UEP6                             00000000
+_UEP6bits                         00000000
+_UEP7                             00000000
+_UEP7bits                         00000000
+_UEP8                             00000000
+_UEP8bits                         00000000
+_UEP9                             00000000
+_UEP9bits                         00000000
+_UFRM                             00000000
+_UFRMH                            00000000
+_UFRMHbits                        00000000
+_UFRML                            00000000
+_UFRMLbits                        00000000
+_UIE                              00000000
+_UIEbits                          00000000
+_UIR                              00000000
+_UIRbits                          00000000
+_USTAT                            00000000
+_USTATbits                        00000000
+_WDTCON                           00000000
+_WDTCONbits                       00000000
+_WREG                             00000000
+__18F2550                         00000001
+__ACC_RAM_LOW_END                 0000005F
+__CODE_END                        00007FFF
+__CODE_START                      00000000
+gpasm-1.4.0 #1107 (Feb 13 2015) ../include/ds   4-21-2015  23:49:52         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+__EEPROM_END                      00F000FF
+__EEPROM_START                    00F00000
+__VECTOR_INT_HIGH                 00000008
+__VECTOR_INT_LOW                  00000018
+__VECTOR_RESET                    00000000
+__delay_us                        00000000
+_ow_bit_io                        00000000
+_ow_bit_io_intern                 00000000
+_ow_byte_rd                       00000000
+_ow_byte_wr                       00000000
+_ow_byte_wr_with_parasite_enable  00000000
+_ow_command_intern                00000000
+_ow_reset                         00000000
+_ow_rom_search                    00000000
+r0x00                             00000000
+r0x01                             00000001
+r0x02                             00000002
+r0x03                             00000003
+r0x04                             00000004
+r0x05                             00000005
+r0x06                             00000006
+r0x07                             00000007
+r0x08                             00000008
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    58 reported,     0 suppressed
+
+

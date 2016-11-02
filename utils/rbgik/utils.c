@@ -26,7 +26,11 @@
 
 */
 
+#include "config.h"
 #include "utils.h"
+
+#ifdef USE_AUBIO
+
 #ifdef HAVE_JACK
 #include "jackio.h"
 #endif /* HAVE_JACK */
@@ -200,3 +204,5 @@ send_noteon (int pitch, int velo)
   }
 }
 
+
+#endif

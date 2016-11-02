@@ -17,7 +17,7 @@
   along with aubio.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -25,8 +25,6 @@
 #include <unistd.h>
 #include <math.h>               /* for isfinite */
 #include <string.h>             /* for strcmp */
-#include <aubio.h>
-// #include "config.h"
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #ifdef HAVE_DEBUG
@@ -48,6 +46,8 @@
 #define outmsg(format, args...)   fprintf(stdout, format , ##args)
 #endif
 
+#ifdef USE_AUBIO
+#include <aubio.h>
 typedef void (aubio_print_func_t) (void);
 void send_noteon (int pitch, int velo);
 
@@ -56,3 +56,4 @@ typedef int (*aubio_process_func_t) (fvec_t * input, fvec_t * output);
 
 void process_block (fvec_t *ibuf, fvec_t *obuf);
 void process_print (void);
+#endif

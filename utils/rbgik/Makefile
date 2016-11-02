@@ -1,6 +1,10 @@
+
+CFLAGS_gtk=$(shell pkg-config --libs gtk+-3.0) $(shell pkg-config --cflags gtk+-3.0)
+CFLAGS_aubio=-ljack -laubio -I/usr/include/aubio/
+CFLAGS=-I/usr/include/libusb-1.0 -lusb-1.0  -lm -lrt $(CFLAGS_aubio) $(CFLAGS_gtk)
+
 INSTALL_DIR=/usr/local/
 LIBS=
-CFLAGS=$(shell pkg-config --libs gtk+-3.0) $(shell pkg-config --cflags gtk+-3.0) -I/usr/include/libusb-1.0 -lusb-1.0 -ljack -laubio -I/usr/include/aubio/ -lm -lrt
 CC=gcc $(LIBS) 
 obj=rbgik
 rbgik-o=rbgik.o
@@ -22,7 +26,5 @@ uninstall:
 
 clean:
 	rm -f *.o || true
-
-distclean: clean
 	rm $(obj) || true
 	

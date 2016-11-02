@@ -20,17 +20,16 @@
  * 
  */
 
-
-#define PROG_HAS_ONSET 1
-#define PROG_HAS_OUTPUT 1
-#define PROG_HAS_JACK 1
-#define HAVE_JACK 1
+#include "config.h"
 
 #include "utils.h"
 #include "parse_args.h"
+#include "utils.c"
+
+#ifdef USE_AUBIO
 #include "jackio.h"
 #include "jackio.c"
-#include "utils.c"
+#endif
 
 #include <stdio.h>
 #include <libusb.h>
@@ -57,7 +56,9 @@
 
 #include <pthread.h>
 
+#ifdef USE_GTK
 #include <gtk/gtk.h>
+#endif
 
 int debug = 0;
 int use_parse_cmd = 1;
@@ -79,6 +80,7 @@ static timer_t timer_id = 0;
 libusb_context *ctx;
 struct libusb_device_handle *handle;
 
+#ifdef USE_AUBIO
 /* aubioonset.c */
 aubio_onset_t *o;
 aubio_wavetable_t *wavetable;
@@ -91,10 +93,13 @@ aubio_wavetable_t *wavetable;
 fvec_t * tempo_out;
 smpl_t is_beat = 0;
 uint_t is_silence = 0.;
+#endif
 
+#ifdef USE_GTK
 /* gtk */
 GtkWidget *window;
 GdkRGBA color;
+#endif
 
 
 /* aktualny stan ! */
@@ -393,6 +398,7 @@ struct libusb_device_handle *usb_disconnect(libusb_context *ctx, struct libusb_d
 
 void gtk_set(char *buff)
 {
+#ifdef USE_GTK
 	if ( buff[0] >= '0' && buff[0] <= '9' && buff[1] == 'x' ) {
 		char buf[20];
 		snprintf(buf, 20, "#%6s\0", &buff[2]);
@@ -405,6 +411,7 @@ void gtk_set(char *buff)
 			gtk_main_iteration_do(FALSE);
 		}
 	}
+#endif
 }
 
 
@@ -488,9 +495,10 @@ void rbgik_send(char *buf)
 			printf(" some funckgin error \n");
 		}
 	}
-	
+#ifdef USE_GTK	
 	if ( use_gtk )
 		gtk_set(buf);
+#endif
 }
 
 void rgb(unsigned char R,unsigned char G,unsigned char B,unsigned char S)
@@ -568,6 +576,8 @@ void do_the_job(void)
 	* */
 }
 
+#ifdef USE_AUBIO
+
 int process_block_onset(fvec_t * ibuf, fvec_t * obuf)
 {
 	aubio_onset_do(o, ibuf, onset);
@@ -605,16 +615,20 @@ void process_block_track(fvec_t * ibuf, fvec_t *obuf)
 	else
 		aubio_wavetable_do (wavetable, obuf, obuf);
 }
+#endif
 
 void process_print(void)
 {
+#ifdef USE_AUBIO
 	if ( is_onset ) {
 		outmsg ("%f\n", aubio_onset_get_last_s (o) );
 	}
+#endif
 }
 
 void do_onset(int argc, char **argv)
 {
+#ifdef USE_AUBIO
 	examples_common_init(argc, argv);
 	
 	verbmsg("using source: %s at %dHz\n", source_uri, samplerate);
@@ -654,10 +668,12 @@ void do_onset(int argc, char **argv)
 
 	
 	examples_common_del();
+#endif
 }
 
 void do_track(int argc, char **argv)
 {
+#ifdef USE_AUBIO
 	// override general settings from utils.c
 	
 	buffer_size = 1024;
@@ -686,6 +702,7 @@ void do_track(int argc, char **argv)
 	del_fvec(tempo_out);
 	
 	examples_common_del();
+#endif
 }
 
 void do_random(int argc, char **argv)
@@ -740,6 +757,7 @@ void do_random(int argc, char **argv)
 
 void gtk_start(int argc,char **argv)
 {
+#ifdef USE_GTK
 	gtk_init (&argc, &argv);
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (window), "Window");
@@ -749,7 +767,9 @@ void gtk_start(int argc,char **argv)
 	for(i = 0; i < 256; ++i) {
 		gtk_main_iteration_do(FALSE);
 	}
+#endif
 }
+
 
 void do_fajna_zmiana(int argc, char **argv)
 {
@@ -1172,8 +1192,10 @@ int main(int argc, char **argv)
 		printf(" Connected to device !\n");
 	}
 	
+#ifdef USE_GTK
 	if ( use_gtk )
 		gtk_start(argc, argv);
+#endif
 	
 	do_fun(mode, argc, argv);
 	

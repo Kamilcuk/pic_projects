@@ -17,6 +17,8 @@
   along with aubio.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include "config.h"
+#ifdef USE_AUBIO
 
 extern int verbose;
 // input / output
@@ -258,3 +260,5 @@ parse_args (int argc, char **argv)
 
   return 0;
 }
+
+#endif

@@ -1,3 +1,9 @@
+
+*.asm
+*.cod
+*.map
+*.lst
+
 # Object files
 *.o
 *.ko

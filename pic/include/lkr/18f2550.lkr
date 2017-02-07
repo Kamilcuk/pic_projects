@@ -42,7 +42,7 @@ SECTION    NAME=databank5     RAM=usb5
 SECTION    NAME=databank6     RAM=usb6
 SECTION    NAME=databank7     RAM=usb7
 
-SECTION    NAME=evrywhere     RAM=all
+SECTION    NAME=everywhere     RAM=all
 
 SECTION    NAME=gpr_ram       RAM=gpr
 SECTION    NAME=usb_bd        RAM=usb_bd

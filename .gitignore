@@ -1,4 +1,9 @@
 
+*.adb
+
+MPLAB*
+log.0
+
 *.asm
 *.cod
 *.map

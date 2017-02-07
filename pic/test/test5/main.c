@@ -57,7 +57,7 @@ static void __config__lines__(void) __naked {
  *  gives me:
  * _config is deprecated! 
  * */
-	__asm config PLLDIV = 5  __endasm; // 16MHz / 4 =  4Mhz -> for PLL to get 96Mhz
+	__asm config PLLDIV = 5  __endasm; // 20MHz / 5 =  4Mhz -> for PLL to get 96Mhz
 	
 	__asm config FOSC = HSPLL_HS __endasm; // High Speed Crystal / Resonator with PLL enabled
 	__asm config USBDIV = 2 __endasm; // from PLL -> 96Mhz / 2 = 48Mhz -> full speed usb
@@ -145,10 +145,13 @@ void main(void)
 	LATC=0x00;
 	TRISC=0x00;
 	
+
+	PORTA = PORTB = PORTC = 0xff;
 	
 	USB_init();
 	do {
 		USB_service();
+
 	} while (1);
 }
 

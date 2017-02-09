@@ -1,5 +1,5 @@
-#ifndef USBPIC_H
-#define USBPIC_H
+#ifndef USBPIC_DEFS_H
+#define USBPIC_DEFS_H
 
 // Version 1.1     Compatible with SDCC 3.x
 

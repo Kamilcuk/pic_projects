@@ -82,8 +82,7 @@ void main(void) {
 	INTCONbits.PEIE = 1;
 	INTCONbits.GIE = 1;
 
-	while (usbcdc_device_state != CONFIGURED)
-		;
+	cdc_wait_config();
 
 	printft("Wellcome! Compilation time:" __TIME__ "\n");
 

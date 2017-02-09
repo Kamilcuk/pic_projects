@@ -48,3 +48,8 @@ SECTION    NAME=gpr_ram       RAM=gpr
 SECTION    NAME=usb_bd        RAM=usb_bd
 SECTION    NAME=usb_buff      RAM=usb_buff
 
+SECTION    NAME=usbram4    RAM=usb4
+SECTION    NAME=usbram5    RAM=usb5
+SECTION    NAME=usbram6    RAM=usb6
+SECTION    NAME=usbram7    RAM=usb7
+

@@ -119,6 +119,25 @@ typedef struct _USB_EP_DSC
     unsigned char bmAttributes;  unsigned short wMaxPktSize;   unsigned char bInterval;
 } USB_EP_DSC;
 
+
+/**
+ * 9.3.1 bmRequestType
+ */
+#define BMREQUESTTYPE_GET_DIRECTION(bmrequesttype) ((bmrequesttype)&0x80)
+#define BMREQUESTTYPE_GET_TYPE(bmrequesttype)      ((bmrequesttype)&0x60)
+#define BMREQUESTTYPE_GET_RECIPIENT(bmrequesttype) ((bmrequesttype)&0x1f)
+
+#define BMREQUESTTYPE_DIRECTION_HOST_TO_DEVICE 0x00
+#define BMREQUESTTYPE_DIRECTION_DEVICE_TO_HOST 0x80
+#define BMREQUESTTYPE_TYPE_STANDARD            0x00
+#define BMREQUESTTYPE_TYPE_CLASS               0x20
+#define BMREQUESTTYPE_TYPE_VENDOR              0x40
+#define BMREQUESTTYPE_TYPE_RESERVED            0x60
+#define BMREQUESTTYPE_RECIPIENT_DEVICE         0x00
+#define BMREQUESTTYPE_RECIPIENT_INTERFACE      0x01
+#define BMREQUESTTYPE_RECIPIENT_ENDPOINT       0x02
+#define BMREQUESTTYPE_RECIPIENT_OTHER          0x03
+
 //
 // Standard Request Codes USB 2.0 Spec Ref Table 9-4
 //

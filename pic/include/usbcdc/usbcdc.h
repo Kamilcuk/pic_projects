@@ -26,36 +26,100 @@ Version 1.1     Compatible with SDCC 3.x
 #ifndef USBCDC_H
 #define USBCDC_H
 
-extern unsigned char usbcdc_device_state;
-
 #define USBCDC_BUFFER_LEN 32
-#define USBCDC_SELF_POWERED 1
+#define USBCDC_SELF_POWERED 0
 #define USBCDC_MAXPOWER 100
 
-// initialize usbcdc module
-void usbcdc_init(void);
-
-// waitiuntil the device is configure (if you care)
-void cdc_wait_config();
-
-
-// handle usb control messages, poll atleast every 1ms or call from IRQ
-void usbcdc_handler(void);
-
-void usbcdc_putchar(char c) __wparam;
-
-void usbcdc_flush();
-
-char usbcdc_getchar() ;
-
+/**
+ * everything in usbram5
+ */
 #pragma udata usbram5 setup_packet control_transfer_buffer cdc_rx_buffer cdc_tx_buffer cdcint_buffer
-extern volatile unsigned char cdc_tx_buffer[];
-char usbcdc_wr_busy();
-void usbcdc_write(unsigned char len) __wparam;
 
-extern volatile unsigned char cdc_rx_buffer[];
+
+/* ----------------------------- USB interrupts ----------------------- */
+#define USB_interrupt_priority_high()  do{ IPR2bits.USBIP = 1; }while(0)
+#define USB_interrupt_priority_low()   do{ IPR2bits.USBIP = 0; }while(0)
+#define USB_interrupt_enable()         do{ PIE2bits.USBIE = 1; }while(0)
+#define USB_interrupt_disable()        do{ PIE2bits.USBIE = 0; }while(0)
+#define USB_interrupt()                ((PIR2bits.USBIF))
+#define USB_interrupt_clear()          do{ PIR2bits.USBIF = 0; } while(0)
+#define USB_interrupt_set()            do{ PIR2bits.USBIF = 1; } while(0)
+#define USB_interrupt_service() do { \
+	if (PIR2bits.USBIF) { \
+		usbcdc_handler(); \
+		PIR2bits.USBIF = 0; \
+	} \
+}while(0)
+
+/**
+ * exported cdc device state
+ */
+extern unsigned char usbcdc_device_state;
+/**
+ * initialize usbcdc module
+ */
+void usbcdc_init(void);
+/**
+ * waitiuntil the device is configured
+ */
+#define usbcdc_wait_config() while(usbcdc_device_state != CONFIGURED)
+/**
+ * handle usb control messages, poll atleast every 1ms or call from IRQ
+ */
+void usbcdc_handler(void);
+/**
+ * puts char into rx buffer.
+ * if buffer is full, calls usbcdc_flush()
+ */
+void usbcdc_putchar(char c) __wparam;
+/**
+ * flushes rx buffer
+ */
+void usbcdc_flush();
+/**
+ * gets char from tx buffer.
+ * if buffer is empty, call usbcdc_read();
+ * this function will block() until next char is ready
+ * @return character readed
+ */
+char usbcdc_getchar();
+/**
+ * checks if usbcdc_getchat will block on next read
+ */
+#define usbcdc_getchar_ready() (usbcdc_rd_ready())
+/**
+ * this is tx buffer
+ */
+extern volatile unsigned char usbcdc_tx_buffer[USBCDC_BUFFER_LEN];
+/**
+ * to write to usbcdc, fill out cdc_tx_buffe and then call usbcdc_write
+ */
+void usbcdc_write(unsigned char len) __wparam;
+/**
+ * use this to check, if usbcdc_write has ended
+ * @return 1 if busy, 0 if not busy
+ */
+char usbcdc_wr_busy();
+/**
+ * rx_buffer
+ * usb driver starts reading data after usbcdc_read() call
+ * you may use this buffer, when ucbcdc_rd_ready() == true
+ */
+extern volatile unsigned char usbcdc_rx_buffer[USBCDC_BUFFER_LEN];
+/**
+ * checks wheater cdc_rc_buffer is ready to receive from
+ * @return 1 if ready, 0 if not ready
+ */
 unsigned char usbcdc_rd_ready();
+/**
+ * discard cdc_rx_buffer, and starts new reading transaction
+ * new data appnded to usbcdc_rx_buffer
+ */
 void usbcdc_read();
-#define usbcdc_rd_len() (ep2_o.CNT)
+/**
+ *
+ * @return how much data was read into cdc_rc_buffer during last transaction
+ */
+unsigned char usbcdc_rd_len();
 
 #endif

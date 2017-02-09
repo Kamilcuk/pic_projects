@@ -42,7 +42,7 @@ SDCC = /usr/bin/sdcc
 SDCCFLAGS = -V -L /usr/share/sdcc/non-free/include/pic16 -Wl,-m,-s18f2550.lkr -mpic16 -p18f2550 --disable-warning 85 --std-sdcc99 --obanksel=3 --use-non-free
 
 # Where to store the target/intermediate/temporary/object files
-OBJDIR = ../obj
+OBJDIR = /tmp/obj
 
 #
 #-------------------------------------------------------------------------------

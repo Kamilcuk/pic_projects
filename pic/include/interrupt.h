@@ -1,8 +1,11 @@
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
 
-/* based on http://comments.gmane.org/gmane.comp.compilers.sdcc.user/3915 response from Raphael Neider thank you */
-/* CODE cant touch INTCON register (isnt that abvious ?) */
+/*
+ * based on http://comments.gmane.org/gmane.comp.compilers.sdcc.user/3915
+ * response from Raphael Neider thank you
+ * */
+/* CODE can't touch INTCON register (isn't that obvious ?) */
 #define __CRITICAL__(CODE) do { \
   const unsigned char __intcon_save = INTCON; \
   INTCON &= ((~0xC0)); \
@@ -11,9 +14,5 @@
 } while(0)
 
 #define ATOMIC_BLOCK(CODE) __CRITICAL__(CODE)
-//#define NO_INTERRUPTS(CODE) __CRITICAL__(CODE)
-
-//#define NO_INTERRUPTS(SAVE_VAR) do { SAVE_VAR = INTCON; INTCON &= ((~0xC0)); } while(0)
-//#define INTERRUPTS(SAVE_VAR) do { INTCON = SAVE_VAR; } while(0)
 
 #endif // INTERRUPT_H_

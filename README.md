@@ -100,7 +100,7 @@ sudo /opt/microchip/mplabx/v*/mplab_ipe/ipecmd.sh -P18F2550 -TPPK3 -M -F./bootlo
 git clone https://github.com/Kamilcuk/pic_projects
 cd pic_projects
 sudo mkdir -p /etc/udev/hwdb.d
-sudo install -u root -g root -m 0644 ./kamiltech.hwdb /etc/udev/hwdb.d/
+sudo install -o root -g root -m 0644 ./kamiltech.hwdb /etc/udev/hwdb.d/
 sudo udevadm hwdb --update
 ```
 

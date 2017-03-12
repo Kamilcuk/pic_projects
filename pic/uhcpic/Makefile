@@ -3,7 +3,7 @@
 PWD = $(shell pwd)
 PIC_TYPE = 18F2550
 PIC_PORT = pic16
-lkr_FILE = ../include/lkr/18f2550.lkr
+lkr_FILE = ../include/lkr/18f2550_bootloader.lkr
 include = ../include/
 
 obj-o = main.o 

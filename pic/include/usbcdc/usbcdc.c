@@ -29,13 +29,15 @@
 #include "usbcdc_defs.h"
 #include "usb_defs.h"
 
+
+// default vendor=0xFFFF , product=0x0100
 #ifndef USBCDC_ID_VENDOR
-#define USBCDC_ID_VENDOR  0x00, 0x00
-#warning "USBCDC_ID_VENDOR not defined!"
+#define USBCDC_ID_VENDOR  0xFF, 0xFF
+//#warning "USBCDC_ID_VENDOR not defined!"
 #endif
 #ifndef USBCDC_ID_PRODUCT
-#define USBCDC_ID_PRODUCT 0x00, 0x00
-#warning "USBCDC_ID_PRODUCT not defined!"
+#define USBCDC_ID_PRODUCT 0x00, 0x01
+//#warning "USBCDC_ID_PRODUCT not defined!"
 #endif
 
 typedef __code unsigned char* codePtr;
@@ -59,7 +61,7 @@ const __code unsigned char device_descriptor[] = { //
 	USBCDC_ID_PRODUCT,
     0x00, 0x01, // bcdDevice lsb, bcdDevice msb
     0x01, 0x00, // iManufacturer, iProduct
-    0x00, 0x02 // iSerialNumber (none), bNumConfigurations*/
+    0x00, 0x02  // iSerialNumber (none), bNumConfigurations*/
 };
 
 const __code unsigned char device_qualifier_descriptor[] = { //
@@ -142,13 +144,16 @@ const __code unsigned char string_descriptor0[] = { // available languages  desc
 };
 
 const __code unsigned char string_descriptor1[] = { //
-    0x0E, STRING_DESCRIPTOR, // bLength, bDscType
+    0x14, STRING_DESCRIPTOR, // bLength, bDscType
     'K', 0x00, //
     'a', 0x00, //
     'm', 0x00, //
     'i', 0x00, //
     'l', 0x00, //
-    '!', 0x00, //
+    'T', 0x00, //
+    'e', 0x00, //
+    'c', 0x00, //
+    'h', 0x00, //
 };
 const __code unsigned char string_descriptor2[] = { //
     0x20, STRING_DESCRIPTOR, //
@@ -196,7 +201,7 @@ static unsigned char dlen; // Number of unsigned chars of data
 static volatile setup_packet_struct setup_packet;
 static volatile unsigned char control_transfer_buffer[E0SZ];
 static volatile unsigned char cdcint_buffer[USBCDC_BUFFER_LEN];
-static __code char cdc_line_coding[7] = {9600&0xFF,9600>>8,0,0,0,0,8};
+static __code char cdc_line_coding[7] = { 4800&0xFF, 4800>>8, 0, 0, 1, 2, 8 };
 
 // getchar and putchar pointers
 static unsigned char tx_len = 0;
@@ -398,7 +403,7 @@ static void process_control_transfer(void) {
 					// transaction uses address 0.
 
 					request_handled = 1;
-					usbcdc_device_state = ADDRESS;
+					usbcdc_device_state = USBCDC_DEVICESTATE_ADDRESS;
 					device_address = setup_packet.wvalue0;
 					break;
 				case GET_DESCRIPTOR:
@@ -412,10 +417,10 @@ static void process_control_transfer(void) {
 					if (current_configuration == 0) {
 						// If configuration value is zero, device is put in
 						// address state (USB 2.0 - 9.4.7)
-						usbcdc_device_state = ADDRESS;
+						usbcdc_device_state = USBCDC_DEVICESTATE_ADDRESS;
 					} else /*if ( current_configuration == 1 )*/ {
 						// Set the configuration
-						usbcdc_device_state = CONFIGURED;
+						usbcdc_device_state = USBCDC_DEVICESTATE_CONFIGURED;
 
 						// Initialize the endpoints for all interfaces
 						// Turn on both in and out for this endpoint
@@ -544,14 +549,14 @@ static void process_control_transfer(void) {
 		// Endpoint 0:in
 
 		//set address
-		if ((UADDR == 0) && (usbcdc_device_state == ADDRESS)) {
+		if ((UADDR == 0) && (usbcdc_device_state == USBCDC_DEVICESTATE_ADDRESS)) {
 			// TBD: ensure that the new address matches the value of
 			// "device_address" (which came in through a SET_ADDRESS).
 			UADDR = setup_packet.wvalue0;
 			if (UADDR == 0) {
 				// If we get a reset after a SET_ADDRESS, then we need
 				// to drop back to the Default state.
-				usbcdc_device_state = DEFAULT;
+				usbcdc_device_state = USBCDC_DEVICESTATE_DEFAULT;
 			}
 		}
 
@@ -639,7 +644,7 @@ unsigned char usbcdc_rd_len()
 void usbcdc_init() {
 	UCFG = 0x14; // Enable pullup resistors; full speed mode
     
-	usbcdc_device_state = DETACHED;
+	usbcdc_device_state = USBCDC_DEVICESTATE_DETACHED;
 	current_configuration = 0x00;
 
 	while(UIRbits.TRNIF)   // Flush any pending transactions
@@ -650,7 +655,7 @@ void usbcdc_init() {
 		UCON = 0;
 		UIE = 0;
 		UCONbits.USBEN = 1;
-		usbcdc_device_state = ATTACHED;
+		usbcdc_device_state = USBCDC_DEVICESTATE_ATTACHED;
 	}
 
 	/*
@@ -666,13 +671,12 @@ void usbcdc_init() {
 	UIR = 0;
 	UIE = 0;
 	UIEbits.URSTIE = 1;
-	UIEbits.IDLEIE = 1;
-	usbcdc_device_state = POWERED;
+	usbcdc_device_state = USBCDC_DEVICESTATE_POWERED;
 }
 
 void usbcdc_handler(void) {
 	if ((UCFGbits.UTEYE == 1) || //eye test
-        (usbcdc_device_state == DETACHED) || //not connected
+        (usbcdc_device_state == USBCDC_DEVICESTATE_DETACHED) || //not connected
         (UCONbits.SUSPND == 1))//suspended
 		return;
     
@@ -700,7 +704,7 @@ void usbcdc_handler(void) {
 			prepare_for_setup_stage();
             
 			current_configuration = 0; // Clear active configuration
-			usbcdc_device_state = DEFAULT;
+			usbcdc_device_state = USBCDC_DEVICESTATE_DEFAULT;
 		}
 		UIRbits.URSTIF = 0;
 	}
@@ -730,3 +734,4 @@ void usbcdc_handler(void) {
 		UIRbits.TRNIF = 0;
 	}
 }
+

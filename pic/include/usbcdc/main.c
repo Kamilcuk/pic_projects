@@ -28,7 +28,6 @@ THE SOFTWARE.
 
 #include "pic18f4550.h"
 #include "usbcdc.h"
-#include "usb_defs.h"
 #include "pic-config.c"
 #include "printft.h"
 
@@ -38,7 +37,7 @@ void goto_bootloader(void) __naked
 }
 
 
-void high_isr(void) __shadowregs __interrupt 1
+void high_isr(void) __shadowregs __interrupt(1)
 {
 	if(PIR2bits.USBIF)
 	{
@@ -47,7 +46,7 @@ void high_isr(void) __shadowregs __interrupt 1
 	}
 }
 
-void low_isr(void) __shadowregs __interrupt 2
+void low_isr(void) __shadowregs __interrupt(2)
 {
 	;
 }
@@ -57,11 +56,11 @@ void putchar(char c) __wparam
 {
 	if (c=='\n') {
 		usbcdc_putchar('\r');
-		}
-
+	}
 	usbcdc_putchar(c);
-	if (c=='\n')
+	if (c=='\n') {
 		usbcdc_flush();
+	}
 }
 
 char getchar() {
@@ -81,8 +80,10 @@ void main(void) {
 
 	INTCONbits.PEIE = 1;
 	INTCONbits.GIE = 1;
+	USB_interrupt_priority_high();
+	USB_interrupt_enable();
 
-	cdc_wait_config();
+	usbcdc_wait_configured();
 
 	printft("Wellcome! Compilation time:" __TIME__ "\n");
 

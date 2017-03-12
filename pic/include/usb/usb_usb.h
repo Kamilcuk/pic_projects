@@ -184,15 +184,15 @@ typedef struct {
  * USB_BD_*_EP() - the next transmission will occur here, this needs to be set/filled 
  * USB_BD_*_EP_NEXT() - the secend next transissino will occur here, this needs to be set/filled  */
 
-#define USB_BD_OUT_EP_PREV(num) 	USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET_NEXT(num))
-#define USB_BD_OUT_EP(num) 		USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET(num))
-#define USB_BD_OUT_EP_NEXT(num) 	USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET_NEXT(num))
-#define USB_BD_OUT_EP_NEXT_NEXT(num) 	USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET(num))
+#define USB_BD_OUT_EP_PREV(num)         USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET_NEXT(num))
+#define USB_BD_OUT_EP(num) 	            USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET(num))
+#define USB_BD_OUT_EP_NEXT(num)         USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET_NEXT(num))
+#define USB_BD_OUT_EP_NEXT_NEXT(num)    USB_BD_OUT_EP_PP(num, USB_BD_PP_OUT_PNT_GET(num))
 
-#define USB_BD_IN_EP_PREV(num) 		USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET_NEXT(num))
-#define USB_BD_IN_EP(num) 		USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET(num))
-#define USB_BD_IN_EP_NEXT(num) 		USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET_NEXT(num))
-#define USB_BD_IN_EP_NEXT_NEXT(num) 	USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET(num))
+#define USB_BD_IN_EP_PREV(num) 	        USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET_NEXT(num))
+#define USB_BD_IN_EP(num)               USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET(num))
+#define USB_BD_IN_EP_NEXT(num) 	        USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET_NEXT(num))
+#define USB_BD_IN_EP_NEXT_NEXT(num)     USB_BD_IN_EP_PP(num, USB_BD_PP_IN_PNT_GET(num))
  
 #if USB_BUFFER_DESCRIPTOR_MODE == 0
 	#define USB_BUFFERING_NUMBER 0
@@ -255,12 +255,12 @@ typedef struct {
  * it is used only for in endpoint, cause banks for out endpoints can be readed from USTATbits.PPBI bit
  * */
 
-#define USB_BD_PP_OUT_PNT_INC(endp) USB_BD_PP_PNT_INC( usb_ustat.pp_out_pnt, endp)
-#define USB_BD_PP_OUT_PNT_GET(endp) USB_BD_PP_PNT_GET( usb_ustat.pp_out_pnt, endp)
+#define USB_BD_PP_OUT_PNT_INC(endp)      USB_BD_PP_PNT_INC( usb_ustat.pp_out_pnt, endp)
+#define USB_BD_PP_OUT_PNT_GET(endp)      USB_BD_PP_PNT_GET( usb_ustat.pp_out_pnt, endp)
 #define USB_BD_PP_OUT_PNT_GET_NEXT(endp) USB_BD_PP_PNT_GET_NEXT( usb_ustat.pp_out_pnt, endp)
 
-#define USB_BD_PP_IN_PNT_INC(endp) USB_BD_PP_PNT_INC( usb_ustat.pp_in_pnt, endp)
-#define USB_BD_PP_IN_PNT_GET(endp) USB_BD_PP_PNT_GET( usb_ustat.pp_in_pnt, endp)
+#define USB_BD_PP_IN_PNT_INC(endp)      USB_BD_PP_PNT_INC( usb_ustat.pp_in_pnt, endp)
+#define USB_BD_PP_IN_PNT_GET(endp)      USB_BD_PP_PNT_GET( usb_ustat.pp_in_pnt, endp)
 #define USB_BD_PP_IN_PNT_GET_NEXT(endp) USB_BD_PP_PNT_GET_NEXT( usb_ustat.pp_in_pnt, endp)
 
 #if USB_BUFFER_DESCRIPTOR_MODE >= 2

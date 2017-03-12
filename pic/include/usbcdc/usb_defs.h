@@ -1,4 +1,29 @@
+/*
+ File: usb_defs.h
 
+ Copyright (c) 2010,2013 Kustaa Nyholm / SpareTimeLabs
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+ Version 1.1     Compatible with SDCC 3.x
+ Respond to GET_LINE_CODING to work with overzealous
+ Windows software (like Hyperterminal)
+
+ additional changes by Kamil Cukrowski
+*/
 /******************************************************************************
  * USB Definitions: Standard Descriptors
  *****************************************************************************/
@@ -119,25 +144,6 @@ typedef struct _USB_EP_DSC
     unsigned char bmAttributes;  unsigned short wMaxPktSize;   unsigned char bInterval;
 } USB_EP_DSC;
 
-
-/**
- * 9.3.1 bmRequestType
- */
-#define BMREQUESTTYPE_GET_DIRECTION(bmrequesttype) ((bmrequesttype)&0x80)
-#define BMREQUESTTYPE_GET_TYPE(bmrequesttype)      ((bmrequesttype)&0x60)
-#define BMREQUESTTYPE_GET_RECIPIENT(bmrequesttype) ((bmrequesttype)&0x1f)
-
-#define BMREQUESTTYPE_DIRECTION_HOST_TO_DEVICE 0x00
-#define BMREQUESTTYPE_DIRECTION_DEVICE_TO_HOST 0x80
-#define BMREQUESTTYPE_TYPE_STANDARD            0x00
-#define BMREQUESTTYPE_TYPE_CLASS               0x20
-#define BMREQUESTTYPE_TYPE_VENDOR              0x40
-#define BMREQUESTTYPE_TYPE_RESERVED            0x60
-#define BMREQUESTTYPE_RECIPIENT_DEVICE         0x00
-#define BMREQUESTTYPE_RECIPIENT_INTERFACE      0x01
-#define BMREQUESTTYPE_RECIPIENT_ENDPOINT       0x02
-#define BMREQUESTTYPE_RECIPIENT_OTHER          0x03
-
 //
 // Standard Request Codes USB 2.0 Spec Ref Table 9-4
 //
@@ -165,13 +171,22 @@ typedef struct _USB_EP_DSC
 #define ENDPOINT_DESCRIPTOR      0x05
 #define QUALIFIER_DESCRIPTOR     0x06
 
-// Device states (Chap 9.1.1)
-#define DETACHED     0
-#define ATTACHED     1
-#define POWERED      2
-#define DEFAULT      3
-#define ADDRESS      4
-#define CONFIGURED   5
+/**
+ * 9.3.1 bmRequestType
+ */
+#define BMREQUESTTYPE_GET_DIRECTION(bmrequesttype) ((bmrequesttype)&0x80)
+#define BMREQUESTTYPE_GET_TYPE(bmrequesttype)      ((bmrequesttype)&0x60)
+#define BMREQUESTTYPE_GET_RECIPIENT(bmrequesttype) ((bmrequesttype)&0x1f)
 
+#define BMREQUESTTYPE_DIRECTION_HOST_TO_DEVICE 0x00
+#define BMREQUESTTYPE_DIRECTION_DEVICE_TO_HOST 0x80
+#define BMREQUESTTYPE_TYPE_STANDARD            0x00
+#define BMREQUESTTYPE_TYPE_CLASS               0x20
+#define BMREQUESTTYPE_TYPE_VENDOR              0x40
+#define BMREQUESTTYPE_TYPE_RESERVED            0x60
+#define BMREQUESTTYPE_RECIPIENT_DEVICE         0x00
+#define BMREQUESTTYPE_RECIPIENT_INTERFACE      0x01
+#define BMREQUESTTYPE_RECIPIENT_ENDPOINT       0x02
+#define BMREQUESTTYPE_RECIPIENT_OTHER          0x03
 
 #endif //USBDEFS_STD_DSC_H

@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 Version 1.1     Compatible with SDCC 3.x 
                 Respond to GET_LINE_CODING to work with overzealous 
                 Windows software (like Hyperterminal)
+
+ additional changes by Kamil Cukrowski
 */
 
 #ifndef USBCDC_H
@@ -52,6 +54,19 @@ Version 1.1     Compatible with SDCC 3.x
 }while(0)
 
 /**
+ * @defgroup USB Device states (Chap 9.1.1)
+ * @{
+ */
+#define USBCDC_DEVICESTATE_DETACHED     0
+#define USBCDC_DEVICESTATE_ATTACHED     1
+#define USBCDC_DEVICESTATE_POWERED      2
+#define USBCDC_DEVICESTATE_DEFAULT      3
+#define USBCDC_DEVICESTATE_ADDRESS      4
+#define USBCDC_DEVICESTATE_CONFIGURED   5
+/**
+ * @}
+ */
+/**
  * exported cdc device state
  */
 extern unsigned char usbcdc_device_state;
@@ -62,7 +77,7 @@ void usbcdc_init(void);
 /**
  * waitiuntil the device is configured
  */
-#define usbcdc_wait_config() while(usbcdc_device_state != CONFIGURED)
+#define usbcdc_wait_configured() while( usbcdc_device_state != USBCDC_DEVICESTATE_CONFIGURED )
 /**
  * handle usb control messages, poll atleast every 1ms or call from IRQ
  */

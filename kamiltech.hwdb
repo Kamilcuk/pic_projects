@@ -1,0 +1,26 @@
+# uhcpic
+# made by Kamil Cukrowski
+# under BEER-WARE license
+
+usb:vFFFF*
+ ID_VENDOR_FROM_DATABASE=KamilTech One-Man-Corp.
+ 
+usb:vFFFFp0002*
+ ID_MODEL_FROM_DATABASE=voltometer
+ 
+usb:vFFFFp0003*
+ ID_MODEL_FROM_DATABASE=uhcpic
+ 
+usb:vFFFFp0010*
+ ID_MODEL_FROM_DATABASE=godpic
+ 
+usb:vFFFFp0011*
+ ID_MODEL_FROM_DATABASE=rbgik
+ 
+usb:vFFFFp0021*
+ ID_MODEL_FROM_DATABASE=pictemppiec
+
+usb:vFFFFp0100*
+ ID_MODEL_FROM_DATABASE=CDC/ACM Generic
+
+

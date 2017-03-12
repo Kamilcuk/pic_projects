@@ -1,13 +1,22 @@
+####################################### custom ##################################
 
-*.adb
+# ignore eclipse files
+.cproject
+.settings
+.project
 
+# ipecmd.sh annoying leftovers
 MPLAB*
 log.0
 
+# sdcc leftovers
+*.adb
 *.asm
 *.cod
 *.map
 *.lst
+
+####################################### git added C extensions #################################
 
 # Object files
 *.o

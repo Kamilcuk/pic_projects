@@ -1,0 +1,3 @@
+[submodule "pic/include/usbcdc"]
+	path = pic/include/usbcdc
+	url = git@github.com:Kamilcuk/PIC-USB-CDC

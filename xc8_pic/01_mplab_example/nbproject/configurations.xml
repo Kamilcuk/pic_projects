@@ -4,48 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <logicalFolder name="f2" displayName="mla_usb" projectFiles="true">
-        <logicalFolder name="inc" displayName="inc" projectFiles="true">
-          <itemPath>../include/mla_usb/inc/usb_host.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic24.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_hid_parser.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_phdc.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_android.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_msd_scsi.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_cdc.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_hid.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_ccid.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_phdc_com_model.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_audio.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_msd.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_generic.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hid.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_midi.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic32mm.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_cdc_interface.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic24f.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_msd.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic16f1.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_struct_queue.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_hid.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic18.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_dspic33e.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal_pic24e.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_device_cdc.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_ch9.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_host_audio_v1.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_common.h</itemPath>
-          <itemPath>../include/mla_usb/inc/usb_hal.h</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f1" displayName="usbcdc" projectFiles="true">
-        <itemPath>../include/usbcdc/fixed_address_memory.h</itemPath>
-        <itemPath>../include/usbcdc/usb_config.h</itemPath>
-        <itemPath>../include/usbcdc/usbcdc_stdio.h</itemPath>
-      </logicalFolder>
-      <itemPath>system.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -54,19 +12,11 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <logicalFolder name="include" displayName="include" projectFiles="true">
-        <itemPath>../include/printft.c</itemPath>
-        <itemPath>../include/morse.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="mla_usb" projectFiles="true">
-        <itemPath>../include/mla_usb/src/usb_device.c</itemPath>
-        <itemPath>../include/mla_usb/src/usb_device_cdc.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f1" displayName="usbcdc" projectFiles="true">
-        <itemPath>../include/usbcdc/usb_descriptors.c</itemPath>
-        <itemPath>../include/usbcdc/usb_events.c</itemPath>
-        <itemPath>../include/usbcdc/usbcdc_stdio.c</itemPath>
-      </logicalFolder>
+      <itemPath>../include/mla_usb/src/usb_device.c</itemPath>
+      <itemPath>../include/mla_usb/src/usb_device_hid.c</itemPath>
+      <itemPath>../include/usbhid_stdio/usb_descriptors.c</itemPath>
+      <itemPath>../include/usbhid_stdio/usb_events.c</itemPath>
+      <itemPath>../include/usbhid_stdio/usbhid_stdio.c</itemPath>
       <itemPath>main.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -76,8 +26,9 @@
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
-    <Elem>.</Elem>
-    <Elem>../include</Elem>
+    <Elem>../include/mla_usb/src</Elem>
+    <Elem>../include/usbhid_stdio</Elem>
+    <Elem>../00_example</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -121,7 +72,7 @@
         <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
-                  value=".;../include/mla_usb/inc;../include/mla_usb;../include;../include/usbcdc"/>
+                  value="../include;../include/usbhid_stdio;../include/mla_usb/inc;."/>
         <property key="favor-optimization-for" value="-speed,+space"/>
         <property key="identifier-length" value="255"/>
         <property key="local-generation" value="false"/>
@@ -142,7 +93,7 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
         <property key="verbose" value="false"/>
-        <property key="warning-level" value="0"/>
+        <property key="warning-level" value="-3"/>
         <property key="what-to-do" value="ignore"/>
       </HI-TECH-COMP>
       <HI-TECH-LINK>
@@ -178,7 +129,7 @@
         <property key="initialize-data" value="true"/>
         <property key="keep-generated-startup.as" value="false"/>
         <property key="link-in-c-library" value="true"/>
-        <property key="link-in-peripheral-library" value="true"/>
+        <property key="link-in-peripheral-library" value="false"/>
         <property key="managed-stack" value="false"/>
         <property key="opt-xc8-linker-file" value="false"/>
         <property key="opt-xc8-linker-link_startup" value="false"/>

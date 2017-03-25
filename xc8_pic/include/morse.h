@@ -11,4 +11,6 @@
 
 void morse_send_char(char c);
 
+void morse_send_string(const char *str);
+
 #endif /* XC8_PIC_INCLUDE_MORSE_H_ */

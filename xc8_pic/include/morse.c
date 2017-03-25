@@ -1,11 +1,17 @@
 
 #include "system.h"
 
+#ifndef MORSE_ON
+#define MORSE_ON()  do { PORTA = PORTB = PORTC = 0xff; }while(0)
+#endif
 
-#define MORSE_ON() do { PORTA = PORTB = PORTC = 0xff; }while(0)
+#ifndef MORSE_OFF
 #define MORSE_OFF() do { PORTA = PORTB = PORTC = 0x00; }while(0)
-#define MORSE_DELAY() __delay_ms(100)
+#endif
 
+#ifndef MORSE_DELAY
+#define MORSE_DELAY() __delay_ms(150)
+#endif
 
 // Lookup table for Morse code.  Index is calculated from LCD char
 // value.  Reading from least to most sig. bit:
@@ -13,8 +19,8 @@
 //   Filler zeros (not sent)
 //   Start bit (not sent)
 //   Bits to be sent, 1 = dit, 0 = dah (reverse order)
-
-const char CODE_TABLE[54] = { 0b00000001,  // Flag to send blank
+const unsigned char CODE_TABLE[54] = {
+                              0b00000001,  // Flag to send blank
                               0b10000110,  // '
                               0b10010100,  // (
                               0b01001010,  // )
@@ -71,52 +77,64 @@ const char CODE_TABLE[54] = { 0b00000001,  // Flag to send blank
 
 void morse_send_char(char c)
 {
-  unsigned char k, j, n_elts;
-  char code;
+	unsigned char k, j, n_elts;
+	unsigned char code;
 
-  if (c == 32) {
-	  k = 0; // Blank
-  } else if ((c > 38) && (c < 91)) {
-	  k = c - 38; // All others
-  } else if ((c > 96) && (c < 123)) {
-	  k = (c-97+65) - 38; // convert small letters to big letters
-  } else {
-	  k = 53; // Send nothing
-  }
-  code = CODE_TABLE[k];
+	// conert ASCII to Morse Code
+	if (c == 32 || c == 0x0A ) { // 32 = space,' ', 0x0A = newline,'\n'
+		k = 0; // Blank
+	} else if((c > 96) && (c < 123)) { // islower(c)
+		k = (c - 32) - 38; // toupper(c) - 38
+	} else if((c > 38) && (c < 91)) {
+		k = c - 38; // All others
+	} else {
+		k = 53; // Send nothing
+	}
+	code = CODE_TABLE[k];
 
-  if (code == 1)  // For additional space btwn words
-  {
-	MORSE_DELAY();
-    MORSE_DELAY();
-    MORSE_DELAY();
-    MORSE_DELAY();
-  }
-  else if (code > 1)  // Send Morse character
-  {
-    for (j=0; j<8; j++)  // Find start bit
-    {
-      if ((code & 1) == 1) break;
-      code = code >> 1;
-    }
-    code = code >> 1;  // Shift out start bit
-    n_elts = 7 - j;    // Number of character elements
+	if (code == 0x01) {
+		// For additional space btwn words
+		MORSE_DELAY();
+		MORSE_DELAY();
+		MORSE_DELAY();
+		MORSE_DELAY();
+	} else if (code != 0x00) {
+		// Send Morse character
+		for (j = 0; j < 8; j++) { // Find start bit
+			if ( (code & 0x01) == 0x01 ) {
+				break;
+			}
+			code = code >> 1;
+		}
+		n_elts = 7 - j;    // Number of character elements
 
-    for (j=0; j<n_elts; j++)  // Send character elements
-    {
-  	  MORSE_ON();
-  	  MORSE_DELAY();  // Delay for one Morse element (dit)
-      if ( !(code & 1) ) {
-    	  MORSE_DELAY();  // Delay for 3 Morse elements (dah)
-      	  MORSE_DELAY();
-      }
-	  MORSE_OFF();
-	  MORSE_DELAY();
-      code = code >> 1;        // Shift to next element
-    }
-    MORSE_DELAY();     // For additional space btwn char
-    MORSE_DELAY(); // subtract a few ms to
-                                  // allow for delay from LCD updating
-  }
+		for (j = 0; j < n_elts; j++) { // Send character elements
+			// Shift out start bit and/or Shift to next element
+			code = code >> 1;
+			MORSE_ON();
+			MORSE_DELAY();  // Delay for one Morse element (dit)
+			if (!(code & 1)) {
+				MORSE_DELAY();  // Delay for 3 Morse elements (dah)
+				MORSE_DELAY();
+			}
+			MORSE_OFF();
+			MORSE_DELAY();
+		}
+		// For additional space btwn char
+		MORSE_DELAY();
+		MORSE_DELAY();
+	}
 }
 
+
+void morse_send_string(const char *str)
+{
+	char c;
+	for(;;) {
+		c = *str;
+		if ( c == '\0' )
+			return;
+		morse_send_char(c);
+		++str;
+	}
+}

@@ -21,8 +21,7 @@ please contact mla_licensing@microchip.com
 #include "system.h"
 
 #include "usb.h"
-#include "usb_device.h"
-#include "usb_device_cdc.h"
+#include "usb_device_hid.h"
 
 #include <stdbool.h>
 
@@ -66,9 +65,7 @@ static void USER_USB_CALLBACK_EVENT_HANDLER_USBCheckVendorRequest(void)
  *******************************************************************/
 bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size)
 {
-	USBCDCEventHandler(event, pdata, size);
-
-    switch( (int) event )
+    switch((int)event)
     {
         case EVENT_TRANSFER:
             break;
@@ -79,6 +76,7 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             break;
 
         case EVENT_SUSPEND:
+            /* Update the LED status for the suspend event. */
             //Call the hardware platform specific handler for suspend events for
             //possible further action (like optionally going reconfiguring the application
             //for lower power states and going to sleep during the suspend event).  This
@@ -95,9 +93,9 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             break;
 
         case EVENT_CONFIGURED:
-            /* When the device is configured, we can (re)initialize the 
-             * demo code. */
-            CDCInitEP();
+            /* When the device is configured, we can (re)initialize the demo
+             * code. */
+        	usbhidStdio_APP_DeviceCustomHIDInitialize();
             break;
 
         case EVENT_SET_DESCRIPTOR:
@@ -106,7 +104,7 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
         case EVENT_EP0_REQUEST:
             /* We have received a non-standard USB request.  The HID driver
              * needs to check to see if the request was for it. */
-            USBCheckCDCRequest();
+            USBCheckHIDRequest();
             USER_USB_CALLBACK_EVENT_HANDLER_USBCheckVendorRequest();
             break;
 
@@ -125,3 +123,4 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
 /*******************************************************************************
  End of File
 */
+

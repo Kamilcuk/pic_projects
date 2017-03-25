@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/00_example.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=00_example.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=00example/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/01_mplab_example.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=01_mplab_example.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=01mplabexample/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/00example/bin
+makeDirectory ${TMPDIR}/01mplabexample/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/00example.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/01mplabexample.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/00example.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/01mplabexample.tar *
 checkReturnCode
 
 # Cleanup

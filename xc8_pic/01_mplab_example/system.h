@@ -45,10 +45,8 @@
 #pragma config EBTRB    = OFF
 
 #define USBHID_STDIO_ENABLE 1
-//#define USE_FULL_ASSERT 1
 
 #include <xc.h>
 #include "usb_config.h"
-#include "assert.h"
 
 #endif //SYSTEM_H

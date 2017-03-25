@@ -51,8 +51,8 @@ log.0
 # Debug files
 *.dSYM/
 *.su
-/pic_xc8/01-usbcdc-test.X/nbproject/private/
-/pic_xc8/01-usbcdc-test.X/build/default/
-/xc8_pic/00_example/nbproject/private/
-/xc8_pic/00_example/build/default/
-/xc8_pic/00_example/dist/default/
+
+
+/xc8_pic/01_mplab_example/nbproject/private/
+/xc8_pic/01_mplab_example/build/default/
+/xc8_pic/01_mplab_example/dist/default/

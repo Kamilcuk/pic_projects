@@ -1,91 +1,69 @@
-/*******************************************************************************
-Copyright 2016 Microchip Technology Inc. (www.microchip.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-To request to license the code under the MLA license (www.microchip.com/mla_license), 
-please contact mla_licensing@microchip.com
-*******************************************************************************/
-
-/** INCLUDES *******************************************************/
 #include <stdint.h>
 #include <plib/delays.h>
-#include "usbcdc_stdio.h"
-#include "usb.h"
-#include "usb_device_cdc.h"
-#include "printft.h"
+//#include "printft.h"
 #include <plib/delays.h>
 #include <time.h>
 #include <stdlib.h>
-#include "morse.h"
+#include "usbhid_stdio/usbhid_stdio.h"
+#include "printft.h"
 
 void interrupt high_priority SYS_InterruptHigh(void)
 {
+	usbStdioInterruptHandler();
 }
 
 void interrupt  low_priority SYS_InterruptLow(void)
 {
 }
 
+static uint8_t buff[100];
+static uint8_t u8 = 1;
+static uint16_t u16 = 1234;
+static uint32_t u32 = 1234567;
+static float f = 12.3f;
+static double d = 789.1f;
 void test_printf()
 {
-    static uint8_t u8 = 123;
-    printf("lala\n");
-    printf("Compiled with XC8 version %d\n", __XC8_VERSION);
-    printf("by davekw7x on %s  at %s UTC\n", __DATE__, __TIME__);
-    printf("sizeof(float) = %d, sizeof(double) = %d\n",
-            sizeof(float), sizeof(double));
+    printf("---------------------------------------------\n");
+    printf("Compiled with XC8 version %d on %s  at %s UTC\n", __XC8_VERSION, __DATE__, __TIME__);
+    printf("sizeof(uint8_t)  = %d, sizeof(uint16_t) = %d\n", sizeof(uint8_t), sizeof(uint16_t));
+    printf("sizeof(uint32_t) = %d, sizeof(void*)    = %d\n", sizeof(uint32_t), sizeof(void*));
+    printf("sizeof(float)    = %d, sizeof(double)   = %d\n", sizeof(float), sizeof(double));
     printf("u8 = %d = %x = %02x\n", u8, u8, u8);
-    printf("\n");
+    printf("u16 = %d = %x = %04x\n", u16, u16, u16);
+    printf("u32 = %lu = %lx = %lx\n", u32, u32, u32);
+    printf("f = %f | d = %f \n", f,  d);
+    if ( getchar_ready() ) {
+    	uint8_t i;
+    	for(i=0;i<sizeof(buff)-1 && getchar_ready();++i) {
+    		buff[i] = getchar();
+    	}
+    	buff[i] = '\0';
+    	printf("Received: \"%s\"\n", buff);
+    } else {
+    	printf("Nothing received\n");
+    }
     printf("\n");
     ++u8;
+    ++u16;
+    u32*=3;
+    d += 5.6f;
     flush();
 }
 
-
 void main(void)
 {
-	uint32_t counter = 0;
-
-	USBDeviceInit();
-	USBDeviceActtach();
-	while( !usbcdcReady() ) {
-		USBDeviceTasks();
-	}
-
 	PORTA = PORTB = PORTC =
 			TRISA = TRISB = TRISC =
 			LATA = LATB = LATC = 0x00;
 
-    /*while(1)
-    {
-        printf("----------------------------\n");
+	usbStdioInitBlocking(1);
+
+    while(1) {
     	test_printf();
     	__delay_ms(1000);
     	test_printf();
     	__delay_ms(1000);
-    }*/
-
-	while(1) {
-		if ( counter < 40000 ) {
-			++counter;
-		} else {
-			counter = 0;
-			test_printf();
-		}
-
-		USBDeviceTasks();
-
-	}
+    }
 }
 

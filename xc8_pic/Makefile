@@ -11,6 +11,7 @@ CC += --codeoffset=0x800 --rom=default,-0-7FF
 CC += --output=default,-inhx032 
 CC += --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,+plib
 CC += --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto
+CC += --warn=-3
 # allow eclipse project in main directory to find the file
 PRE=xc8_pic/
 CC += "--errformat=$(PRE)%f:%l: error: (%n) %s" 
@@ -25,12 +26,14 @@ OBJDIR := .obj
 SRC := $(wildcard $(TARGETDIR)/*.c)
 
 INCDIR = include
+
 CFLAGS += -I$(INCDIR)
 SRC += $(wildcard $(INCDIR)/*.c)
+
 CFLAGS += -I$(INCDIR)/mla_usb/inc
-SRC += $(INCDIR)/mla_usb/src/usb_device.c $(INCDIR)/mla_usb/src/usb_device_cdc.c
-CFLAGS += -I$(INCDIR)/usbcdc
-SRC += $(wildcard $(INCDIR)/usbcdc/*.c)
+SRC += $(INCDIR)/mla_usb/src/usb_device.c $(INCDIR)/mla_usb/src/usb_device_hid.c
+CFLAGS += -I$(INCDIR)/usbhid_stdio
+SRC += $(wildcard $(INCDIR)/usbhid_stdio/*.c)
 
 OBJ = $(addprefix $(OBJDIR)/,$(patsubst %.c,%.p1,$(SRC)))
 HEX = $(TARGETDIR)/main.hex

@@ -1,3 +1,9 @@
 [submodule "pic/include/usbcdc"]
 	path = pic/include/usbcdc
 	url = git@github.com:Kamilcuk/PIC-USB-CDC
+[submodule "pic_xc8/include/mla_usb"]
+	path = pic_xc8/include/mla_usb
+	url = https://github.com/MicrochipTech/mla_usb
+[submodule "xc8_pic/include/mla_usb"]
+	path = xc8_pic/include/mla_usb
+	url = https://github.com/MicrochipTech/mla_usb

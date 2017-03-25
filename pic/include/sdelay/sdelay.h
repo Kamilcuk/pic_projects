@@ -23,16 +23,16 @@
 #ifndef SECONDDELAY_H_
 #define SECONDDELAY_H_
 
-void delay_us(unsigned int __us);
-void delay_ms(unsigned int __ms);
+void sdelay_us(unsigned int __us);
+void sdelay_ms(unsigned int __ms);
 
 /**
  * Agument cant be 0 
  */
-void _delay_us(unsigned int __us);
+void _sdelay_us(unsigned int __us);
 /**
  * Agument cant be 0 
  */
-void _delay_ms(unsigned int __ms);
+void _sdelay_ms(unsigned int __ms);
 
 #endif // SECONDDELAY_H_

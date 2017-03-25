@@ -85,7 +85,7 @@ void main(void)
 	ports_init();	
 	InitPWM();
 	PORTB = 0xff;
-	_delay_ms(1000);
+	_sdelay_ms(1000);
 	
 	for(;;) {
 		if ( PORTBbits.RB0 == 1 ) {
@@ -116,27 +116,27 @@ void main(void)
 						licz2 = 0;
 					}
 					
-					_delay_ms(_step_ms);
+					_sdelay_ms(_step_ms);
 				}
 				
 				// jesli zamkniesz drzwi, przestan pipkac
 				licz = 0;
 				SetPWMDutyCycle(512);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				SetPWMDutyCycle(0);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				SetPWMDutyCycle(512);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				SetPWMDutyCycle(0);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				SetPWMDutyCycle(512);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				SetPWMDutyCycle(0);
-				_delay_ms(50);
+				_sdelay_ms(50);
 				
 			}
 		}
-		_delay_ms(_step_ms);
+		_sdelay_ms(_step_ms);
 	}
 }
 

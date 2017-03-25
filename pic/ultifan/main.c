@@ -6,9 +6,9 @@
  */
 #include <pic18fregs.h>
 #include "usbcdc/usbcdc.h"
-#include <delay.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <sdelay.h>
 #include <stdlib.h>
 #include <string.h>
 #include "pt.h"

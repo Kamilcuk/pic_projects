@@ -21,11 +21,11 @@
  * 
  */
 
-#include <delay.h>
 #include "types.h"
 #include "bitops.h"
 #include "hd44780-inst-def.h"
 #include "hd44780.h"
+#include <sdelay.h>
 
 /* -------------------- placeholders  ---------------- */
 #define PDEBUG_hd44780( ... )

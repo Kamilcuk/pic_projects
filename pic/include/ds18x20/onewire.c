@@ -56,7 +56,7 @@ uint8_t ow_reset(void)
 	
 		OW_OUT_LOW();
 		OW_DIR_OUT();            // pull OW-Pin low for 480us
-		_delay_us(480);
+		_sdelay_us(480);
 
 		// set Pin as input - wait for clients to pull low
 		OW_DIR_IN(); // input
@@ -64,14 +64,14 @@ uint8_t ow_reset(void)
 		OW_OUT_HIGH();
 #endif
 	
-		_delay_us(64);       // was 66
+		_sdelay_us(64);       // was 66
 		err = OW_GET_IN();   // no presence detect
 		                     // if err!=0: nobody pulled to low, still high
 	);
 	
 	// after a delay the clients should release the line
 	// and input-pin gets back to high by pull-up-resistor
-	_delay_us(480 - 64);       // was 480-66
+	_sdelay_us(480 - 64);       // was 480-66
 	if( OW_GET_IN() == 0 ) {
 		err = 1;             // short circuit, expected low but got high
 	}
@@ -94,7 +94,7 @@ static uint8_t ow_bit_io_intern( uint8_t b, uint8_t with_parasite_enable )
 		OW_OUT_LOW();
 #endif
 		OW_DIR_OUT();    // drive bus low
-		_delay_us(OW_PULSE_WIDTH);    // T_INT > 1usec accoding to timing-diagramm
+		_sdelay_us(OW_PULSE_WIDTH);    // T_INT > 1usec accoding to timing-diagramm
 		if ( b ) {
 			OW_DIR_IN(); // to write "1" release bus, resistor pulls high
 #if OW_USE_INTERNAL_PULLUP
@@ -106,13 +106,13 @@ static uint8_t ow_bit_io_intern( uint8_t b, uint8_t with_parasite_enable )
 		// edge that initiated the read time slot. Therefore, the master must 
 		// release the bus and then sample the bus state within 15ussec from 
 		// the start of the slot."
-		_delay_us(15-OW_PULSE_WIDTH-OW_CONF_DELAYOFFSET);
+		_sdelay_us(15-OW_PULSE_WIDTH-OW_CONF_DELAYOFFSET);
 		
 		if( OW_GET_IN() == 0 ) {
 			b = 0;  // sample at end of read-timeslot
 		}
 	
-		_delay_us(60-15-OW_PULSE_WIDTH+OW_CONF_DELAYOFFSET);
+		_sdelay_us(60-15-OW_PULSE_WIDTH+OW_CONF_DELAYOFFSET);
 #if OW_USE_INTERNAL_PULLUP
 		OW_OUT_HIGH();
 #endif
@@ -124,7 +124,7 @@ static uint8_t ow_bit_io_intern( uint8_t b, uint8_t with_parasite_enable )
 	
 	); /* ATOMIC_BLOCK */
 
-	_delay_us(OW_RECOVERY_TIME); // may be increased for longer wires
+	_sdelay_us(OW_RECOVERY_TIME); // may be increased for longer wires
 
 	return b;
 }

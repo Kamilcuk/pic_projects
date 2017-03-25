@@ -171,7 +171,7 @@ void main(void)
 			error++;
 		}
 		
-		_delay_ms( DS18B20_TCONV_12BIT );
+		_sdelay_ms( DS18B20_TCONV_12BIT );
 		
 		printf_tiny("Temperatury: ");
 		

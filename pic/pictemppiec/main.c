@@ -23,9 +23,9 @@
 #include <pic18fregs.h>
 #include "usb.h"
 #include <adc.h>
-#include <hd44780/hd44780.h>
-#include <delay.h>
+#include <sdelay.h>
 
+#include <hd44780/hd44780.h>
 #include <ds18x20/onewire.h>
 #include <ds18x20/ds18x20.h>
 #include <seconddelay/seconddelay.h>
@@ -230,7 +230,7 @@ int main( void )
 			error++;
 		}
 			
-		_delay_ms( DS18B20_TCONV_9BIT );
+		_sdelay_ms( DS18B20_TCONV_9BIT );
 			
 		if ( DS18X20_read_decicelsius( &gSensorIDs[0][0], &decicelsius) != DS18X20_OK ) {
 			printf_tiny( "CRC" );

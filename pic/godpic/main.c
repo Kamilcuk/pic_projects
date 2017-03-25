@@ -21,8 +21,9 @@
  * 
  */
 #include <pic18fregs.h>
+#include <sdelay.h>
+
 #include <usb/usb.h>
-#include <delay.h>
 #include <usart.h>
 #include <types.h>
 #include "usb_ep1.h"

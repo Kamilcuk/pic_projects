@@ -100,7 +100,7 @@ void USB_EP2_transmission(void)
 	/* empty */
 	
 }
-#include <delay.h>
+#include <sdelay.h>
 
 void USB_EP1_transmission(void)
 {

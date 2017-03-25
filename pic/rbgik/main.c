@@ -232,23 +232,23 @@ int main()
 			while ( !PORTCbits.RC2 ) {
 				stan.B = 0x00;
 				stan.R = stan.G = 0xff;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 				stan.R = 0x00;
 				stan.G = stan.B = 0xff;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 				stan.G = 0x00;
 				stan.R = stan.B = 0xff;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 				
 				stan.B = 0xff;
 				stan.R = stan.G = 0x00;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 				stan.R = 0xff;
 				stan.G = stan.B = 0x00;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 				stan.G = 0xff;
 				stan.R = stan.B = 0x00;
-				_delay_ms( 500 );
+				_sdelay_ms( 500 );
 			}
 		}
 	}

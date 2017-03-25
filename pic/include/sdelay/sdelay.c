@@ -27,7 +27,7 @@
 
 /* BUG: argument cant be 0 !!!! (thest why it is _delay_XX no chekcing */
 
-void _delay_us(unsigned int __us) 
+void _sdelay_us(unsigned int __us) 
 {
 	// for 12Mhz instruction cycle
 	// we execute 12 instruction per one loop :D
@@ -45,7 +45,7 @@ void _delay_us(unsigned int __us)
 	} while(--__us); // 7 instructions with branch
 }
 
-void delay_us(unsigned int __us) 
+void sdelay_us(unsigned int __us) 
 {
 	while(__us--); // 7 instructions with branch
 	{
@@ -60,16 +60,16 @@ void delay_us(unsigned int __us)
 	} 
 }
 
-void _delay_ms(unsigned int ms)
+void _sdelay_ms(unsigned int ms)
 {
 	do {
-		_delay_us(1000);
+		_sdelay_us(1000);
 	} while(--ms);
 }
 
-void _delay_ms(unsigned int ms)
+void sdelay_ms(unsigned int ms)
 {
 	while(ms--) {
-		delay_us(1000);
+		sdelay_us(1000);
 	} 
 }

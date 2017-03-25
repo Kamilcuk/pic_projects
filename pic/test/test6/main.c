@@ -143,7 +143,7 @@ void port_init(void)
         TRISC=0x00;
 }
 
-#include <delay.h>
+#include <sdelay.h>
 
 void main(void)
 {

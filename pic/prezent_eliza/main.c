@@ -22,11 +22,11 @@
 #define UHCPIC_VERSION "0.0.5"
 #include <pic18f2550.h>
 #include <types.h>
-#include <delay.h>
+#include <sdelay.h>
 #include <usart.h>
 #include <pic18fregs.h>
 #include <usb/usb.h>
-#include <delay.h>
+#include <sdelay.h>
 #include <usart.h>
 #include <types.h>
 #include "usb_ep1.h"

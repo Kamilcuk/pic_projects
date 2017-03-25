@@ -22,7 +22,7 @@
 #define UHCPIC_VERSION "0.0.5"
 #include <pic18f2550.h>
 #include <types.h>
-#include <delay.h>
+#include <sdelay.h>
 #include <bitops.h>
 
 #include <hd44780/hd44780.h>

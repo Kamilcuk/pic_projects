@@ -67,7 +67,10 @@ bool getchar_ready(void);
 void flush(void);
 
 /**
- *
+ * Simple getline implementation
+ * @param lineptr pointer to be filled with chars
+ * @param n length of lineptr
+ * @return returns length of characters read
  */
 uint8_t getline(char *lineptr, uint8_t n);
 

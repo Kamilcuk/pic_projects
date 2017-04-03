@@ -209,7 +209,7 @@ const uint8_t configDescriptor1[]={
     /* Endpoint Descriptor */
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    CUSTOM_DEVICE_HID_EP | _EP_IN,                   //EndpointAddress
+    HID_EP | _EP_IN,                   //EndpointAddress
     _INTERRUPT,                       //Attributes
     0x40,0x00,                  //size
     0x01,                        //Interval
@@ -217,7 +217,7 @@ const uint8_t configDescriptor1[]={
     /* Endpoint Descriptor */
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    CUSTOM_DEVICE_HID_EP | _EP_OUT,                   //EndpointAddress
+    HID_EP | _EP_OUT,                   //EndpointAddress
     _INTERRUPT,                       //Attributes
     0x40,0x00,                  //size
     0x01                        //Interval
@@ -231,14 +231,13 @@ sizeof(sd000),USB_DESCRIPTOR_STRING,{0x0409
 //Manufacturer string descriptor
 const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[25];}sd001={
 sizeof(sd001),USB_DESCRIPTOR_STRING,
-{'K','a','m','i','l','t','e','c','h',' '
+{'K','a','m','i','l','T','e','c','h',' '
 }};
 
 //Product string descriptor
 const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[22];}sd002={
 sizeof(sd002),USB_DESCRIPTOR_STRING,
-{'S','i','m','p','l','e',' ','H','I','D',' ',
-'D','e','v','i','c','e',' ',
+{'H','I','D',' ','G','e','n','e','r','i','c',' ','D','e','v','i','c','e',' ',
 }};
 
 //Class specific descriptor - HID 
@@ -264,7 +263,7 @@ const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01={
 //Array of configuration descriptors
 const uint8_t *const USB_CD_Ptr[]=
 {
-    (const uint8_t *const)&configDescriptor1
+    (const uint8_t *const)&configDescriptor1[0]
 };
 
 //Array of string descriptors

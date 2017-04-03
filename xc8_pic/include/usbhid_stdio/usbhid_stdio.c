@@ -89,10 +89,10 @@ void usbhidStdio_APP_DeviceCustomHIDInitialize()
     USBInHandle = 0;
 
     //enable the HID endpoint
-    USBEnableEndpoint(CUSTOM_DEVICE_HID_EP, USB_IN_ENABLED|USB_OUT_ENABLED|USB_HANDSHAKE_ENABLED|USB_DISALLOW_SETUP);
+    USBEnableEndpoint(HID_EP, USB_IN_ENABLED|USB_OUT_ENABLED|USB_HANDSHAKE_ENABLED|USB_DISALLOW_SETUP);
 
     //Re-arm the OUT endpoint for the next packet
-    USBOutHandle = (volatile USB_HANDLE)HIDRxPacket(CUSTOM_DEVICE_HID_EP, (uint8_t*)&usbReadBuffer[0], READ_BUFFER_SIZE);
+    USBOutHandle = (volatile USB_HANDLE)HIDRxPacket(HID_EP, (uint8_t*)&usbReadBuffer[0], READ_BUFFER_SIZE);
 }
 
 /* ----------------------------------------- reading ----------------------------------------------------- */
@@ -112,7 +112,7 @@ char getche(void)
 		//ASSERT_PARAM(numBytesRead <= sizeof(readBuffer));
 		memcpy(readBuffer, usbReadBuffer, numBytesRead);
 
-        USBOutHandle = HIDRxPacket(CUSTOM_DEVICE_HID_EP, (uint8_t*)&usbReadBuffer[0], READ_BUFFER_SIZE);
+        USBOutHandle = HIDRxPacket(HID_EP, (uint8_t*)&usbReadBuffer[0], READ_BUFFER_SIZE);
 
 	    readBufferPos = 0;
 	}
@@ -166,7 +166,7 @@ void flush(void)
 
     ASSERT_PARAM(writeBufferPos <= sizeof(writeBuffer));
 	memcpy(usbWriteBuffer, writeBuffer, writeBufferPos);
-    USBInHandle = HIDTxPacket(CUSTOM_DEVICE_HID_EP, (uint8_t*)&usbWriteBuffer[0], writeBufferPos);
+    USBInHandle = HIDTxPacket(HID_EP, (uint8_t*)&usbWriteBuffer[0], writeBufferPos);
 }
 
 /* --------------------------------------------------------------------------------------------------------------- */
@@ -174,10 +174,10 @@ void flush(void)
 uint8_t getline(char *lineptr, uint8_t n)
 {
 	char c;
-	uint8_t len = 0;
-	if ( !lineptr )
+	uint8_t len;
+	if ( lineptr == NULL )
 		return 0;
-	for(; n; --n, ++len ) {
+	for(len = n; len; --len ) {
 		c = getchar();
 		*lineptr = c;
 		++lineptr;
@@ -185,7 +185,7 @@ uint8_t getline(char *lineptr, uint8_t n)
 			break;
 		}
 	}
-	return len;
+	return (n - len);
 }
 
 #endif

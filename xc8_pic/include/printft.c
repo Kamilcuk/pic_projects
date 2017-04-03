@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 void putchar(char c);
 #endif
 
-static __far char *bf;
+static char *bf;
 static char buf[12];
 static unsigned int num;
 static char uc;

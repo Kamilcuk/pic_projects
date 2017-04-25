@@ -15,26 +15,14 @@
 
 #include <usb_device.h>
 
-#include <stdio.h>
+#include <stdio.h> // getchar() putchar() printf() _IO{L,N,F}BF
 #include <stdbool.h>
 #include <stdint.h>
 
 /**
- * Configuration: set to 1 to flush on newline
+ * Buffer configuration, see `man setbuf`
  */
-#define USBCDC_STDIO_FLUSH_ON_NEWLINE 1
-
-
-/**
- * For XC8 compiler these are defined in stdio.h
- * @return
- */
-#ifndef getchar
-#define	getchar()	getche()
-#endif
-#ifndef putchar
-#define	putchar(x)	putch(x)
-#endif
+#define USBCDC_STDIO_SETBUF _IOLBF
 
 /**
  * Checks is usb backend is ready for service
@@ -43,26 +31,12 @@
 #define usbReady() ( USBGetDeviceState() >= CONFIGURED_STATE && !USBIsDeviceSuspended() )
 
 /**
- * Repeated predeclaration in stdio.h
- * @return
- */
-char getche(void);
-
-/**
- * Repeated predeclaration in stdio.h
- * @param byte
- */
-void putch(unsigned char byte);
-
-/**
- * getchar() is a blocking function.
- * If this returns true, means getchar() will not block.
- * @return
+ * referenced by ../stdio_ex.h
  */
 bool getchar_ready(void);
 
 /**
- * putch buffers output buffer
+ * referenced by ../stdio_ex.h
  */
 void flush(void);
 
@@ -90,7 +64,7 @@ void flush(void);
 /**
  * To be called in an interrupt handler.
  */
-#define usbStdioInterruptHandler() do{ if(USBInterruptFlag) { USBDeviceTasks(); USBClearUSBInterrupt(); }}while(0)
+#define usbStdioInterruptHandler() do{ if(USBInterruptFlag) { USBDeviceTasks(); USBClearUSBInterrupt(); } }while(0)
 
 /**
  * To be called in main loop in regular intervals, see USBDeviceTasks description

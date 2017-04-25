@@ -46,7 +46,7 @@ static void USER_USB_CALLBACK_EVENT_HANDLER_USBCheckVendorRequest(void)
 /**
  * USB application callback function
  */
-extern void USB_APP_DeviceCustomHIDInitialize(void);
+void USB_APP_DeviceCustomHIDInitialize(void);
 
 /*******************************************************************
  * Function:        bool USER_USB_CALLBACK_EVENT_HANDLER(

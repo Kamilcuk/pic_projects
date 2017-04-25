@@ -64,9 +64,9 @@ regs Kusti, 7.3.2010
 #include <stdarg.h>
 
 // Kamil Cukrowski added const
-// XC8 printf sucks
-#define printf printft
-
 void printft(__far const char *fmt, ...);
+
+// use printft not printf
+#define printf printft
 
 #endif

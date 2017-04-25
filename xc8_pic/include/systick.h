@@ -150,7 +150,7 @@
 /**
  * SYSTICK_COMAPRE - not equal
  */
-#define SYSTICK_COMAPRE(x1, x0)  ( ! SYSTICK_EQUAL( x1 , x0 ) )
+#define SYSTICK_COMPARE(x1, x0)  ( ! SYSTICK_EQUAL( x1 , x0 ) )
 
 /* -------------------------------------------- public defines -------------------------------------------------- */
 
@@ -158,8 +158,8 @@
  * systick_t datatype
  * It can hold up to SYSTICK_MAX_VALUE_SEC seconds until it overflows.
  * One systick equals SYSTICK_TICK_RESOLUTION_SEC seconds.
- * Define systick_t in system.h with type greater then here
- * 	to measure more seconds with bigger accuracy.
+ * Define systick_t in system.h with different type
+ * 	to measure more seconds with greater/smaller accuracy.
  */
 #ifndef systick_t
 typedef unsigned int systick_t;

@@ -97,7 +97,7 @@ void USB_APP_DeviceCustomHIDInitialize()
 
 /* ----------------------------------------- reading ----------------------------------------------------- */
 
-char getche(void)
+char getchar( /*void*/ )
 {
 	char c;
 
@@ -137,17 +137,19 @@ bool getchar_ready(void)
 
 /* ------------------------------------------ writing -------------------------------------------------------- */
 
-void putch(unsigned char byte)
+void putchar(unsigned char byte)
 {
 	ASSERT_PARAM(writeBufferPos < sizeof(writeBuffer));
 	writeBuffer[writeBufferPos] = byte;
 	++writeBufferPos;
 
-	if (
-#ifdef USBCDC_STDIO_FLUSH_ON_NEWLINE
-			byte == '\n' ||
+#if   USBCDC_STDIO_SETBUF == _IOLBF
+	if ( byte == '\n' || writeBufferPos >= WRITE_BUFFER_SIZE )
+#elif USBCDC_STDIO_SETBUF == _IOFBF
+	if ( writeBufferPos >= WRITE_BUFFER_SIZE )
+// #elif USBCDC_STDIO_SETBUF == _IONBF
 #endif
-			writeBufferPos >= WRITE_BUFFER_SIZE ) {
+	{
 		flush();
 	}
 }

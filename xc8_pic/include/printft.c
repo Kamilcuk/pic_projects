@@ -24,10 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef __XC8
 // Kamil Cukrowski changes for XC8 compiler.
-// XC8 sucks so much, that printing with %x results in multiple zeros and maybe stack overflow.
-// cmon XC8, sdcc is better than you and handles that correctly.
+// somtimes printf() on XC8 with %x results in multiple zeros and maybe stack overflow.
 #include <stdio.h> // #define putchar(c) putch(c)
-// XC8..... grrr.
 #pragma warning push
 #pragma warning disable 1496 // disable warnings when using va_arg and va_start arithmetic
 #else

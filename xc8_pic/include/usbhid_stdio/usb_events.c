@@ -38,9 +38,15 @@ static void USER_USB_CALLBACK_EVENT_HANDLER_USBCheckVendorRequest(void)
     // If request type is not class-specific then return
     if ( SetupPkt.RequestType != USB_SETUP_TYPE_VENDOR_BITFIELD ) return;
 	if( SetupPkt.bRequest == 0x0b ) {
+		di();
 		asm("goto 0x001C");
 	}
 }
+
+/**
+ * USB application callback function
+ */
+extern void USB_APP_DeviceCustomHIDInitialize(void);
 
 /*******************************************************************
  * Function:        bool USER_USB_CALLBACK_EVENT_HANDLER(
@@ -95,7 +101,7 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
         case EVENT_CONFIGURED:
             /* When the device is configured, we can (re)initialize the demo
              * code. */
-        	usbhidStdio_APP_DeviceCustomHIDInitialize();
+        	USB_APP_DeviceCustomHIDInitialize();
             break;
 
         case EVENT_SET_DESCRIPTOR:

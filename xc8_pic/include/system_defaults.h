@@ -1,7 +1,12 @@
-/* main system configuration */
-
-#ifndef SYSTEM_H
-#define SYSTEM_H
+/*
+ * system_defaults.h
+ *
+ *  Created on: 04.04.2017
+ *      Author: Kamil Cukrowski
+ *     License: beerware
+ */
+#ifndef SYSTEM_DEFAULTS_H
+#define SYSTEM_DEFAULTS_H
 
 #define _XTAL_FREQ 48000000
 
@@ -44,11 +49,10 @@
 #pragma config EBTR3    = OFF
 #pragma config EBTRB    = OFF
 
-#define USBHID_STDIO_ENABLE 1
-#define USE_ASSERT_PRINTF 1
-
 #include <xc.h>
-#include "usb_config.h"
-#include "assert.h"
 
-#endif //SYSTEM_H
+// disable: warning: (336) string concatenation across lines
+#pragma warning push
+#pragma warning disable 336
+
+#endif //SYSTEM_DEFAULTS_H

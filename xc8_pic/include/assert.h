@@ -11,17 +11,31 @@
 
 #include "system.h"
 
-#ifdef USE_FULL_ASSERT
+#if  defined( USE_ASSERT_MORSE )
 
-#include "morse.h"
+#include "morse.h" // morse_send_string
+#include "cdefs.h" // __XSTRING
 
-#define XSTR(x) #x
-#define STR(x) XSTR(x)
-#define ASSERT_PARAM(expr) do{ \
-	if( !(expr) ) \
-		for(;;) \
-			morse_send_string( STR(__LINE__) ":" STR(expr) ".assert failed:" __FILE__ ":" ); \
-}while(0)
+#define assert(expr) do{ if(!(expr)) { \
+	for(;;) { \
+		morse_send_string(__XSTRING(__LINE__) ":" __XSTRING(expr) ".assert failed:" __XSTRING(__FILE__) ":" ); \
+	} \
+} }while(0)
+
+#elif defined( USE_ASSERT_PRINTF )
+
+#include <stdio.h> // printf
+
+#define assert(expr) do{ if(!(expr)) { \
+	for(unsigned char c = 3; c; --c) { \
+		printf("assert failed:" __XSTRING(__FILE__) ":" __XSTRING(__LINE__) ":" __XSTRING(expr) ".\n"); \
+	} \
+	for(;;){} \
+} }while(0)
+
+#else
+
+#define assert(expr)
 
 #endif
 

@@ -7,6 +7,9 @@
  *      Modified the file for speed and to be able to work with PIC device
  *      file downloaded from: https://github.com/adafruit/TSL2561-Arduino-Library/blob/master/TSL2561.cpp
  */
+
+#include <stdio.h>
+
 /**************************************************************************/
 /*!
     @file     tsl2561.c
@@ -38,96 +41,176 @@
 */
 /**************************************************************************/
 
-#if defined ( ESP8266 )
-  #include <pgmspace.h>
-#else
-  #include <avr/pgmspace.h>
-  #include <util/delay.h>
-#endif
-#include <stdlib.h>
-
 #include "TSL2561.h"
+#include <system.h> // _XTAL_FREQ for __delay_ms
+#include <xc.h> // __delay_ms
+#include <GenericTypeDefs.h> // UINT16_BITS
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <i2c.h>
+#include <cdefs.h> // __XSTRING
+#include <stdio.h>
+#define delay(x) __delay_ms(x) // __delay_ms defined in xc.h
 
-TSL2561::TSL2561(uint8_t addr) {
+static int8_t _addr;
+static tsl2561IntegrationTime_t _integration;
+static tsl2561Gain_t _gain;
+
+#define TSL2561_DBG( printf_param ) do { printf("TSL2561:"__XSTRING(__LINE__)":");printf printf_param ; printf("\n"); }while(0)
+//#define TSL2561_DBG( printf_param )
+
+static void Wire_begin() {
+	CloseI2C();
+	OpenI2C(MASTER, SLEW_OFF);
+#define CALC_SSPADD(speed) ( ( _XTAL_FREQ / ( speed * 4 ) ) - 1 )
+	SSPADD = 15; // CALC_SSPADD(4000);
+#undef CALC_SSPADD
+	IdleI2C();
+}
+
+uint16_t TSL2561_read16(uint8_t reg)
+{
+	// Figure 17. SMBus Block Read or I2C Read (Combined Format) Protocols
+	UINT16_BITS data;
+	// S - Start Condition
+	StartI2C();
+	IdleI2C();
+	// Slave Address Wr
+	WriteI2C((_addr<<1)|0x00);
+	IdleI2C();
+	// command code
+	WriteI2C(reg);
+	IdleI2C();
+	// Sr - Repeated Start Condition
+	RestartI2C();
+	// Slave Address Rd
+	WriteI2C((_addr<<1)|0x01);
+	IdleI2C();
+	// Data Byte 1
+	data.byte.LB = ReadI2C();
+	IdleI2C();
+	// A - Acknowledge
+	AckI2C();
+	// Data Byte 2
+	data.byte.HB = ReadI2C();
+	IdleI2C();
+	// A - Acknowledge - send NACK - this is the last byte
+	NotAckI2C();
+	// stop bit
+	StopI2C();
+	return data.Val;
+}
+
+uint8_t TSL2561_read8(uint8_t reg)
+{
+	uint8_t data;
+	// S - Start Condition
+	StartI2C();
+	IdleI2C();
+	// Slave Address Wr
+	WriteI2C((_addr<<1)|0x00);
+	IdleI2C();
+	// command code
+	WriteI2C(reg);
+	IdleI2C();
+	// S - Start Condition
+	StartI2C();
+	// Slave Address Rd
+	WriteI2C((_addr<<1)|0x01);
+	IdleI2C();
+	// Data Byte
+	data = ReadI2C();
+	IdleI2C();
+	// A - Acknowledge - send NACK - this is the last byte
+	NotAckI2C();
+	// stop bit
+	StopI2C();
+	return data;
+}
+
+void TSL2561_write8(uint8_t reg, uint8_t value)
+{
+	// S - Start Condition
+	StartI2C();
+	IdleI2C();
+	// Slave Address Wr
+	WriteI2C((_addr<<1)|0x00);
+	IdleI2C();
+	// Command Code
+	WriteI2C(reg);
+	IdleI2C();
+	// Data Byte
+	WriteI2C(value);
+	IdleI2C();
+	// P - Stop Condition
+	StopI2C();
+}
+
+
+void TSL2561_init(uint8_t addr) {
   _addr = addr;
-  _initialized = false;
-  _integration = TSL2561_INTEGRATIONTIME_13MS;
+  _integration = TSL2561_INTEGRATIONTIME_402MS;
   _gain = TSL2561_GAIN_16X;
 
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
-boolean TSL2561::begin(void) {
-  Wire.begin();
+bool TSL2561_begin(void)
+{
+  unsigned char x;
 
- // Initialise I2C
-  Wire.beginTransmission(_addr);
-#if ARDUINO >= 100
-  Wire.write(TSL2561_REGISTER_ID);
-#else
-  Wire.send(TSL2561_REGISTER_ID);
-#endif
-  Wire.endTransmission();
-  Wire.requestFrom(_addr, 1);
-#if ARDUINO >= 100
-  int x = Wire.read();
-#else
-  int x = Wire.receive();
-#endif
-  //Serial.print("0x"); Serial.println(x, HEX);
-  if (x & 0x0A ) {
-    //Serial.println("Found TSL2561");
-  } else {
-    return false;
+  Wire_begin();
+
+  // Initialise I2C
+  x = TSL2561_read8(TSL2561_REGISTER_ID);
+
+  if ( !(x&0x0a) ) {
+	TSL2561_DBG(("TSL2561 not found, x=%02x", x));
+	return false;
   }
-  _initialized = true;
+
+  TSL2561_enable();
 
   // Set default integration time and gain
-  setTiming(_integration);
-  setGain(_gain);
+  TSL2561_setTiming(_integration);
+  TSL2561_setGain(_gain);
   // Note: by default, the device is in power down mode on bootup
-  disable();
+  TSL2561_disable();
 
   return true;
 }
 
-void TSL2561::enable(void)
+void TSL2561_enable(void)
 {
-  if (!_initialized) begin();
-
   // Enable the device by setting the control bit to 0x03
-  write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWERON);
+  TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWERON);
 }
 
-void TSL2561::disable(void)
+void TSL2561_disable(void)
 {
-  if (!_initialized) begin();
-
   // Disable the device by setting the control bit to 0x03
-  write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWEROFF);
+  TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWEROFF);
 }
 
 
-void TSL2561::setGain(tsl2561Gain_t gain) {
-  if (!_initialized) begin();
-
-  enable();
-  _gain = gain;
-  write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
-  disable();
-}
-
-void TSL2561::setTiming(tsl2561IntegrationTime_t integration)
+void TSL2561_setGain(tsl2561Gain_t gain)
 {
-  if (!_initialized) begin();
-
-  enable();
-  _integration = integration;
-  write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
-  disable();
+  TSL2561_enable();
+  _gain = gain;
+  TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
+  TSL2561_disable();
 }
 
-uint32_t TSL2561::calculateLux(uint16_t ch0, uint16_t ch1)
+void TSL2561_setTiming(tsl2561IntegrationTime_t integration)
+{
+  TSL2561_enable();
+  _integration = integration;
+  TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
+  TSL2561_disable();
+}
+
+uint32_t TSL2561_calculateLux(uint16_t ch0, uint16_t ch1)
 {
   unsigned long chScale;
   unsigned long channel1;
@@ -157,10 +240,11 @@ uint32_t TSL2561::calculateLux(uint16_t ch0, uint16_t ch1)
   unsigned long ratio1 = 0;
   if (channel0 != 0) ratio1 = (channel1 << (TSL2561_LUX_RATIOSCALE+1)) / channel0;
 
+  unsigned int b, m;
+
+  {
   // round the ratio value
   unsigned long ratio = (ratio1 + 1) >> 1;
-
-  unsigned int b, m;
 
 #ifdef TSL2561_PACKAGE_CS
   if ((ratio >= 0) && (ratio <= TSL2561_LUX_K1C))
@@ -180,7 +264,7 @@ uint32_t TSL2561::calculateLux(uint16_t ch0, uint16_t ch1)
   else if (ratio > TSL2561_LUX_K8C)
     {b=TSL2561_LUX_B8C; m=TSL2561_LUX_M8C;}
 #else
-  if ((ratio >= 0) && (ratio <= TSL2561_LUX_K1T))
+  if (/*(ratio >= 0) && */(ratio <= TSL2561_LUX_K1T))
     {b=TSL2561_LUX_B1T; m=TSL2561_LUX_M1T;}
   else if (ratio <= TSL2561_LUX_K2T)
     {b=TSL2561_LUX_B2T; m=TSL2561_LUX_M2T;}
@@ -197,12 +281,15 @@ uint32_t TSL2561::calculateLux(uint16_t ch0, uint16_t ch1)
   else if (ratio > TSL2561_LUX_K8T)
     {b=TSL2561_LUX_B8T; m=TSL2561_LUX_M8T;}
 #endif
+  }
 
   unsigned long temp;
-  temp = ((channel0 * b) - (channel1 * m));
-
-  // do not allow negative lux value
-  if (temp < 0) temp = 0;
+  {
+	  // do not allow negative lux value
+	  unsigned long channel0b = channel0 * b;
+	  unsigned long channel1m = channel1 * m;
+	  temp = channel0b > channel1m ? channel0b-channel1m : channel1m-channel0b;
+  }
 
   // round lsb (2^(LUX_SCALE-1))
   temp += (1 << (TSL2561_LUX_LUXSCALE-1));
@@ -214,12 +301,10 @@ uint32_t TSL2561::calculateLux(uint16_t ch0, uint16_t ch1)
   return lux;
 }
 
-uint32_t TSL2561::getFullLuminosity (void)
+uint32_t TSL2561_getFullLuminosity (void)
 {
-  if (!_initialized) begin();
-
   // Enable the device by setting the control bit to 0x03
-  enable();
+  TSL2561_enable();
 
   // Wait x ms for ADC to complete
   switch (_integration)
@@ -235,73 +320,32 @@ uint32_t TSL2561::getFullLuminosity (void)
       break;
   }
 
-  uint32_t x;
-  x = read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN1_LOW);
-  x <<= 16;
-  x |= read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN0_LOW);
+  UINT32_VAL x;
+  x.word.LW = TSL2561_read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN0_LOW);
+	TSL2561_DBG(("LW=%x",  x.word.LW));
+  x.word.HW = TSL2561_read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN1_LOW);
+	TSL2561_DBG(("HW=%x",  x.word.HW));
 
-  disable();
+  TSL2561_disable();
 
-  return x;
+  return x.Val;
 }
-uint16_t TSL2561::getLuminosity (uint8_t channel) {
+uint16_t TSL2561_getLuminosity (uint8_t channel) {
 
-  uint32_t x = getFullLuminosity();
+  UINT32_VAL x;
+  x.Val = TSL2561_getFullLuminosity();
 
   if (channel == 0) {
     // Reads two byte value from channel 0 (visible + infrared)
-    return (x & 0xFFFF);
+    return x.word.LW;
   } else if (channel == 1) {
     // Reads two byte value from channel 1 (infrared)
-    return (x >> 16);
+    return x.word.HW;
   } else if (channel == 2) {
     // Reads all and subtracts out just the visible!
-    return ( (x & 0xFFFF) - (x >> 16));
+    return x.word.LW - x.word.HW;
   }
 
   // unknown channel!
   return 0;
 }
-
-
-uint16_t TSL2561::read16(uint8_t reg)
-{
-  uint16_t x; uint16_t t;
-
-  Wire.beginTransmission(_addr);
-#if ARDUINO >= 100
-  Wire.write(reg);
-#else
-  Wire.send(reg);
-#endif
-  Wire.endTransmission();
-
-  Wire.requestFrom(_addr, 2);
-#if ARDUINO >= 100
-  t = Wire.read();
-  x = Wire.read();
-#else
-  t = Wire.receive();
-  x = Wire.receive();
-#endif
-  x <<= 8;
-  x |= t;
-  return x;
-}
-
-
-
-void TSL2561::write8 (uint8_t reg, uint8_t value)
-{
-  Wire.beginTransmission(_addr);
-#if ARDUINO >= 100
-  Wire.write(reg);
-  Wire.write(value);
-#else
-  Wire.send(reg);
-  Wire.send(value);
-#endif
-  Wire.endTransmission();
-}
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help

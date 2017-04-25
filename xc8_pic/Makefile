@@ -1,5 +1,7 @@
+
 ifndef TARGETDIR
-$(error Define TARGETDIR ; cd into a directory and then run make)
+TARGETDIR=02_ultifan
+$(notice TARGETDIR not defined ; cd into a directory and then run make. Default TARGETDIR=$(TARGETDIR))
 endif
 
 CC = $(wildcard /opt/microchip/xc8/*/bin/xc8)
@@ -13,7 +15,7 @@ CC += --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,+
 CC += --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto
 CC += --warn=-3
 # allow eclipse project in main directory to find the file
-PRE=xc8_pic/
+PRE= #xc8_pic/
 CC += "--errformat=$(PRE)%f:%l: error: (%n) %s" 
 CC += "--warnformat=$(PRE)%f:%l: warning: (%n) %s" 
 CC += "--msgformat=$(PRE)%f:%l: note: (%n) %s"
@@ -26,7 +28,6 @@ OBJDIR := .obj
 SRC := $(wildcard $(TARGETDIR)/*.c)
 
 INCDIR = include
-
 CFLAGS += -I$(INCDIR)
 SRC += $(wildcard $(INCDIR)/*.c)
 
@@ -35,26 +36,31 @@ SRC += $(INCDIR)/mla_usb/src/usb_device.c $(INCDIR)/mla_usb/src/usb_device_hid.c
 CFLAGS += -I$(INCDIR)/usbhid_stdio
 SRC += $(wildcard $(INCDIR)/usbhid_stdio/*.c)
 
+CFLAGS += -I../pic/include
+
 OBJ = $(addprefix $(OBJDIR)/,$(patsubst %.c,%.p1,$(SRC)))
-HEX = $(TARGETDIR)/main.hex
+HEX := $(TARGETDIR)/main.hex
 VPATH = $(TARGETDIR)
 
-all: $(OBJDIR) $(HEX)
-$(OBJDIR):
-	@mkdir -p $(dir $(OBJ))
-$(HEX): $(OBJDIR) $(OBJ) $(wildcard *.h)
+all: $(HEX)
+$(HEX): $(OBJ)
 	$(CC) $(LDFLAGS) -o$(OBJDIR)/$(notdir $@) $(OBJ:.o=.p1)
 	cp $(OBJDIR)/$(notdir $@) $@
+
 $(OBJDIR)/%.p1: %.c
+	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS)  -o$@ $<
+
 program_fsusb: $(HEX)
 	sudo usb_modeswitch -Q -v FFFF -p 0100 -S
 	while ! lsusb -d 04d8:000b; do :; done; sleep 0.1
 	fsusb $(HEX)
 	fsusb --reset
+
 program_pk3cmd: $(HEX)
 	while ! lsusb -d 04d8:900a; do :; done; sleep 0.1
 	pk3cmd.sh $(HEX)
+
 clean:
 	cd $(OBJDIR) && rm -rf ./* || true
 distclean: clean

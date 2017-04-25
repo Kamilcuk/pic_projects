@@ -1,5 +1,10 @@
-/* main system configuration */
-
+/*
+ * system.h
+ *
+ *  Created on: 04.04.2017
+ *      Author: Kamil Cukrowski
+ *     License: beerware
+ */
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
@@ -45,10 +50,16 @@
 #pragma config EBTRB    = OFF
 
 #define USBHID_STDIO_ENABLE 1
-#define USE_ASSERT_PRINTF 1
+//#define USE_FULL_ASSERT 1
+#define CMDLINE_ENABLED
 
 #include <xc.h>
 #include "usb_config.h"
 #include "assert.h"
+
+// disable: warning: (336) string concatenation across lines
+#pragma warning push
+#pragma warning disable 336
+
 
 #endif //SYSTEM_H

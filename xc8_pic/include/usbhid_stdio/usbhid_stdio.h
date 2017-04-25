@@ -13,7 +13,7 @@
 
 #if USBHID_STDIO_ENABLE
 
-#include "usb_device.h"
+#include <usb_device.h>
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -66,14 +66,6 @@ bool getchar_ready(void);
  */
 void flush(void);
 
-/**
- * Simple getline implementation
- * @param lineptr pointer to be filled with chars
- * @param n length of lineptr
- * @return returns length of characters read
- */
-uint8_t getline(char *lineptr, uint8_t n);
-
 /* ---------------------------------- usefull defines used in main program ------------------------------------------- */
 
 /**
@@ -88,8 +80,9 @@ uint8_t getline(char *lineptr, uint8_t n);
 #endif
 
 /**
- * initialize usbStdio in a blocking way.
+ * Initialize usbStdio in a blocking way.
  * This function waits in a blocking way for usb initialization.
+ * User for systems powered from usb.
  * @param interruptPriority
  */
 #define usbStdioInitBlocking(interruptPriority) do{ usbStdioInit(interruptPriority); while( !usbReady() ); }while(0)
@@ -109,7 +102,7 @@ uint8_t getline(char *lineptr, uint8_t n);
 /**
  * Used by usb_events.c in usb initialization, don't use anywhere in main();
  */
-void usbhidStdio_APP_DeviceCustomHIDInitialize();
+void USB_APP_DeviceCustomHIDInitialize();
 
 #endif
 

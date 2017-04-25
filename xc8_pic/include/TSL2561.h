@@ -46,12 +46,8 @@
 #ifndef _TSL2561_H_
 #define _TSL2561_H_
 
-#if ARDUINO >= 100
- #include <Arduino.h>
-#else
- #include <WProgram.h>
-#endif
-#include <Wire.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #define TSL2561_VISIBLE 2                   // channel 0 - channel 1
 #define TSL2561_INFRARED 1                  // channel 1
@@ -156,37 +152,26 @@ typedef enum
   TSL2561_INTEGRATIONTIME_13MS      = 0x00,    // 13.7ms
   TSL2561_INTEGRATIONTIME_101MS     = 0x01,    // 101ms
   TSL2561_INTEGRATIONTIME_402MS     = 0x02     // 402ms
-}
-tsl2561IntegrationTime_t;
+} tsl2561IntegrationTime_t;
 
 typedef enum
 {
   TSL2561_GAIN_0X                   = 0x00,    // No gain
   TSL2561_GAIN_16X                  = 0x10,    // 16x gain
-}
-tsl2561Gain_t;
+} tsl2561Gain_t;
 
+void TSL2561_init(uint8_t addr);
+bool TSL2561_begin(void);
+void TSL2561_enable(void);
+void TSL2561_disable(void);
+void TSL2561_write8(uint8_t r, uint8_t v);
+uint8_t TSL2561_read8(uint8_t reg);
+uint16_t TSL2561_read16(uint8_t reg);
 
-class TSL2561 {
- public:
-  TSL2561(uint8_t addr);
-  boolean begin(void);
-  void enable(void);
-  void disable(void);
-  void write8(uint8_t r, uint8_t v);
-  uint16_t read16(uint8_t reg);
+uint32_t TSL2561_calculateLux(uint16_t ch0, uint16_t ch1);
+void TSL2561_setTiming(tsl2561IntegrationTime_t integration);
+void TSL2561_setGain(tsl2561Gain_t gain);
+uint16_t TSL2561_getLuminosity (uint8_t channel);
+uint32_t TSL2561_getFullLuminosity ();
 
-  uint32_t calculateLux(uint16_t ch0, uint16_t ch1);
-  void setTiming(tsl2561IntegrationTime_t integration);
-  void setGain(tsl2561Gain_t gain);
-  uint16_t getLuminosity (uint8_t channel);
-  uint32_t getFullLuminosity ();
-
- private:
-  int8_t _addr;
-  tsl2561IntegrationTime_t _integration;
-  tsl2561Gain_t _gain;
-
-  boolean _initialized;
-};
 #endif

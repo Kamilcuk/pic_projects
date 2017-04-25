@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=../include/mla_usb/src/usb_device.c ../include/mla_usb/src/usb_device_hid.c ../include/usbhid_stdio/usb_descriptors.c ../include/usbhid_stdio/usb_events.c ../include/usbhid_stdio/usbhid_stdio.c main.c
+SOURCEFILES_QUOTED_IF_SPACED=
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/403374214/usb_device.p1 ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1 ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1 ${OBJECTDIR}/_ext/1785256127/usb_events.p1 ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1 ${OBJECTDIR}/main.p1
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/403374214/usb_device.p1.d ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d ${OBJECTDIR}/main.p1.d
+OBJECTFILES_QUOTED_IF_SPACED=
+POSSIBLE_DEPFILES=
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/403374214/usb_device.p1 ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1 ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1 ${OBJECTDIR}/_ext/1785256127/usb_events.p1 ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1 ${OBJECTDIR}/main.p1
+OBJECTFILES=
 
 # Source Files
-SOURCEFILES=../include/mla_usb/src/usb_device.c ../include/mla_usb/src/usb_device_hid.c ../include/usbhid_stdio/usb_descriptors.c ../include/usbhid_stdio/usb_events.c ../include/usbhid_stdio/usbhid_stdio.c main.c
+SOURCEFILES=
 
 
 CFLAGS=
@@ -87,103 +87,7 @@ MP_PROCESSOR_OPTION=18F2550
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/_ext/403374214/usb_device.p1: ../include/mla_usb/src/usb_device.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/403374214" 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/403374214/usb_device.p1  ../include/mla_usb/src/usb_device.c 
-	@-${MV} ${OBJECTDIR}/_ext/403374214/usb_device.d ${OBJECTDIR}/_ext/403374214/usb_device.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/403374214/usb_device.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/403374214/usb_device_hid.p1: ../include/mla_usb/src/usb_device_hid.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/403374214" 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/403374214/usb_device_hid.p1  ../include/mla_usb/src/usb_device_hid.c 
-	@-${MV} ${OBJECTDIR}/_ext/403374214/usb_device_hid.d ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1: ../include/usbhid_stdio/usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1  ../include/usbhid_stdio/usb_descriptors.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.d ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usb_events.p1: ../include/usbhid_stdio/usb_events.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_events.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usb_events.p1  ../include/usbhid_stdio/usb_events.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usb_events.d ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1: ../include/usbhid_stdio/usbhid_stdio.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1  ../include/usbhid_stdio/usbhid_stdio.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.d ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/main.p1: main.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/main.p1.d 
-	@${RM} ${OBJECTDIR}/main.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  -D__DEBUG=1 --debugger=pickit3  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/main.p1  main.c 
-	@-${MV} ${OBJECTDIR}/main.d ${OBJECTDIR}/main.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/main.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
 else
-${OBJECTDIR}/_ext/403374214/usb_device.p1: ../include/mla_usb/src/usb_device.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/403374214" 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/403374214/usb_device.p1  ../include/mla_usb/src/usb_device.c 
-	@-${MV} ${OBJECTDIR}/_ext/403374214/usb_device.d ${OBJECTDIR}/_ext/403374214/usb_device.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/403374214/usb_device.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/403374214/usb_device_hid.p1: ../include/mla_usb/src/usb_device_hid.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/403374214" 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/403374214/usb_device_hid.p1  ../include/mla_usb/src/usb_device_hid.c 
-	@-${MV} ${OBJECTDIR}/_ext/403374214/usb_device_hid.d ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/403374214/usb_device_hid.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1: ../include/usbhid_stdio/usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1  ../include/usbhid_stdio/usb_descriptors.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.d ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usb_descriptors.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usb_events.p1: ../include/usbhid_stdio/usb_events.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usb_events.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usb_events.p1  ../include/usbhid_stdio/usb_events.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usb_events.d ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usb_events.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1: ../include/usbhid_stdio/usbhid_stdio.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1785256127" 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d 
-	@${RM} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1  ../include/usbhid_stdio/usbhid_stdio.c 
-	@-${MV} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.d ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/_ext/1785256127/usbhid_stdio.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/main.p1: main.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/main.p1.d 
-	@${RM} ${OBJECTDIR}/main.p1 
-	${MP_CC} --pass1 $(MP_EXTRA_CC_PRE) --chip=$(MP_PROCESSOR_OPTION) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=+asm,+asmfile,-speed,+space,-debug,-local --addrqual=ignore --mode=free -P -N255 -I"../include" -I"../include/usbhid_stdio" -I"../include/mla_usb/inc" -I"." --warn=-3 --asmlist -DXPRJ_default=$(CND_CONF)  --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,-plib $(COMPARISON_BUILD)  --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto "--errformat=%f:%l: error: (%n) %s" "--warnformat=%f:%l: warning: (%n) %s" "--msgformat=%f:%l: advisory: (%n) %s"    -o${OBJECTDIR}/main.p1  main.c 
-	@-${MV} ${OBJECTDIR}/main.d ${OBJECTDIR}/main.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/main.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
 endif
 
 # ------------------------------------------------------------------------------------

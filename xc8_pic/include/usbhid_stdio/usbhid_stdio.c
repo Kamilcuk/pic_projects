@@ -78,7 +78,7 @@ volatile USB_HANDLE USBInHandle;
 
 /* -------------------------------------------- initialization -------------------------------------- */
 
-void usbhidStdio_APP_DeviceCustomHIDInitialize()
+void USB_APP_DeviceCustomHIDInitialize()
 {
 	readBufferPos = 0;
 	numBytesRead = 0;
@@ -149,7 +149,6 @@ void putch(unsigned char byte)
 #endif
 			writeBufferPos >= WRITE_BUFFER_SIZE ) {
 		flush();
-		writeBufferPos = 0;
 	}
 }
 
@@ -167,25 +166,8 @@ void flush(void)
     ASSERT_PARAM(writeBufferPos <= sizeof(writeBuffer));
 	memcpy(usbWriteBuffer, writeBuffer, writeBufferPos);
     USBInHandle = HIDTxPacket(HID_EP, (uint8_t*)&usbWriteBuffer[0], writeBufferPos);
-}
-
-/* --------------------------------------------------------------------------------------------------------------- */
-
-uint8_t getline(char *lineptr, uint8_t n)
-{
-	char c;
-	uint8_t len;
-	if ( lineptr == NULL )
-		return 0;
-	for(len = n; len; --len ) {
-		c = getchar();
-		*lineptr = c;
-		++lineptr;
-		if ( c == '\n' ) {
-			break;
-		}
-	}
-	return (n - len);
+	
+	writeBufferPos = 0;
 }
 
 #endif

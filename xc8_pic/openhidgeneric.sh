@@ -1,6 +1,12 @@
 #!/bin/bash
 
+################## config ########################
+
+DEBUG=${DEBUG:-false}
+$DEBUG && set -x
+
 ################## get usb device to connect to ###################
+
 gethidraws() {
 	local productvendor=${1^^}
 	for i in /sys/class/hidraw/*; do 
@@ -9,6 +15,7 @@ gethidraws() {
 	        fi
 	done
 }
+
 f="$(gethidraws ffff:0100)"
 if [ -z "$f" ]; then
 	echo "Error: no usb device found."
@@ -28,20 +35,38 @@ if [ ! -c "$f" ]; then
 	echo "do: ' sudo rm $f ' and reconnect the device"
 	exit 1
 fi
+
 ###################### open usb device ###########################
+
 fifo=$(mktemp)
 childs=""
-DEBUG=false
 
 rm -f $fifo
 mkfifo $fifo
 
-trap 'echo Exitting because my child killed me. >&2; exit;' SIGUSR1
-trap 'set -x; kill -s 9 $childs; rm -f $fifo;' EXIT
+trap_SIGUSR1() {
+	#echo Exitting because my child killed me. >&2;
+	exit;
+}
+trap 'trap_SIGUSR1;' SIGUSR1
+trap_EXIT() {
+	$DEBUG && set -x;
+	kill $childs 2>/dev/null;
+	rm -f $fifo;
+	wait;
+}
+trap 'trap_EXIT;' EXIT
 
 echo "## Running writing thread $f"
-( $DEBUG && set -x
-	trap 'set -x; echo "Exit writing thread"; rm -f $fifo; kill -SIGUSR1 $$;' EXIT
+writingThread() {
+	$DEBUG && set -x
+	trap_EXIT_write() {
+		$DEBUG && set -x;
+		echo "Exit writing thread";
+		rm -f $fifo;
+		kill -SIGUSR1 $$ 2>/dev/null;
+	}
+	trap 'trap_EXIT_write;' EXIT
 	while IFS= read -r -N 1 -d '' -s str; do
 		$DEBUG && echo "FIFO IN: $str"
 		if [ -c "$f" ]; then
@@ -49,15 +74,22 @@ echo "## Running writing thread $f"
 			sleep 0.01
 		fi
 	done < "$fifo"
-) &
+}
+( writingThread ) &
 childs+=" $!"
 
 echo "## Running reading thread $f"
-( $DEBUG && set -x
-	trap 'echo "Exit reading thread"; kill -SIGUSR1 $$;' EXIT
-	set -x
-	cat "$f"
-) &
+readingThread() {
+	$DEBUG && set -x
+	trap_EXIT_read() {
+		$DEBUG && set -x;
+		echo "Exit reading thread";
+		kill -SIGUSR1 $$ 2>/dev/null;
+	}
+	trap 'trap_EXIT_read;' EXIT
+	( set -x; cat "$f"; )
+}
+( readingThread ) &
 childs+=" $!"
 
 while IFS= read -r -N 1 -d '' -s str; do

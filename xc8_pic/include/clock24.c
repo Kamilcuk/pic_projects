@@ -82,6 +82,7 @@ void clock24Printf(struct clock24_s clock24)
 			clock24.hour, clock24.min, clock24.sec);
 }
 
+#if 0
 void clock24_main_test(void)
 {
 
@@ -107,3 +108,4 @@ void clock24_main_test(void)
 #undef LAZY
 
 }
+#endif

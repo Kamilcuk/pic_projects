@@ -19,21 +19,23 @@ changelog:
 10100714 - ow_command_skip_last_recovery used for parasite-powerd devices so the
            strong pull-up can be enabled in time even with longer OW recovery times
 **********************************************************************************/
-
-#include <stdlib.h>
-#include <stdint.h>
-
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-
+/*
+ *  Kamil Cukrowski changes for XC8 compiler and customization
+ */
 #include "ds18x20.h"
+
 #include "onewire.h"
 #include "crc8.h"
 
-#if DS18X20_EEPROMSUPPORT
-// for 10ms delay in copy scratchpad
-#include <util/delay.h>
-#endif /* DS18X20_EEPROMSUPPORT */
+#include <system.h> // configuration
+
+#include <xc.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+
+#define _delay_us __delay_us
+#define _delay_ms __delay_ms
 
 /*----------- start of "debug-functions" ---------------*/
 

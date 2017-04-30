@@ -135,9 +135,4 @@ signed char clock24DifftimeSCHAR(struct clock24_s clock1, struct clock24_s clock
  */
 void clock24Printf(struct clock24_s clock24);
 
-/**
- *
- */
-void clock24_main_test(void);
-
 #endif /* CLOCK24_H_ */

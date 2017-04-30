@@ -1,44 +1,39 @@
 
 ifndef TARGETDIR
-TARGETDIR=02_ultifan
+TARGETDIR=./TARGETDIR
 $(notice TARGETDIR not defined ; cd into a directory and then run make. Default TARGETDIR=$(TARGETDIR))
 endif
 
-CC = $(wildcard /opt/microchip/xc8/*/bin/xc8)
-CC += --chip=18F2550 
-CC += --double=24 --float=24 --emi=wordwrite --opt=default,+asm,+asmfile,-speed,+space,-debug 
-CC += --addrqual=require 
-CC += --mode=pro -P -N255 --warn=0 --asmlist --summary=default,-psect,-class,+mem,-hex,-file 
-CC += --codeoffset=0x800 --rom=default,-0-7FF
-CC += --output=default,-inhx032 
-CC += --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,+plib
-CC += --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto
-CC += --warn=-3
-# allow eclipse project in main directory to find the file
-PRE= #xc8_pic/
-CC += "--errformat=$(PRE)%f:%l: error: (%n) %s" 
-CC += "--warnformat=$(PRE)%f:%l: warning: (%n) %s" 
-CC += "--msgformat=$(PRE)%f:%l: note: (%n) %s"
-CC += -G
+CCARGS ?=
+CC = @./xc8.sh $(CCARGS)
 
-
-CFLAGS := -Q --pass1 -I$(TARGETDIR)
-LDFLAGS := 
 OBJDIR := .obj
-SRC := $(wildcard $(TARGETDIR)/*.c)
+CFLAGS := -Q --pass1 -I$(TARGETDIR)
+ASMFLAGS := --pass1
+LDFLAGS := --memorysummary $(OBJDIR)/memoryfile.xml
+
+SRC ?=
+SRC += $(wildcard $(TARGETDIR)/*.c) $(wildcard $(TARGETDIR)/*.as)
 
 INCDIR = include
+
+ifndef NO_INCLUDE
 CFLAGS += -I$(INCDIR)
 SRC += $(wildcard $(INCDIR)/*.c)
 
 CFLAGS += -I$(INCDIR)/mla_usb/inc
 SRC += $(INCDIR)/mla_usb/src/usb_device.c $(INCDIR)/mla_usb/src/usb_device_hid.c
+
 CFLAGS += -I$(INCDIR)/usbhid_stdio
 SRC += $(wildcard $(INCDIR)/usbhid_stdio/*.c)
+endif
 
-CFLAGS += -I../pic/include
+ifdef PLIB_SRC
+CFLAGS += -I$(INCDIR)/plib
+SRC += $(wildcard $(addsuffix /*.c,$(addprefix plib/, $(PLIB_SRC))))
+endif
 
-OBJ = $(addprefix $(OBJDIR)/,$(patsubst %.c,%.p1,$(SRC)))
+OBJ := $(addprefix $(OBJDIR)/, $(patsubst %.as,%.obj, $(patsubst %.c,%.p1, $(SRC) ) ) )
 HEX := $(TARGETDIR)/main.hex
 VPATH = $(TARGETDIR)
 
@@ -49,13 +44,14 @@ $(HEX): $(OBJ)
 
 $(OBJDIR)/%.p1: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS)  -o$@ $<
+	$(CC) $(CFLAGS) -o$@ $<
+
+$(OBJDIR)/%.obj: %.as
+	mkdir -p $(dir $@)
+	$(CC) $(ASMFLAGS) -o$@ $<
 
 program_fsusb: $(HEX)
-	sudo usb_modeswitch -Q -v FFFF -p 0100 -S
-	while ! lsusb -d 04d8:000b; do :; done; sleep 0.1
-	fsusb $(HEX)
-	fsusb --reset
+	./program_fsusb.sh $(HEX)
 
 program_pk3cmd: $(HEX)
 	while ! lsusb -d 04d8:900a; do :; done; sleep 0.1

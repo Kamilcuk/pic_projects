@@ -49,10 +49,19 @@
 #pragma config EBTR3    = OFF
 #pragma config EBTRB    = OFF
 
-#include <xc.h>
-
-// disable: warning: (336) string concatenation across lines
+#ifdef __XC8
+// remember warnings configuration
 #pragma warning push
-#pragma warning disable 336
+// warning: string concatenation across lines
+#pragma warning disable  336
+// warning: function is never called
+#pragma warning disable  520
+// warning: pointer in expression may have no targets
+#pragma warning disable 1498
+// note: non-reentrant function appears in multiple graph
+#pragma warning disable 1510
+#endif
+
+#include <xc.h>
 
 #endif //SYSTEM_DEFAULTS_H

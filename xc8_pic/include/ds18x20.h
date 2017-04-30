@@ -1,3 +1,6 @@
+/*
+ *  Kamil Cukrowski changes for XC8 compiler and customization
+ */
 #ifndef DS18X20_H_
 #define DS18X20_H_
 
@@ -8,14 +11,24 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <system.h> // configuration
+
 // DS18x20 EERPROM support disabled(0) or enabled(1) :
+#ifndef DS18X20_EEPROMSUPPORT
 #define DS18X20_EEPROMSUPPORT     1
+#endif
 // decicelsius functions disabled(0) or enabled(1):
+#ifndef DS18X20_DECICELSIUS
 #define DS18X20_DECICELSIUS       1
+#endif
 // max. resolution functions disabled(0) or enabled(1):
+#ifndef DS18X20_MAX_RESOLUTION
 #define DS18X20_MAX_RESOLUTION    1
+#endif
 // extended output via UART disabled(0) or enabled(1) :
+#ifndef DS18X20_VERBOSE
 #define DS18X20_VERBOSE           0
+#endif
 
 
 /* return values */

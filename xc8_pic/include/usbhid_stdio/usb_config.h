@@ -24,6 +24,8 @@ please contact mla_licensing@microchip.com
 #ifndef USBCFG_H
 #define USBCFG_H
 
+#include <system.h>
+
 #include "usb_ch9.h"
 
 /** DEFINITIONS ****************************************************/
@@ -78,7 +80,7 @@ please contact mla_licensing@microchip.com
 //at a minimum rate as described in the inline code comments in usb_device.c.
 //------------------------------------------------------
 //#define USB_POLLING
-#define USB_INTERRUPT
+//#define USB_INTERRUPT
 //------------------------------------------------------------------------------
 
 /* Parameter definitions are defined in usb_device.h */

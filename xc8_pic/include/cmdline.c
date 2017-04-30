@@ -7,22 +7,37 @@
  */
 
 #include "cmdline.h"
-#include "system.h"
+
 #include "cdefs.h"
 #include "stdio_ex.h"
 #include "common.h"
+
+#include <system.h>
+
 #include <stdio.h>
 #include <ctype.h>
 
-#define CMDLINE_ENABLED
-#ifdef CMDLINE_ENABLED
 
-#define CMDLINE_PS1 "$ "
+/**
+ * Just like PS1 in bash
+ */
+#ifndef CMDLINE_PROMPT
+#define CMDLINE_PROMPT "$ "
+#endif
 
 /**
  * state variable
  */
-struct cmdline_s cmdline = { {0}, 0};
+struct cmdline_s cmdline = {0};
+
+/**
+ * If CMDLINE_ENABLED is not set,
+ * then provide empty callback function.
+ * We don't have __weak symbols, need to do it defines style.
+ */
+#ifndef CMDLINE_ENABLED
+void cmdlineService_callback(void) {}
+#endif
 
 /**
  * Blocking read/wait until '\n' is received or until buff is full
@@ -35,7 +50,7 @@ static void cmdlineGetCmd(void)
 
 	{
 AGAIN:
-		printf(CMDLINE_PS1);
+		printf( CMDLINE_PROMPT );
 		cmdline.buffpos = 0;
 	}
 
@@ -55,7 +70,7 @@ AGAIN:
 				uint8_t i;
 				--cmdline.buffpos;
 				cmdline.buff[cmdline.buffpos] = '\0';
-				printf(CMDLINE_PS1"%s", cmdline.buff);
+				printf( CMDLINE_PROMPT "%s", cmdline.buff);
 			}
 			continue;
 		}
@@ -82,7 +97,7 @@ AGAIN:
  * Same as cmdGetCmd but in a non-blocking fashion.
  * @return 0xff if '\n' was received and reading is done, 0 otherwise
  */
-static uint8_t cmdlineGetCmd_thread()
+static uint8_t cmdlineGetCmd_nonblock()
 {
 	static char state = 0xff;
 	volatile char c; // optimization
@@ -92,7 +107,7 @@ static uint8_t cmdlineGetCmd_thread()
 AGAIN:
 		// "first run"
 		cmdline.buffpos = 0;
-		printf(CMDLINE_PS1);
+		printf( CMDLINE_PROMPT );
 	}
 	do {
 
@@ -109,7 +124,7 @@ AGAIN:
 		}
 #ifdef CMDLINE_BACKSPACE_ENABLED
 		if ( c == '\b' || c == 0x7f ) { // '\b' is backspace , 0x7f is DEL
-			printf("\n"CMDLINE_PS1);
+			printf( "\n" CMDLINE_PROMPT );
 			if ( cmdline.buffpos ) {
 				uint8_t i;
 				--cmdline.buffpos;
@@ -208,11 +223,10 @@ void cmdlineService(void)
 	cmdlineService_callback();
 }
 
-void cmdlineServiceThread()
+void cmdlineService_nonblock()
 {
-	if ( cmdlineGetCmd_thread() ) {
+	if ( cmdlineGetCmd_nonblock() ) {
 		cmdlineService_callback();
 	}
 }
 
-#endif

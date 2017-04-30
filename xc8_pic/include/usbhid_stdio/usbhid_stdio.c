@@ -56,15 +56,6 @@ volatile USB_HANDLE USBOutHandle;
 volatile USB_HANDLE USBInHandle;
 
 /**
- * if polling method is used, invoke USBDeviceTasks when looping
- */
-#ifdef USB_POLLING
-#define USBDeviceTasksHandler() USBDeviceTasks()
-#else
-#define USBDeviceTasksHandler()
-#endif
-
-/**
  * if usb will be disconnected while looping... we need timeout
  */
 #define for_timeout(expr) for(uint16_t Timeout = 0xffff; (expr) && Timeout; --Timeout)
@@ -104,8 +95,14 @@ char getchar( /*void*/ )
 	if ( readBufferPos >= numBytesRead ) {
 		if ( !usbReady() ) return 0;
 
-		while( HIDRxHandleBusy(USBOutHandle) ) {
+		for_timeout( HIDRxHandleBusy(USBOutHandle) ) {
 			USBDeviceTasksHandler();
+			usbStdioService_busSense();
+#ifdef USE_USB_BUS_SENSE_IO
+			if ( USBDeviceState == DETACHED_STATE ) {
+				return 0xA0;
+			}
+#endif
 		}
 
 		numBytesRead = USBHandleGetLength(USBOutHandle);
@@ -137,25 +134,50 @@ bool getchar_ready(void)
 
 /* ------------------------------------------ writing -------------------------------------------------------- */
 
+#if USBCDC_STDIO_SETBUF == _IOLBF && USBCDC_STDIO_SYNC == 1
+static bool should_flush = false;
+#endif
+
 void putchar(unsigned char byte)
 {
 	ASSERT_PARAM(writeBufferPos < sizeof(writeBuffer));
 	writeBuffer[writeBufferPos] = byte;
 	++writeBufferPos;
 
-#if   USBCDC_STDIO_SETBUF == _IOLBF
-	if ( byte == '\n' || writeBufferPos >= WRITE_BUFFER_SIZE )
-#elif USBCDC_STDIO_SETBUF == _IOFBF
-	if ( writeBufferPos >= WRITE_BUFFER_SIZE )
-// #elif USBCDC_STDIO_SETBUF == _IONBF
+#if USBCDC_STDIO_SETBUF == _IOLBF
+	if ( byte == '\n' || writeBufferPos >= WRITE_BUFFER_SIZE ) {
+#if USBCDC_STDIO_SYNC == 1
+		should_flush = true;
+#else
+		flush();
 #endif
-	{
+	}
+#elif USBCDC_STDIO_SETBUF == _IOFBF && USBCDC_STDIO_SYNC == 0
+	if ( writeBufferPos >= WRITE_BUFFER_SIZE ) {
 		flush();
 	}
+#elif USBCDC_STDIO_SETBUF == _IONBF
+	flush();
+#endif
+
 }
 
 void flush(void)
 {
+
+#if USBCDC_STDIO_SYNC == 1
+#if USBCDC_STDIO_SETBUF == _IOLBF
+	if ( ! ( should_flush || writeBufferPos >= WRITE_BUFFER_SIZE ) ) {
+		return;
+	}
+	should_flush = false;
+#elif USBCDC_STDIO_SETBUF == _IOFBF
+	if ( !( writeBufferPos >= WRITE_BUFFER_SIZE ) ) {
+		flush();
+	}
+#endif
+#endif
+
 	// sanity
 	if ( !usbReady() ) return;
 	// check anything is to be flushed
@@ -163,6 +185,12 @@ void flush(void)
 
 	for_timeout( HIDTxHandleBusy(USBInHandle) ) {
 		USBDeviceTasksHandler();
+		usbStdioService_busSense();
+#ifdef USE_USB_BUS_SENSE_IO
+		if ( USBDeviceState == DETACHED_STATE ) {
+			return;
+		}
+#endif
 	}
 
     ASSERT_PARAM(writeBufferPos <= sizeof(writeBuffer));

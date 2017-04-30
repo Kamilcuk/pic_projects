@@ -46,11 +46,10 @@ formatlen="$(echo "$names"|wc -L)"
 sum=0
 for n in $names; do
 	for pre in "${prefunc_strings[@]}"; do
-		lines="$(
-		cat $file | \
-			sed -n "/^${prefunc_regex}${pre}${n}${postfunc_regex}$/,/^${prefunc_regex}${func_regex}${postfunc_regex}$/ p" | \
-			egrep "^${code_regex}" | wc -l
-		)"
+		linesraw() { cat $file | sed -n "/^${prefunc_regex}${pre}${n}${postfunc_regex}$/,/^${prefunc_regex}${func_regex}${postfunc_regex}$/ p" | egrep "^${code_regex}"; }
+		normallines=$( linesraw | wc -l)
+		doublelines=$( linesraw | egrep "^${code_regex}  [0-9A-F]{4}" | wc -l)
+		lines=$(( $normallines+$doublelines ))
 		if [ "$lines" -ne 0 ]; then
 			printf "Function %${formatlen}s has %3d lines.\n" "${pre}${n}" "$lines"
 			sum=$(( sum+lines ))
@@ -59,4 +58,5 @@ for n in $names; do
 done
 echo "	Sum of lines in functions is equal $sum."
 echo "	$file has $(cat $file | egrep "^${code_regex}" | wc -l) lines of code."
+
 

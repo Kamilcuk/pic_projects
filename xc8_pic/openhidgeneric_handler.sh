@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 #old
 #while sleep 0.1; do
 #	./openhidgeneric.sh

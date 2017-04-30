@@ -9,21 +9,40 @@ modified by Martin Thomas (mthomas(at)rhrk.uni-kl.de)
  7/2010 - added method to skip recovery time after last bit transfered
           via ow_command_skip_last_recovery
 */
+/*
+ *  Kamil Cukrowski changes for XC8 compiler and customization
+ */
 
-
-#include <avr/io.h>
-#include <util/delay.h>
-#include <util/atomic.h>
+//#include <avr/io.h>
+//#include <util/delay.h>
+//#include <util/atomic.h>
 
 #include "onewire.h"
 
+#include <system.h> // configuration
+
+#define _delay_us __delay_us
+#define ATOMIC_BLOCK( unused ) \
+	for(unsigned char _once = (di(), 1); _once; _once = 0, ei())
+
+
 #ifdef OW_ONE_BUS
 
+#ifndef OW_GET_IN
 #define OW_GET_IN()   ( OW_IN & (1<<OW_PIN))
+#endif
+#ifndef OW_OUT_LOW
 #define OW_OUT_LOW()  ( OW_OUT &= (~(1 << OW_PIN)) )
+#endif
+#ifndef OW_OUT_HIGH
 #define OW_OUT_HIGH() ( OW_OUT |= (1 << OW_PIN) )
+#endif
+#ifndef OW_DIR_IN
 #define OW_DIR_IN()   ( OW_DDR &= (~(1 << OW_PIN )) )
+#endif
+#ifndef OW_DIR_OUT
 #define OW_DIR_OUT()  ( OW_DDR |= (1 << OW_PIN) )
+#endif
 
 #else
 

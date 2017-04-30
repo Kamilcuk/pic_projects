@@ -7,15 +7,18 @@
  */
 #include <xc.h>
 #include <system.h>
-#include "capture.h"
-#include "timers.h"
-#include "common.h"
-#include "cdefs.h"
-#include "pt.h"
-#include "cmdline.h"
-#include "assert.h"
-#include "TSL2561.h"
-#include "systick.h"
+
+#include <capture.h>
+#include <timers.h>
+#include <bitmask.h>
+#include <cdefs.h>
+#include <cmdline.h>
+#include <assert.h>
+#include <TSL2561.h>
+#include <systick.h>
+#include <swSpiWrite.h>
+#include <ds18x20.h>
+#include <usbhid_stdio/usbhid_stdio.h>
 
 #include <stdint.h>
 #include <time.h>
@@ -23,13 +26,38 @@
 #include <errata.h>
 #include <GenericTypeDefs.h>
 #include <stdbool.h>
-#include <spi.h>
 
 #include "usbhid_stdio/usbhid_stdio.h"
 
+/**
+| PIC18F2550 | description | to |
+| ----- | --- | --- |
+| left | | |
+| RA0 | TACHO channel A out | 4051 A |
+| RA1 | TACHO channel B out | 4051 B |
+| RA2 | TACHO channel C out | 4051 C |
+| RA3 | onewire | DS18B20 |
+| RA4 | | |
+| RA5 | | |
+| RC0 | USB sense in | USB +5V |
+| RC1 | | |
+| RC2 | TACHO in / CCP1| 4051 X |
+| right  | | |
+| RB7 | in | button |
+| RB6 | out | diode |
+| RB5 | out | MCP4812 no. 2 chip select |
+| RB4 | out | MCP4812 no. 1 chip select |
+| RB3 | software SCK | MCP4812 SCK |
+| RB2 | software SDI | MCP4812 SDA |
+| RB1 | SCL | TSL2561 SCL |
+| RB0 | SDA | TSL2561 SDA |
+| RC7 | UART | |
+| RC6 | UART | |
+ */
+
 /* ------------------------------------- configuration ------------------------------ */
 
-#define FUN_MAX_NUMBER 4
+#define FAN_MAX_NUMBER 4
 
 /* ------------------------------------ rpm* - reading RPM part -------------------------- */
 
@@ -41,7 +69,7 @@ volatile struct {
 	bool synchronized : 1;
 } rpmCmpState = {0,0};
 
-volatile UINT24_BITS rpmResult[FUN_MAX_NUMBER] = {0};
+volatile UINT24_BITS rpmResult[FAN_MAX_NUMBER] = {0};
 
 volatile UINT8 rpmResultpos = 0;
 
@@ -59,7 +87,7 @@ static void rpmInit(void)
 
 	SetTmrCCPSrc( T1_CCP1_T3_CCP2 );
 	IPR1bits.CCP1IP = 0;
-	// apture1 on RC2
+	// Capture1 on RC2
 	OpenCapture1( C1_EVERY_RISE_EDGE & CAPTURE_INT_ON );
 	IPR1bits.TMR1IP = 0;
 	OpenTimer1( T1_16BIT_RW & TIMER_INT_ON & T1_PS_1_8 & T1_SOURCE_INT & T1_SYNC_EXT_OFF );
@@ -67,8 +95,6 @@ static void rpmInit(void)
 
 static void rpmSet(const UINT8 UB, const UINT8 HB, const UINT8 LB)
 {
-	assert( rpmResultpos < sizeof(rpmResult)/sizeof(*rpmResult) );
-
 	//save results
 	rpmResult[rpmResultpos].byte.LB = LB;
 	rpmResult[rpmResultpos].byte.HB = HB;
@@ -112,71 +138,12 @@ static UINT16 rpmComputeRpm(const UINT24 value)
 
 /* ------------------- fan module - setting fan speeds using I2C 4802 modules -------------- */
 
-#define FAN_CHIP_SELECT_1() do{PORTBbits.RB3 = 0;}while(0)
-#define FAN_CHIP_SELECT_2() do{PORTBbits.RB2 = 0;}while(0)
-#define FAN_CHIP_DESELECT_ALL() do{PORTBbits.RB3 = PORTBbits.RB2 = 1;}while(0)
-#define FAN_CHIP_SELECT_INIT() do{ TRISBbits.RB2 = TRISBbits.RB3 = 0;}while(0)
-
-#define SW_SPI_DOUT_PIN       PORTBbits.RB7
-#define TRIS_SW_SPI_DOUT_PIN  TRISBbits.TRISB7
-#define SW_SPI_SCK_PIN        PORTBbits.RB6
-#define TRIS_SW_SPI_SCK_PIN   TRISBbits.TRISB6
-
-void SwSpiInit(void)
-{
-	TRIS_SW_SPI_DOUT_PIN = TRIS_SW_SPI_SCK_PIN = 0;
-}
-char SwSpiWrite(char input)
-{
-	char BitCount;                  // Bit counter
-    BitCount = 8;                   // Do 8-bits
-
-	// SCK idles low
-	// Data output after falling edge of SCK
-	// Data sampled before rising edge of SCK
-	SW_SPI_DOUT_PIN = 0;                // Set Dout to MSB of data
-    if(input&0x80)
-    	SW_SPI_DOUT_PIN = 1;
-    Nop();                          // Adjust for jitter
-    Nop();
-    do                              // Loop 8 times
-    {
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        SW_SCK_PIN = 1;         // Set the SCK pin
-        input = input << 1;
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();                  // Produces a 50% duty cycle clock
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        Nop();
-        SW_SCK_PIN = 0;         // Clear the SCK pin
-        SW_DOUT_PIN = 0;        // Set Dout to the next bit according to
-        if(input&0x80)          // the MSB of data
-                SW_DOUT_PIN = 1;
-        BitCount--;             // Count iterations through loop
-    } while(BitCount);
-}
+/*| RB5 | out | MCP4812 no. 2 chip select |
+  | RB4 | out | MCP4812 no. 1 chip select |*/
+#define FAN_CHIP_SELECT_1()     do{PORTBbits.RB4                 = 0;}while(0)
+#define FAN_CHIP_SELECT_2()     do{                PORTBbits.RB5 = 0;}while(0)
+#define FAN_CHIP_DESELECT_ALL() do{PORTBbits.RB4 = PORTBbits.RB5 = 1;}while(0)
+#define FAN_CHIP_SELECT_INIT()  do{TRISBbits.RB4 = TRISBbits.RB5 = 0;}while(0)
 
 static void fanWrite(UINT8 num, UINT16 val)
 {
@@ -247,12 +214,6 @@ static void fanWrite(UINT8 num, UINT16 val)
 static void fanInit(void) {
 	FAN_CHIP_SELECT_INIT();
 	FAN_CHIP_DESELECT_ALL();
-	SwSpiInit();
-
-	// write 0 fan speed to all fans
-	//for(uint8_t i=0;i<FUN_MAX_NUMBER;++i) {
-	//	fanWrite(i, 0xff);
-	//}
 }
 
 
@@ -265,8 +226,6 @@ void interrupt high_priority SYS_InterruptHigh(void)
 
 void interrupt  low_priority SYS_InterruptLow(void)
 {
-	usbStdioInterruptHandler();
-
 	systickServiceInterrupt();
 
 	// rpm module - CCP1 & TMR1
@@ -291,12 +250,6 @@ void interrupt  low_priority SYS_InterruptLow(void)
 		PIR1bits.CCP1IF = 0;
 	}
 }
-
-/* -------------------------- functions -------------------------------------- */
-
-#define TLS2561_CHIP_SELECT()      do{ PORTBbits.RB4 = 1; }while(0)
-#define TLS2561_CHIP_DESELECT()    do{ PORTBbits.RB4 = 0; }while(0)
-#define TLS2561_CHIP_SELECT_INIT() do{ TRISBbits.RB4 = 0; }while(0)
 
 /* ---------------------------------------- interaction -------------------------------------- */
 
@@ -349,8 +302,8 @@ void cmdlineService_callback(void)
 		}
 		val = atoi(token);
 
-		if ( num >= FUN_MAX_NUMBER ) {
-			printf("error NUM=%u must be lower then %u\n", num, FUN_MAX_NUMBER);
+		if ( num >= FAN_MAX_NUMBER ) {
+			printf("error NUM=%u must be lower then %u\n", num, FAN_MAX_NUMBER);
 			break;
 		}
 		if ( val >= 0x0fff ) {
@@ -366,9 +319,7 @@ NOT_ENOUGH_ARGUMENTS:
 		break;
 
 	case 'l':
-		TLS2561_CHIP_SELECT();
 		printf("%u\n", TSL2561_getLuminosity(2));
-		TLS2561_CHIP_DESELECT();
 		break;
 	case 'h': case 'H': case 'v': case 'V': // usage and version
 		printf(
@@ -431,25 +382,25 @@ void main(void)
 	printf("USB Startup completed.\n");
 
 	systickInitInterrupt(0);
-	rpmInit();
-	printf("rpm completed.\n");
 
-	TLS2561_CHIP_SELECT_INIT();
-	TLS2561_CHIP_SELECT();
+	rpmInit();
+	printf("rpm initialized.\n");
+
 	TSL2561_init(TSL2561_ADDR_FLOAT);
 	TSL2561_begin();
-	TLS2561_CHIP_DESELECT();
-	printf("TLS2561 completed.\n");
+	printf("TLS2561 initialized.\n");
 
 	fanInit();
-	printf("fan completed.\n");
+	printf("fan initialized.\n");
 
-	printf("Startup completed.\n");
+	printf("Started.\n");
 
 	while(1) {
+		usbStdioService();
+
 		applicationThread();
 
-		cmdlineServiceThread();
+		cmdlineService_nonblock();
 	}
 }
 

@@ -28,7 +28,7 @@
   <sourceRootList>
     <Elem>../include/mla_usb/src</Elem>
     <Elem>../include/usbhid_stdio</Elem>
-    <Elem>../00_example</Elem>
+    <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

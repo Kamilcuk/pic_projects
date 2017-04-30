@@ -1,4 +1,8 @@
+PLIB_SRC= Timers i2c CCP
+NUMCPUS=$(shell grep -c '^processor' /proc/cpuinfo)
+TARGETDIR=$(notdir $(shell pwd))
+export
 all:
-	$(MAKE) -C .. TARGETDIR=$(notdir $(shell pwd)) $@
+	$(MAKE) -j$(NUMCPUS) --load-average=$(NUMCPUS) -C .. $@
 %:
-	$(MAKE) -C .. TARGETDIR=$(notdir $(shell pwd)) $@
+	$(MAKE) -j$(NUMCPUS) --load-average=$(NUMCPUS) -C .. $@

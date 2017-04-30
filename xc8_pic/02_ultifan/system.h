@@ -8,58 +8,59 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#define _XTAL_FREQ 48000000
+/*
+| PIC18F2550 | description | to |
+| ----- | --- | --- |
+| left | | |
+| RA0 | TACHO channel A out | 4051 A |
+| RA1 | TACHO channel B out | 4051 B |
+| RA2 | TACHO channel C out | 4051 C |
+| RA3 | onewire | DS18B20 |
+| RA4 | | |
+| RA5 | | |
+| RC0 | USB sense in | USB +5V |
+| RC1 | | |
+| RC2 | TACHO in / CCP1| 4051 X |
+| right  | | |
+| RB7 | in | button |
+| RB6 | out | diode |
+| RB5 | out | MCP4812 no. 2 chip select |
+| RB4 | out | MCP4812 no. 1 chip select |
+| RB3 | software SCK | MCP4812 SCK |
+| RB2 | software SDI | MCP4812 SDA |
+| RB1 | SCL | TSL2561 SCL |
+| RB0 | SDA | TSL2561 SDA |
+| RC7 | UART | |
+| RC6 | UART | |
+*/
 
-/** CONFIGURATION Bits **********************************************/
-#pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
-#pragma config CPUDIV   = OSC1_PLL2
-#pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
-#pragma config FOSC     = HSPLL_HS
-#pragma config FCMEN    = OFF
-#pragma config IESO     = OFF
-#pragma config PWRT     = OFF
-#pragma config BOR      = ON
-#pragma config BORV     = 3
-#pragma config VREGEN   = ON        // USB Voltage Regulator
-#pragma config WDT      = OFF
-#pragma config WDTPS    = 32768
-#pragma config MCLRE    = ON
-#pragma config LPT1OSC  = OFF
-#pragma config PBADEN   = OFF
-#pragma config CCP2MX   = ON
-#pragma config STVREN   = ON
-#pragma config LVP      = OFF
-#pragma config XINST    = OFF        // Extended Instruction Set
-#pragma config CP0      = OFF
-#pragma config CP1      = OFF
-#pragma config CP2      = OFF
-#pragma config CP3      = OFF
-#pragma config CPB      = OFF
-#pragma config CPD      = OFF
-#pragma config WRT0     = OFF
-#pragma config WRT1     = OFF
-#pragma config WRT2     = OFF
-#pragma config WRT3     = OFF
-#pragma config WRTB     = OFF        // Boot Block Write Protection
-#pragma config WRTC     = OFF
-#pragma config WRTD     = OFF
-#pragma config EBTR0    = OFF
-#pragma config EBTR1    = OFF
-#pragma config EBTR2    = OFF
-#pragma config EBTR3    = OFF
-#pragma config EBTRB    = OFF
+#include <system_defaults.h>
 
-#define USBHID_STDIO_ENABLE 1
-//#define USE_FULL_ASSERT 1
+#define USBHID_STDIO_ENABLE  1
+#define USE_USB_BUS_SENSE_IO 1
+#define USB_BUS_SENSE        PORTCbits.RC0
+#define USB_INTERRUPT        1
+#include <usbhid_stdio/usb_config.h>
+
 #define CMDLINE_ENABLED
 
-#include <xc.h>
-#include "usb_config.h"
-#include "assert.h"
+#define USE_ASSERT_PRINTF 1
 
-// disable: warning: (336) string concatenation across lines
-#pragma warning push
-#pragma warning disable 336
+// onewire.h
+#include <common.h> // GETPORT() GETTRIS()
+#define OW_ONE_BUS
+#define OW_PORT       A
+#define OW_PIN        0
+#define OW_GET_IN()   ( GETPORT(OW_PORT, OW_PIN) )
+#define OW_OUT_LOW()  ( GETPORT(OW_PORT, OW_PIN) = 0 )
+#define OW_OUT_HIGH() ( GETPORT(OW_PORT, OW_PIN) = 1 )
+#define OW_DIR_IN()   ( GETTRIS(OW_PORT, OW_PIN) = 1 )
+#define OW_DIR_OUT()  ( GETTRIS(OW_PORT, OW_PIN) = 0 )
 
+// swSpiWrite.h
+#define SW_SPI_SCK_PORT B
+#define SW_SPI_SCK_PIN  3
+#define SW_SPI_OUT_PORT B
+#define SW_SPI_OUT_PIN  2
 
 #endif //SYSTEM_H

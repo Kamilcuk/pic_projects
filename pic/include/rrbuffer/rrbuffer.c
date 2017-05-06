@@ -1,7 +1,7 @@
 /*
  * rrbuffer.c - ring buffer implementation with multiple buffer positions
  * 
- * Under BEER-WARE license 2012 Kamil Cukrowski 
+ * 2012 Kamil Cukrowski 
  * 
  * 
  * 

@@ -2,7 +2,13 @@
  * hd44780.c - communicate with hd44780 compatible controllers
  * look in hd44780-config.h for more information!
  * 
- * Under BEER-WARE license 2013 Kamil Cukrowski <kamil@dyzio.pl>
+ * 2013 Kamil Cukrowski <kamil@dyzio.pl>
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * Kamil Cukrowski wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
+ * ----------------------------------------------------------------------------
  * 
  * 
  * 

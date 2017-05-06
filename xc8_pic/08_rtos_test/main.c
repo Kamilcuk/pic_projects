@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <soft_return_address_stack.h>
+#include <string.h>
 
 /* ------------------------------------------------------------------------------ */
 
@@ -34,8 +35,6 @@ void task_add( void *function_pnt )
 {
 	volatile UINT16_VAL pnt;
 
-	di();
-
 	pnt.Val = (uint16_t)function_pnt;
 	taskSaveReturnStack[taskCur][1] = pnt.byte.HB;
 	taskSaveReturnStack[taskCur][0] = pnt.byte.LB;
@@ -48,23 +47,15 @@ void task_add( void *function_pnt )
 	if ( taskCur >= TASKS_NUM ) {
 		taskCur = 0;
 	}
-
-	ei();
 }
 
 void task_start(void)
 {
 	volatile UINT16_VAL pnt;
 
-	di();
-
 	taskCur = 0;
-
 	tasksRunning = true;
-
 	printf("%u: task_start %d %x %x \n", systickGet(), taskCur, TOSH, TOSL);
-
-	ei();
 }
 
 /* ------------------------------------------------------------------------------ */
@@ -73,19 +64,21 @@ void interrupt high_priority SYS_InterruptHigh(void)
 {
 }
 
+#define COUNTER_MAX 10
+static uint8_t counter = 0;
+
 void interrupt  low_priority SYS_InterruptLow(void)
 {
 	if (SYSTICK_TIMER_IF) {
 		SYSTICK_TIMER_IF = 0;
 		systickServiceInterrupt_in();
 
-		if ( !tasksRunning ) {
-			return;
-		}
+		/* tasks implementation */
+		if ( tasksRunning ) {
 		
-#define SAVE(x)    asm("movff ??_SYS_InterruptLow+" #x " , _registers+" #x )
-#define RESTORE(x) asm("movff _registers+" #x " , ??_SYS_InterruptLow+" #x )
-#define APPLY_17( FUN ) do{ \
+#define TASK_REGISTERS_SAVE(x)    asm("movff ??_SYS_InterruptLow+" #x " , _registers+" #x )
+#define TASK_REGISTERS_LOAD(x) asm("movff _registers+" #x " , ??_SYS_InterruptLow+" #x )
+#define TASK_APPLY_17( FUN ) do{ \
 		FUN(0); FUN(1); FUN(2); FUN(3); \
 		FUN(4); FUN(5); FUN(6); FUN(7); \
 		FUN(8); FUN(9); FUN(10); FUN(11); \
@@ -93,34 +86,30 @@ void interrupt  low_priority SYS_InterruptLow(void)
 		FUN(16); \
 } while(0)
 
-		// save thread information
-		APPLY_17( SAVE );
-		for(uint8_t i=0;i<17;++i){
-			taskSaveRegisters[taskCur][i] = registers[i];
-		}
-		SoftReturnAddressStack_save(
-				taskSaveReturnStack[taskCur],
-				&taskSaveReturnStacklen[taskCur]
-		);
+			// save thread information
+			TASK_APPLY_17( TASK_REGISTERS_SAVE );
+			memcpy(taskSaveRegisters[taskCur], registers, 17);
+			SoftReturnAddressStack_save(
+					taskSaveReturnStack[taskCur],
+					taskSaveReturnStacklen[taskCur]
+			);
 
-		// choose next running thread
-		do {
-			++taskCur;
-			if ( taskCur >= TASKS_NUM ) {
-				taskCur = 0;
-			}
-		} while( taskSaveReturnStacklen[taskCur] == 0 );
+			// choose next running thread
+			do {
+				++taskCur;
+				if ( taskCur >= TASKS_NUM ) {
+					taskCur = 0;
+				}
+			} while( taskSaveReturnStacklen[taskCur] == 0 );
 
-		// load thread information
-		SoftReturnAddressStack_load(
-				taskSaveReturnStack[taskCur],
-				taskSaveReturnStacklen[taskCur]
-		);
-			
-		for(uint8_t i=0;i<17;++i){
-			registers[i] = taskSaveRegisters[taskCur][i];
+			// load thread information
+			SoftReturnAddressStack_load(
+					taskSaveReturnStack[taskCur],
+					taskSaveReturnStacklen[taskCur]
+			);
+			memcpy(registers, taskSaveRegisters[taskCur], 17);
+			TASK_APPLY_17( TASK_REGISTERS_LOAD );
 		}
-		APPLY_17( RESTORE );
 	}
 }
 
@@ -141,7 +130,7 @@ void srand(unsigned int seed)
 
 void delay_10ms(unsigned char n) {
     while (n-- != 0) {
-		__delay_ms(10); 
+		__delay_ms(1);
 	} 
 }
 
@@ -160,10 +149,11 @@ void task1(void)
             printf("%u: task1 producing %d \n", systickGet(), a);
             stack[stacklen] = a;
             ++stacklen;
+    		ei();
         } else {
+    		ei();
             printf("%u: task1 stack full\n", systickGet());
         }
-		ei();
 	}
 }
 
@@ -177,11 +167,12 @@ void task2(void)
             char a;
             --stacklen;
             a = stack[stacklen];
+            ei();
             printf("%u: task2 eating %d \n", systickGet(), a);
         } else {
+            ei();
             printf("%u: task2 stack empty \n", systickGet());
         }
-        ei();
 	}
 }
 
@@ -195,11 +186,12 @@ void task3(void)
             char a;
             --stacklen;
             a = stack[stacklen];
+            ei();
             printf("%u: task3 eating %d \n", systickGet(), a);
         } else {
+            ei();
             printf("%u: task3 stack empty \n", systickGet());
         }
-        ei();
 	}
 }
  

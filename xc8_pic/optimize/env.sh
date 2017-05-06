@@ -4,6 +4,6 @@ DIR=../.obj/
 file=./main.as
 outfile=./main_optimized.as
 
-chmod +w $file
+[ -f $file ] && chmod +w $file
 cp -f "${DIR}/${file}" $file
 chmod -w $file

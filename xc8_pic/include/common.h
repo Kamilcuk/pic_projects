@@ -1,6 +1,10 @@
 /**
+ * common.h
+ *
  * created by Kamil Cukrowski
  * under beerware license
+ *
+ * declaration staged to move elsewhere
  */
 #ifndef COMMON_H
 #define	COMMON_H

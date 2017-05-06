@@ -7,5 +7,9 @@
  */
 #ifndef SYSTEM_H
 #define SYSTEM_H
-#include "system_defaults.h"
+
+#include <system_defaults.h>
+
+#define SYSTICK_TIMER_PRESCALER 1
+
 #endif //SYSTEM_H

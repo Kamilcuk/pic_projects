@@ -7,6 +7,7 @@
 
 #include "soft_return_address_stack.h"
 
+
 #if defined( SOFT_RETURN_ADDRESS_STACK_SIZE ) && SOFT_RETURN_ADDRESS_STACK_SIZE > 0
 
 #include <GenericTypeDefs.h>
@@ -140,4 +141,112 @@ void SoftReturnAddressStack_pop(void)
 	ei();
 }
 
+#endif
+
+#if 0
+void SoftReturnAddressStack_save(uint8_t *pnt, uint8_t *len)
+{
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	UINT24_VAL myret;
+#else
+	UINT16_VAL myret;
+#endif
+
+	di();
+
+	// store our ReturnAddress
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	myret.byte.UB = TOSU;
+#endif
+	myret.byte.HB = TOSH;
+	myret.byte.LB = TOSL;
+	--STKPTRbits.STKPTR;
+
+	*len = STKPTRbits.STKPTR;
+
+	while( STKPTRbits.STKPTR != 0 ) {
+
+		// save ReturnAdresses
+		*pnt = TOSL;
+		++pnt;
+		*pnt = TOSH;
+		++pnt;
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+		*pnt = TOSU;
+		++pnt;
+#endif
+
+		--STKPTRbits.STKPTR;
+	}
+
+	// restore our ReturnAddress
+	++STKPTRbits.STKPTR;
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	WREG = myret.byte.UB;
+	TOSU = WREG;
+#endif
+	WREG = myret.byte.HB;
+	TOSH = WREG;
+	WREG = myret.byte.LB;
+	TOSL = WREG;
+
+	ei();
+
+}
+
+void SoftReturnAddressStack_load(uint8_t *pnt, uint8_t stkptr)
+{
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	UINT24_VAL myret;
+#else
+	UINT16_VAL myret;
+#endif
+
+	di();
+
+	// store our ReturnAddress
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	myret.byte.UB = TOSU;
+#endif
+	myret.byte.HB = TOSH;
+	myret.byte.LB = TOSL;
+
+	STKPTRbits.STKPTR = 0;
+
+	pnt += stkptr * SOFT_RETURN_ADDRESS_BYTES_LEN;
+
+	// restore ReturnAddresses
+	while( stkptr != 0 ) {
+
+		// STKPTR is first incremented
+		++STKPTRbits.STKPTR;
+		--stkptr;
+
+		// restore ReturnAddress
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+		--pnt;
+		WREG = *pnt;
+		TOSU = WREG;
+#endif
+		--pnt;
+		WREG = *pnt;
+		TOSH = WREG;
+		--pnt;
+		WREG = *pnt;
+		TOSL = WREG;
+	}
+
+	// restore our ReturnAddress
+	++STKPTRbits.STKPTR;
+#if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
+	WREG = myret.byte.UB;
+	TOSU = WREG;
+#endif
+	WREG = myret.byte.HB;
+	TOSH = WREG;
+	WREG = myret.byte.LB;
+	TOSL = WREG;
+
+	ei();
+}
 #endif

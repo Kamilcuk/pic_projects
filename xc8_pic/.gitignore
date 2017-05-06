@@ -1,2 +1,21 @@
+# objects directory
 .obj
+
+# plib installation - license!
 plib_installation
+
+# xc8 object files
+*.cmf
+*.d
+*.elf
+*.hex
+*.hxl
+*.lst
+*.mum
+*.obj
+*.p1
+*.pre
+*.rlf
+*.sdb
+*.sym
+*.xml

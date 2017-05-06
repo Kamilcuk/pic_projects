@@ -7,6 +7,8 @@
  */
 #include <xc.h>
 #include <system.h>
+#include <mdb.h>
+#include <stdio.h>
 
 /* ------------------------------------- interrupts ------------------------------ */
 
@@ -20,37 +22,46 @@ void interrupt  low_priority SYS_InterruptLow(void)
 
 /* ----------------------------------------------------------------------------------------- */
 
+inline unsigned long  inline_func_pro(unsigned long a) 
+{
+	return a*1000;
+}
+
+
 volatile char a;
 inline void inline_func_with_global_var(void)
 {
-	// set all ports as inputs
-	PORTA = PORTB = PORTC = 0x00;
-	TRISA = TRISB = TRISC = 0xff;
-	LATA = LATB = LATC = 0x00;
-	// enable interrupts
-	RCONbits.IPEN = 1;
-	INTCONbits.GIEH = 1;
-	INTCONbits.GIEL = 1;
-
-	for(int i=0;i<10;++i) {
-		a=i;
-	}
+	++a;
+	printf("inline func_with_global_var %d \n", a);
 }
 
 inline void simple_inline_func(void) {
-	static whatever = 0;
-	whatever = 1;
-	for(int k=0;k<10;++k);
+	static int whatever = 0;
+	int k;
+	++whatever;
+	for(k=0;k<10;++k);
+	printf("simple_inline_func %d %d \n", k, whatever);
 }
+
+MDB_UART_PUTCH_DECLARE()
 
 void main(void)
 {
+	unsigned long b = 1000; 
+	MDB_UART_INIT();
+	
+	printf("Startup \n");
+
 	inline_func_with_global_var();
 	simple_inline_func();
 	inline_func_with_global_var();
 	simple_inline_func();
 	inline_func_with_global_var();
 	simple_inline_func();
+
+	printf(" %lu \n", inline_func_pro(b));
+	b += 10000;
+	printf(" %lu \n", inline_func_pro(b));
 	
 	while(1) {
 	}

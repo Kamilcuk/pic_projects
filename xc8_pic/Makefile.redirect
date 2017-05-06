@@ -1,0 +1,7 @@
+ifndef TARGETDIR
+NUMCPUS=$(shell grep -c '^processor' /proc/cpuinfo)
+TARGETDIR=$(notdir $(shell pwd))
+export
+all: ; $(MAKE) -j$(NUMCPUS) --load-average=$(NUMCPUS) -C .. $@
+%:   ; $(MAKE) -j$(NUMCPUS) --load-average=$(NUMCPUS) -C .. $@
+endif

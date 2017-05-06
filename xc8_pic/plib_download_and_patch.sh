@@ -34,19 +34,55 @@ download_install_plib() {
 download_install_plib ${plibdir}
 
 # patch plib
-pushd ${plibdir}/include/plib >/dev/null
-PRE='s/^\(#define.*\('
-POST='\)\)/\\\\ \1/'
-sed -i.bak sw_spi.h -e "$PRE"'PIN\|MODE'"$POST"
-sed -i.bak xlcd.h   -e "$PRE"'PIN\|TRIS\|DATA'"$POST"
-popd >/dev/null
+pushd ${plibdir}
 
-pushd ${plibdir}/sources/pic18 >/dev/null
-find -name '*.c' | while read line; do
-sed -i.bak $line -e 's/\(far\|ram\|rom\|const\)//'
-done
-popd >/dev/null
+# patch includes - user defines!
+{
+	pushd include/plib >/dev/null
+	PRE='s/^\(#define.*\('
+	POST='\)\)/\\\\ \1/'
+	sed -i.bak sw_spi.h -e "$PRE"'PIN\|MODE'"$POST"
+	sed -i.bak xlcd.h   -e "$PRE"'PIN\|TRIS\|DATA'"$POST"
+	popd >/dev/null
+}
 
+{
+	# backup sources
+	if [ ! -d sources.bak ]; then
+		cp -a sources sources.bak
+	fi
+	# rsync backuped sources
+	rsync -va --delete sources.bak/ sources/
+}
+
+{
+	# patch sources
+	pushd sources/pic18/plib >/dev/null
+
+	# merge all C files into one, for faster compilation, less logs...
+	for i in ./*; do
+		# omit non directories
+		if [ ! -d ${i} ]; then
+	       	continue;
+		fi
+		# if there are any *.c files in the directory
+		if ls ${i}/*.c 1>/dev/null 2>&1; then
+			# print all files into one file
+			cat ${i}/*.c > ${i}/$(basename ${i}).notc
+			rm ${i}/*.c
+			mv ${i}/$(basename ${i}).notc ${i}/$(basename ${i}).c
+		fi
+	done
+
+	# C18 compiler to XC8
+	find -name '*.c' | while read line; do
+		sed -i "$line" -e 's/\(far\|ram\|rom\|const\)//'
+	done
+	
+	popd >/dev/null
+}
+
+popd >/dev/null
 
 echo "YAY! SUCCESS!"
 

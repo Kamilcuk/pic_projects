@@ -15,8 +15,8 @@
 #define SYSTICK_USE_TIMER 0
 #endif
 
-#include "timers.h" // OpenTimerX
-#include "cdefs.h"  // __CONCAT(x,y)
+#include <timers.h> // OpenTimerX
+#include <cdefs.h>  // __CONCAT(x,y)
 
 /* ----------------------------------- timer configuration ------------------------------------- */
 
@@ -177,12 +177,19 @@ typedef unsigned int systick_t;
  */
 #define systickServiceInterrupt() do{ \
 	if (SYSTICK_TIMER_IF) { \
-		SYSTICK_TIMER_H = SYSTICK_TIMER_WRITE_VALUE_H; \
-		SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L;\
-		++systick_counter; \
-		SYSTICK_TIMER_IF = 0; \
+		systickServiceInterrupt_in(); \
 	} \
 }while(0)
+
+/**
+ *
+ */
+#define systickServiceInterrupt_in() do {\
+	SYSTICK_TIMER_H = SYSTICK_TIMER_WRITE_VALUE_H; \
+	SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L;\
+	++systick_counter; \
+}while(0)
+
 
 /* ---------------------------------------- private extern counter ---------------------------------------- */
 

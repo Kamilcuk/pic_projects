@@ -8,11 +8,12 @@ $XC8 \
   --addrqual=require  \
   --mode=pro -P -N255 --asmlist \
   --summary=default,-psect,-class,+mem,-hex,-file  \
-  --codeoffset=0x800 --rom=default,-0-7FF  \
+  --rom=default,-0-7FF  \
   --output=default,-inhx032  \
-  --runtime=default,+clear,+init,+keep,-no_startup,-download,+config,+clib,+plib \
+  --runtime=default,+clear,+init,+keep,-no_startup,+download,+config,+clib,-plib \
   --output=-mcof,+elf:multilocs  \
   --stack=compiled:auto:auto:auto \
+  --PARSER=lean \
   --warn=-3 \
   "--errformat=%f:%l: error: (%n) %s"  \
   "--warnformat=%f:%l: warning: (%n) %s"  \

@@ -42,7 +42,7 @@
 /**************************************************************************/
 
 #include "TSL2561.h"
-#include <system.h> // _XTAL_FREQ for __delay_ms
+#include <system.h> // _XTAL_FREQ for __delay_ms // TSL2561_read8_callback , TSL2561_read16_callback , TSL2561_write8_callback
 #include <xc.h> // __delay_ms
 #include <GenericTypeDefs.h> // UINT16_BITS
 #include <stdlib.h>
@@ -52,6 +52,29 @@
 #include <stdio.h>
 #define delay(x) __delay_ms(x) // __delay_ms defined in xc.h
 
+#ifndef TSL2561_read8_callback
+#error define TSL2561_read8_callback
+#endif
+#ifndef TSL2561_read16_callback
+#error define TSL2561_read16_callback
+#endif
+#ifndef TSL2561_write8_callback
+#error define TSL2561_write8_callback
+#endif
+
+/* ----------------------------------------------------------------------- */
+
+static void TSL2561_write8(uint8_t addr, uint8_t r, uint8_t v);
+#define TSL2561_write8 TSL2561_write8_callback
+
+static uint16_t TSL2561_read16(uint8_t addr, uint8_t reg);
+#define TSL2561_read16 TSL2561_read16_callback
+
+static uint8_t TSL2561_read8(uint8_t addr, uint8_t reg);
+#define TSL2561_read8 TSL2561_read8_callback
+
+/* ----------------------------------------------------------------------- */
+
 static int8_t _addr;
 static tsl2561IntegrationTime_t _integration;
 static tsl2561Gain_t _gain;
@@ -59,103 +82,10 @@ static tsl2561Gain_t _gain;
 //#define TSL2561_DBG( printf_param ) do { printf("TSL2561:"__XSTRING(__LINE__)":"); printf printf_param ; printf("\n"); }while(0)
 #define TSL2561_DBG( printf_param )
 
-#ifndef TSL2561_CUSTOM_I2C
+/* ----------------------------------------------------------------------- */
 
-#include <i2c.h>
-
-static void TSL2561_wire_begin() {
-	CloseI2C();
-	OpenI2C(MASTER, SLEW_OFF);
-#define CALC_SSPADD(speed) ( ( _XTAL_FREQ / ( speed * 4 ) ) - 1 )
-	SSPADD = 15; // CALC_SSPADD(4000);
-#undef CALC_SSPADD
-	IdleI2C();
-}
-
-uint16_t TSL2561_read16(uint8_t reg)
+void TSL2561_init(uint8_t addr)
 {
-	// Figure 17. SMBus Block Read or I2C Read (Combined Format) Protocols
-	UINT16_BITS data;
-	// S - Start Condition
-	StartI2C();
-	IdleI2C();
-	// Slave Address Wr
-	WriteI2C((_addr<<1)|0x00);
-	IdleI2C();
-	// command code
-	WriteI2C(reg);
-	IdleI2C();
-	// Sr - Repeated Start Condition
-	RestartI2C();
-	// Slave Address Rd
-	WriteI2C((_addr<<1)|0x01);
-	IdleI2C();
-	// Data Byte 1
-	data.byte.LB = ReadI2C();
-	IdleI2C();
-	// A - Acknowledge
-	AckI2C();
-	// Data Byte 2
-	data.byte.HB = ReadI2C();
-	IdleI2C();
-	// A - Acknowledge - send NACK - this is the last byte
-	NotAckI2C();
-	// stop bit
-	StopI2C();
-	return data.Val;
-}
-
-uint8_t TSL2561_read8(uint8_t reg)
-{
-	uint8_t data;
-	// S - Start Condition
-	StartI2C();
-	IdleI2C();
-	// Slave Address Wr
-	WriteI2C((_addr<<1)|0x00);
-	IdleI2C();
-	// command code
-	WriteI2C(reg);
-	IdleI2C();
-	// S - Start Condition
-	StartI2C();
-	// Slave Address Rd
-	WriteI2C((_addr<<1)|0x01);
-	IdleI2C();
-	// Data Byte
-	data = ReadI2C();
-	IdleI2C();
-	// A - Acknowledge - send NACK - this is the last byte
-	NotAckI2C();
-	// stop bit
-	StopI2C();
-	return data;
-}
-
-void TSL2561_write8(uint8_t reg, uint8_t value)
-{
-	// S - Start Condition
-	StartI2C();
-	IdleI2C();
-	// Slave Address Wr
-	WriteI2C((_addr<<1)|0x00);
-	IdleI2C();
-	// Command Code
-	WriteI2C(reg);
-	IdleI2C();
-	// Data Byte
-	WriteI2C(value);
-	IdleI2C();
-	// P - Stop Condition
-	StopI2C();
-}
-
-#else
-#error TODO: define functions : TSL2561_write_begin() TSL2561_write8() TSL2561_read8() TSL2561_read16()
-#endif
-
-
-void TSL2561_init(uint8_t addr) {
 	_addr = addr;
 	_integration = TSL2561_INTEGRATIONTIME_402MS;
 	_gain = TSL2561_GAIN_16X;
@@ -167,10 +97,8 @@ bool TSL2561_begin(void)
 {
 	unsigned char x;
 
-	TSL2561_wire_begin();
-
 	// Initialise I2C
-	x = TSL2561_read8(TSL2561_REGISTER_ID);
+	x = TSL2561_read8(_addr, TSL2561_REGISTER_ID);
 
 	if ( !(x&0x0a) ) {
 		TSL2561_DBG(("TSL2561 not found, x=%02x", x));
@@ -191,13 +119,13 @@ bool TSL2561_begin(void)
 void TSL2561_enable(void)
 {
 	// Enable the device by setting the control bit to 0x03
-	TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWERON);
+	TSL2561_write8(_addr, TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWERON);
 }
 
 void TSL2561_disable(void)
 {
 	// Disable the device by setting the control bit to 0x03
-	TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWEROFF);
+	TSL2561_write8(_addr, TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWEROFF);
 }
 
 
@@ -205,7 +133,7 @@ void TSL2561_setGain(tsl2561Gain_t gain)
 {
 	TSL2561_enable();
 	_gain = gain;
-	TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
+	TSL2561_write8(_addr, TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
 	TSL2561_disable();
 }
 
@@ -213,7 +141,7 @@ void TSL2561_setTiming(tsl2561IntegrationTime_t integration)
 {
 	TSL2561_enable();
 	_integration = integration;
-	TSL2561_write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
+	TSL2561_write8(_addr, TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);
 	TSL2561_disable();
 }
 
@@ -328,9 +256,9 @@ uint32_t TSL2561_getFullLuminosity (void)
 	}
 
 	UINT32_VAL x;
-	x.word.LW = TSL2561_read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN0_LOW);
+	x.word.LW = TSL2561_read16(_addr, TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN0_LOW);
 	TSL2561_DBG(("LW=%x",  x.word.LW));
-	x.word.HW = TSL2561_read16(TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN1_LOW);
+	x.word.HW = TSL2561_read16(_addr, TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN1_LOW);
 	TSL2561_DBG(("HW=%x",  x.word.HW));
 
 	TSL2561_disable();

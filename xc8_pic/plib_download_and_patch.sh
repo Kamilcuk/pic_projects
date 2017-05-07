@@ -75,9 +75,13 @@ pushd ${plibdir}
 	done
 
 	# C18 compiler to XC8
-	find -name '*.c' | while read line; do
-		sed -i "$line" -e 's/\(far\|ram\|rom\|const\)//'
-	done
+	find -name '*.c' | xargs -t -n1 sed -i -e 's/\(far\|ram\|rom\|const\)//'
+
+	# plib/CCP/CCP.c:450: warning: (1262) object "Fake" lies outside available data space
+	sed -i 'CCP/CCP.c' -e 's/\*(unsigned char \*)/\*(const unsigned char \*)/'
+
+	# plib/i2c/i2c.c:2599: warning: (343) implicit return at end of non-void function
+	sed -i 'i2c/i2c.c' -e '2599i \ \ return 0;'
 	
 	popd >/dev/null
 }

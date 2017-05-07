@@ -63,4 +63,9 @@
 #define SW_SPI_OUT_PORT B
 #define SW_SPI_OUT_PIN  2
 
+#include <i2c_ex.h>
+#define TSL2561_read8_callback  i2c_read8
+#define TSL2561_write8_callback i2c_write8
+#define TSL2561_read16_callback i2c_read16
+
 #endif //SYSTEM_H

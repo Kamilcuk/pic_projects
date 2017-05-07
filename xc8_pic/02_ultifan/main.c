@@ -19,6 +19,7 @@
 #include <swSpiWrite.h>
 #include <ds18x20.h>
 #include <usbhid_stdio/usbhid_stdio.h>
+#include <hd44780.h>
 
 #include <stdint.h>
 #include <time.h>
@@ -333,6 +334,7 @@ NOT_ENOUGH_ARGUMENTS:
 				" i                 - print current configuration\n"
 				" f NUM VAL         - set fan number num to VAL voltage in percent\n"
 				" l                 - get lumination value from TSL2560\n"
+				" p                 - print hd44780 screen"
 				"\n"
 		);
 		/* no break */
@@ -370,10 +372,14 @@ void main_preinit(void)
 	RCONbits.IPEN = 1;
 	INTCONbits.GIEH = 1;
 	INTCONbits.GIEL = 1;
+	// start i2c 100kHz
+	i2c_open_master(100000);
 }
 
 void main(void)
 {
+	japierdole( 0xa0<<16 | 0xa0 );
+
 	main_preinit();
 
 	usbStdioInitBlocking(1);
@@ -401,6 +407,14 @@ void main(void)
 		applicationThread();
 
 		cmdlineService_nonblock();
+
+		// check hd44780 every second
+		static systick_t Tickstop = 0;
+		if ( SYSTICK_TIMEOUT_ELAPSED(Tickstop) ) {
+			Tickstop = systickGet() + SYSTICK_MS_TO_SYSTICKS(1000);
+			Task();
+		}
+
 	}
 }
 

@@ -38,10 +38,11 @@ code_regex='[ ]*[0-9]+  [0-9A-F]{6}  [0-9A-F]{4}'
 prefunc_strings=( "i1_" "i2_" "_" )
 
 
-n="$names";
-for pre in "${prefunc_strings[@]}"; do
-	cat "$file" | \
+for n in $names; do
+	for pre in "${prefunc_strings[@]}"; do
+		cat "$file" | \
 			sed -n "/^${prefunc_regex}${pre}${n}${postfunc_regex}$/,/^${prefunc_regex}${func_regex}${postfunc_regex}$/ p" | \
 			cat ; # egrep "^${code_regex}" | head -n -1
+	done
 done
 

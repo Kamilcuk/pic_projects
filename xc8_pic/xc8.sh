@@ -4,7 +4,7 @@ set -x
 $XC8 \
   --chip=18F2550  \
   --double=24 --float=24 --emi=wordwrite  \
-  --opt=default,+asm,+asmfile,-speed,+space,-debug  \
+  --opt=default,+asm,+asmfile,+speed,-space,-debug  \
   --addrqual=require  \
   --mode=pro -P -N255 --asmlist \
   --summary=default,-psect,-class,+mem,-hex,-file  \
@@ -14,6 +14,7 @@ $XC8 \
   --output=-mcof,+elf:multilocs  \
   --stack=compiled:auto:auto:auto \
   --PARSER=lean \
+  --DEP=gcc \
   --warn=-3 \
   "--errformat=%f:%l: error: (%n) %s"  \
   "--warnformat=%f:%l: warning: (%n) %s"  \

@@ -164,9 +164,6 @@ void TSL2561_init(uint8_t addr);
 bool TSL2561_begin(void);
 void TSL2561_enable(void);
 void TSL2561_disable(void);
-void TSL2561_write8(uint8_t r, uint8_t v);
-uint8_t TSL2561_read8(uint8_t reg);
-uint16_t TSL2561_read16(uint8_t reg);
 
 uint32_t TSL2561_calculateLux(uint16_t ch0, uint16_t ch1);
 void TSL2561_setTiming(tsl2561IntegrationTime_t integration);

@@ -1,6 +1,7 @@
 #!/bin/bash -ue
 
 FILE=$(readlink -f ${1:-./.obj/main.elf})
+shift
 tempfile=$(mktemp)
 trap 'rm -f $tempfile' EXIT
 echo '

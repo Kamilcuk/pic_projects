@@ -27,4 +27,14 @@
 	TXREG = data; \
 }
 
+/** example
+MDB_UART_PUTCH_DECLARE()
+void main(void)
+{
+	MDB_UART_INIT();
+
+	// YOUR CODE HERE
+}
+ */
+
 #endif // MDB_H_

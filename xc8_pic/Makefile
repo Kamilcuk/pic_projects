@@ -10,8 +10,8 @@
 # include TARGETDIR/Makefile
 #
 ifndef TARGETDIR
- TARGETDIR := $(realpath ./TARGETDIR)
- $(warning TARGETDIR not defined ; cd into a directory and then run make. Executed default TARGETDIR=$(TARGETDIR))
+ TARGETDIR := $(notdir $(realpath ./TARGETDIR))
+ $(warning TARGETDIR not defined. Default TARGETDIR=[$(TARGETDIR)])
  include ${TARGETDIR}/Makefile
 endif
 
@@ -90,18 +90,19 @@ endif
 
 ######################################3 eof config ##############################
 
-TARGET_HEX  := $(TARGETDIR)/main.hex
-TARGET_HEX_OBJECT := $(OBJDIR)/$(notdir $(TARGET_HEX))
-OBJECTS := $(addprefix $(OBJDIR)/, $(patsubst %.as, %.obj, $(patsubst %.c, %.p1, $(SOURCES) ) ) )
+TARGET    := $(TARGETDIR)/main
+TARGET_OBJECT := $(OBJDIR)/$(notdir $(TARGET))
+OBJECTS   := $(addprefix $(OBJDIR)/, $(patsubst %.as, %.obj, $(patsubst %.c, %.p1, $(SOURCES) ) ) )
+DEP_FILES := $(patsubst %.p1,%.d,$(filter %.p1,$(OBJECTS)))
 
-all: $(TARGET_HEX)
-$(TARGET_HEX): $(TARGET_HEX_OBJECT)
+all: $(TARGET).hex
+$(TARGET).hex: $(TARGET_OBJECT).hex
 	cp $< $@
-
-$(addprefix $(TARGET_HEX_OBJECT:%.hex=%), .hex .elf): $(OBJECTS)
+	
+$(TARGET_OBJECT).hex  $(TARGET_OBJECT).elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) -o$(basename $@).hex $^
 
-$(OBJDIR)/%.p1: %.c
+$(OBJDIR)/%.p1 $(OBJDIR)/%.d: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o$@ $<
 
@@ -109,11 +110,13 @@ $(OBJDIR)/%.obj: %.as
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -o$@ $<
 
-simulate: $(TARGET_HEX_OBJECT:%.hex=%.elf)
+hexinfo: $(TARGET_OBJECT).hex
+	./hexinfo.sh $<
+simulate: $(TARGET_OBJECT).elf
 	./simulate.sh $<
-program_fsusb: $(TARGET_HEX)
+program_fsusb: $(TARGET_OBJECT).hex
 	./program_fsusb.sh $<
-program_pk3cmd: $(TARGET_HEX)
+program_pk3cmd: $(TARGET_OBJECT).hex
 	while ! lsusb -d 04d8:900a; do sleep 0.1; done; sleep 0.1;
 	pk3cmd.sh $<
 # from http://stackoverflow.com/questions/16467718/how-to-print-out-a-variable-in-makefile
@@ -127,6 +130,6 @@ distclean: clean
 	rmdir $(OBJDIR)
 	rm -f $(TARGETDIR)/main.hex
 
-.PHONY: $(OBJDIR) clean distclean simulate program_fsusb program_pk3cmd print-%
--include $(shell find $(OBJDIR) -name '*.d')
+.PHONY: $(OBJDIR) clean distclean hexinfo simulate program_fsusb program_pk3cmd print-%
+-include $(DEP_FILES)
 

@@ -11,15 +11,17 @@
 
 #include <system.h> // configuration SYSTICK_USE_TIMER , SYSTICK_TIMER_PRESCALER , systick_t
 
-#ifndef SYSTICK_USE_TIMER
-#define SYSTICK_USE_TIMER 0
-#endif
-
-#include <timers.h> // OpenTimerX
 #include <cdefs.h>  // __CONCAT(x,y)
+#include <timers.h> // OpenTimerX
 
 /* ----------------------------------- timer configuration ------------------------------------- */
 
+// default timer
+#ifndef SYSTICK_USE_TIMER
+#define SYSTICK_USE_TIMER 1
+#endif
+
+// default prescaler
 #ifndef SYSTICK_TIMER_PRESCALER
 #if    SYSTICK_USE_TIMER == 0
 #define SYSTICK_TIMER_PRESCALER         16
@@ -30,107 +32,92 @@
 
 #if   SYSTICK_USE_TIMER == 0
 
-#define SYSTICK_TIMER_IF INTCONbits.TMR0IF
+#define SYSTICK_TIMER_IF  INTCONbits.TMR0IF
+#define SYSTICK_TIMER_IP INTCON2bits.TMR0IP
 #define SYSTICK_TIMER_H              TMR0H
 #define SYSTICK_TIMER_L              TMR0L
 
-/**
- * timer for systick and initializes systick structs
- */
-#define systickInitInterrupt(interruptPriority) do{ \
+#define systickInitInterrupt_OpenTimer() do{ \
 	OpenTimer0( T0_16BIT & __CONCAT(T0_PS_1_, SYSTICK_TIMER_PRESCALER) & T0_SOURCE_INT & T0_EDGE_FALL & TIMER_INT_ON); \
-	INTCON2bits.TMR0IP = interruptPriority; \
-	SYSTICK_TIMER_H = SYSTICK_TIMER_WRITE_VALUE_H; \
-	SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L; \
+}while(0)
+
+#elif SYSTICK_USE_TIMER == 1
+
+#define SYSTICK_TIMER_IF  PIR1bits.TMR1IF
+#define SYSTICK_TIMER_IP  IPR1bits.TMR1IP
+#define SYSTICK_TIMER_H            TMR1H
+#define SYSTICK_TIMER_L            TMR1L
+#define systickInitInterrupt_OpenTimer() do{ \
+	OpenTimer1( T1_16BIT_RW &  __CONCAT(T1_PS_1_, SYSTICK_TIMER_PRESCALER) & T1_SOURCE_INT & T1_SYNC_EXT_OFF & TIMER_INT_ON ); \
 }while(0)
 
 #elif SYSTICK_USE_TIMER == 3
 
 #define SYSTICK_TIMER_IF  PIR2bits.TMR3IF
-#define SYSTICK_TIMER_H             TMR3H
-#define SYSTICK_TIMER_L             TMR3L
+#define SYSTICK_TIMER_IP  IPR2bits.TMR3IP
+#define SYSTICK_TIMER_H            TMR3H
+#define SYSTICK_TIMER_L            TMR3L
+
+#define systickInitInterrupt_OpenTimer() do{ \
+	OpenTimer3( T3_16BIT_RW &  __CONCAT(T3_PS_1_, SYSTICK_TIMER_PRESCALER) & T3_SOURCE_INT & T3_SYNC_EXT_OFF & TIMER_INT_ON ); \
+}while(0)
+
+#else
+#error TODO: define SYSTICK_USE_TIMER == 2 ? or implement more timers or implement polling method, i dont know
+#endif
 
 /**
  * timer for systick and initializes systick structs
+ * @param interruptPriority 0 - low interrupt, 1 - high interrupt
  */
 #define systickInitInterrupt(interruptPriority) do{ \
-	OpenTimer3( T3_16BIT_RW &  __CONCAT(T3_PS_1_, SYSTICK_TIMER_PRESCALER) & T3_SOURCE_INT & T3_SYNC_EXT_OFF & TIMER_INT_ON ); \
-	IPR2bits.TMR3IP = interruptPriority; \
+	systickInitInterrupt_OpenTimer(); \
+	SYSTICK_TIMER_IP = interruptPriority; \
 	SYSTICK_TIMER_H = SYSTICK_TIMER_WRITE_VALUE_H; \
 	SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L; \
 }while(0)
 
-#else
-#error TODO: define SYSTICK_USE_TIMER == {0,1,2,3} ? or implement more timers or implement polling method, i dont know
-#endif
+/* ---------------------------------- const configuration --------------------------------------- */
 
-/* ---------------------------------- speed config --------------------------------------- */
+#ifndef SYSTICK_TIMER_VALUE
+#if _XTAL_FREQ == 48000000
+#define SYSTICK_TIMER_VALUE               46875 // = (_XTAL_FREQ=48000000) / 1024
+#else
+#error Choose SYSTICK_TIMER_VALUE for _XTAL_FREQ != 48000000
+#endif
+#endif
 
 #define SYSTICK_FREQ                      ( _XTAL_FREQ / ( 4  * SYSTICK_TIMER_PRESCALER ) )
-#define SYSTICK_TIMER_VALUE               46875 // arbitary chosen, equal SYSTICK_FREQ when PRESCALER=256
-#define SYSTICK_TIMER_WRITE_VALUE         ( (2^16) - SYSTICK_TIMER_VALUE )
+#define SYSTICK_TIMER_WRITE_VALUE         ( (0xffff) - SYSTICK_TIMER_VALUE )
 #define SYSTICK_TIMER_WRITE_VALUE_H       ( ( SYSTICK_TIMER_WRITE_VALUE >> 8 ) & 0xff )
-#define SYSTICK_TIMER_WRITE_VALUE_L       ( ( SYSTICK_TIMER_WRITE_VALUE >> 0 ) & 0xff )
+#define SYSTICK_TIMER_WRITE_VALUE_L       ( ( SYSTICK_TIMER_WRITE_VALUE      )        )
 
-#define SYSTICK_TICK_FREQ                 ( SYSTICK_FREQ / SYSTICK_TIMER_VALUE )
-#define SYSTICK_TICK_RESOLUTION_SEC       ( SYSTICK_TIMER_VALUE               / SYSTICK_FREQ )
-#define SYSTICK_TICK_RESOLUTION_MILISEC   ( SYSTICK_TIMER_VALUE * 1000        / SYSTICK_FREQ )
-#define SYSTICK_TICK_RESOLUTION_MICROSEC  ( SYSTICK_TIMER_VALUE * 1000 * 1000 / SYSTICK_FREQ )
-#define SYSTICK_MAX_VALUE_SEC             ( ( 2 ^ ( sizeof(systick_t) * 8 ) ) * SYSTICK_TICK_RESOLUTION_SEC )
+#define SYSTICK_TICK_FREQ                 ( SYSTICK_FREQ               / SYSTICK_TIMER_VALUE )
+#define SYSTICK_TICK_DURATION_SEC         ( SYSTICK_TIMER_VALUE               / SYSTICK_FREQ )
+#define SYSTICK_TICK_DURATION_MILISEC     ( SYSTICK_TIMER_VALUE * 1000        / SYSTICK_FREQ )
+#define SYSTICK_TICK_DURATION_MICROSEC    ( SYSTICK_TIMER_VALUE * 1000 * 1000 / SYSTICK_FREQ )
+#define SYSTICK_MAX_DURATION_SEC          ( ( 2 ^ ( sizeof(systick_t) * 8 ) ) * SYSTICK_TICK_RESOLUTION_SEC )
 
-/* ---------------------------- SYSTICK convert to seconds and back macros ----------------------------
- * Calculation where optimized for use with XC8 preprocessor, so it doesn't overflow when calculating
- */
+#include "systick_private.h" // include after configuration // SYSTICK_SEC_TO_SYSTICKS_RES SYSTICK_SYSTICKS_TO_SEC_RES
 
-// when SYSTICK_TICK_RESOLUTION_SEC is lower then 0.001, to correct calculation using integer value we need to multiply to have better resolution
-#if   SYSTICK_TICK_FREQ <=  16
-#define SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION      1
-#elif SYSTICK_TICK_FREQ <=  32
-#define SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION     10
-#elif SYSTICK_TICK_FREQ <= 128
-#define SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION    100
-#elif SYSTICK_TICK_FREQ <= 256
-#define SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION   1000
-#else
-#error WHAT THE HELL ? HOW DID I GET HERE ?
-#endif
-
-#define SYSTICK_SEC_TO_SYSTICKS_TYPE(x, resolution, type) ((type)( \
-		( (type)( SYSTICK_TICK_FREQ ) * (type)(x) ) / (type)(resolution) \
-))
-#define SYSTICK_SYSTICKS_TO_SEC_TYPE(x, resolution, type, additional_resolution) (type)( \
-		( \
-				(type)( \
-						(type)( SYSTICK_TICK_RESOLUTION_SEC * (resolution) * (additional_resolution) ) * (type)(x) \
-				) / \
-				(type)(additional_resolution) \
-		) \
-)
-
+/* --------------------------------- S to SYSTICK and back ------------------------------------ */
 
 /**
  * Public macros for converting SYSTICK to and from seconds and miliseconds.
  */
-#define SYSTICK_S_TO_SYSTICKS(x)          SYSTICK_SEC_TO_SYSTICKS_TYPE(x,    1, unsigned int)
-#define SYSTICK_SYSTICKS_TO_S(x)          SYSTICK_SYSTICKS_TO_SEC_TYPE(x,    1, unsigned int, SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION*1000)
-#define SYSTICK_MS_TO_SYSTICKS(x)         SYSTICK_SEC_TO_SYSTICKS_TYPE(x, 1000, unsigned int)
-#define SYSTICK_SYSTICKS_TO_MS(x)         SYSTICK_SYSTICKS_TO_SEC_TYPE(x, 1000, unsigned int, SYSTICK_SYSTICKS_TO_MS_ADDITIONAL_RESOLUTION)
-
-/**
- * Public macros for converting SYSTICK to and from seconds and miliseconds.
- * Those macros do not cast values to unsigned int.
- */
-#define SYSTICK_S_TO_SYSTICKS_STATIC(x)   ( SYSTICK_FREQ / SYSTICK_TIMER_VALUE * x )
-#define SYSTICK_SYSTICKS_TO_S_STATIC(x)   ( SYSTICK_TIMER_VALUE * x / SYSTICK_FREQ )
-#define SYSTICK_MS_TO_SYSTICKS_STATIC(x)  ( SYSTICK_FREQ / SYSTICK_TIMER_VALUE * x / 1000 )
-#define SYSTICK_SYSTICKS_TO_MS_STATIC(x)  ( SYSTICK_TIMER_VALUE * x / SYSTICK_FREQ * 1000 )
+#define SYSTICK_S_TO_SYSTICKS(x)          SYSTICK_SEC_TO_SYSTICKS_RES( x,    1 )
+#define SYSTICK_SYSTICKS_TO_S(x)          SYSTICK_SYSTICKS_TO_SEC_RES( x,    1 )
+#define SYSTICK_MS_TO_SYSTICKS(x)         SYSTICK_SEC_TO_SYSTICKS_RES( x, 1000 )
+#define SYSTICK_SYSTICKS_TO_MS(x)         SYSTICK_SYSTICKS_TO_SEC_RES( x, 1000 )
 
 /* -------------------------- systick compare macros and handle overflow while comparing ------------------- */
 
 /**
- * compare with this margin
+ * compare with this margin - 100 miliseconds
  */
-#define SYSTICK_EQUAL_MARGIN SYSTICK_MS_TO_SYSTICKS_STATIC(100)
+#ifndef SYSTICK_EQUAL_MARGIN
+#define SYSTICK_EQUAL_MARGIN SYSTICK_MS_TO_SYSTICKS( 100 )
+#endif
 
 /**
  * SYSTICK_EQUAL checks if two systicks are equal to each other, with specified margin.
@@ -176,17 +163,18 @@ typedef unsigned int systick_t;
  * Call in interrupt service routine. Handles timer interrupt.
  */
 #define systickServiceInterrupt() do{ \
-	if (SYSTICK_TIMER_IF) { \
+	if ( SYSTICK_TIMER_IF ) { \
 		systickServiceInterrupt_in(); \
+		SYSTICK_TIMER_IF = 0; \
 	} \
 }while(0)
 
 /**
- *
+ * inside of the interrupt routine
  */
-#define systickServiceInterrupt_in() do {\
+#define systickServiceInterrupt_in() do { \
 	SYSTICK_TIMER_H = SYSTICK_TIMER_WRITE_VALUE_H; \
-	SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L;\
+	SYSTICK_TIMER_L = SYSTICK_TIMER_WRITE_VALUE_L; \
 	++systick_counter; \
 }while(0)
 
@@ -202,8 +190,49 @@ extern volatile systick_t systick_counter;
 
 /* ------------------------------------------- timeout implementation ----------------------------------------- */
 
-#define SYSTICK_TIMEOUT_INIT(varname) systick_t varname = 0
+#define SYSTICK_TIMEOUT_DECLARE(varname) systick_t varname = systickGet()
 #define SYSTICK_TIMEOUT_SET(varname, ms) do{ varname = systickGet() + SYSTICK_MS_TO_SYSTICKS(ms); }while(0)
-#define SYSTICK_TIMEOUT_ELAPSED(varname) ( SYSTICK_EQUAL(systicGet(), varname) )
+#define SYSTICK_TIMEOUT_ELAPSED(varname) ( SYSTICK_EQUAL( systickGet(), varname ) )
+
+/* ------------------------------------------- examples ----------------------------------------------------- */
+
+/** examples
+ *
+ *
+ * main initialization:
+void interrupt high_priority SYS_InterruptHigh(void) {
+	systickServiceInterrupt();
+}
+void main() {
+	RCONbits.IPEN = 1;
+	INTCONbits.GIEH = 1;
+	INTCONbits.GIEL = 1;
+	systickInitInterrupt(0);
+	// USER CODE HERE
+}
+ *
+ *
+ * timeout example:
+void execute_Task_every_500_miliseconds() {
+	systick_t Tickstop = 0;
+	while(1) {
+		if ( SYSTICK_EQUAL(systickGet(), Tickstop) ) {
+			Tickstop = systickGet() + SYSTICK_MS_TO_SYSTICKS(500);
+			Task();
+		}
+	}
+}
+ *
+ * or with Timeout_ implementation:
+void execute_Task_every_500_miliseconds() {
+	SYSTICK_TIMEOUT_DECLARE(Tickstop);
+	while(1) {
+		if ( SYSTICK_TIMEOUT_ELAPSED(Tickstop) ) {
+			SYSTICK_TIMEOUT_SET(Tickstop, 500);
+			Task();
+		}
+	}
+}
+ */
 
 #endif /* SYSTICK_H_ */

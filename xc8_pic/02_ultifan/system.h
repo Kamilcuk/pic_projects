@@ -44,18 +44,18 @@
 
 #define CMDLINE_ENABLED
 
-#define USE_ASSERT_PRINTF 1
+#define ASSERT_USE_PRINTF 1
 
 // onewire.h
 #include <common.h> // GETPORT() GETTRIS()
 #define OW_ONE_BUS
 #define OW_PORT       A
 #define OW_PIN        0
-#define OW_GET_IN()   ( GETPORT(OW_PORT, OW_PIN) )
-#define OW_OUT_LOW()  ( GETPORT(OW_PORT, OW_PIN) = 0 )
-#define OW_OUT_HIGH() ( GETPORT(OW_PORT, OW_PIN) = 1 )
-#define OW_DIR_IN()   ( GETTRIS(OW_PORT, OW_PIN) = 1 )
-#define OW_DIR_OUT()  ( GETTRIS(OW_PORT, OW_PIN) = 0 )
+#define OW_GET_IN()   ( PORT(OW_PORT, OW_PIN) )
+#define OW_OUT_LOW()  ( PORT(OW_PORT, OW_PIN) = 0 )
+#define OW_OUT_HIGH() ( PORT(OW_PORT, OW_PIN) = 1 )
+#define OW_DIR_IN()   ( TRIS(OW_PORT, OW_PIN) = 1 )
+#define OW_DIR_OUT()  ( TRIS(OW_PORT, OW_PIN) = 0 )
 
 // swSpiWrite.h
 #define SW_SPI_SCK_PORT B
@@ -63,9 +63,14 @@
 #define SW_SPI_OUT_PORT B
 #define SW_SPI_OUT_PIN  2
 
-#include <i2c_ex.h>
-#define TSL2561_read8_callback  i2c_read8
-#define TSL2561_write8_callback i2c_write8
-#define TSL2561_read16_callback i2c_read16
+#include "../include/smbus.h"
+#define TSL2561_read8_callback  smbus_read_byte
+#define TSL2561_write8_callback smbus_write_byte
+#define TSL2561_read16_callback smbus_read_word
+
+#include <hd44780-config.h>
+
+#define SYSTICK_USE_TIMER 0
+#define SYSTICK_TIMER_PRESCALER 32
 
 #endif //SYSTEM_H

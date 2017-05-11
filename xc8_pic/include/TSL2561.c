@@ -45,12 +45,12 @@
 #include <system.h> // _XTAL_FREQ for __delay_ms // TSL2561_read8_callback , TSL2561_read16_callback , TSL2561_write8_callback
 #include <xc.h> // __delay_ms
 #include <GenericTypeDefs.h> // UINT16_BITS
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <cdefs.h> // __XSTRING
 #include <stdio.h>
-#define delay(x) __delay_ms(x) // __delay_ms defined in xc.h
+
+/* ----------------------------------------------------------------------- */
 
 #ifndef TSL2561_read8_callback
 #error define TSL2561_read8_callback
@@ -61,8 +61,6 @@
 #ifndef TSL2561_write8_callback
 #error define TSL2561_write8_callback
 #endif
-
-/* ----------------------------------------------------------------------- */
 
 static void TSL2561_write8(uint8_t addr, uint8_t r, uint8_t v);
 #define TSL2561_write8 TSL2561_write8_callback
@@ -75,18 +73,22 @@ static uint8_t TSL2561_read8(uint8_t addr, uint8_t reg);
 
 /* ----------------------------------------------------------------------- */
 
+//#define TSL2561_DBG( printf_param ) do { printf("TSL2561:"__XSTRING(__LINE__)":"); printf printf_param ; printf("\n"); }while(0)
+#define TSL2561_DBG( printf_param )
+
+#define delay(x) __delay_ms(x) // __delay_ms defined in xc.h
+
+/* ----------------------------------------------------------------------- */
+
 static int8_t _addr;
 static tsl2561IntegrationTime_t _integration;
 static tsl2561Gain_t _gain;
-
-//#define TSL2561_DBG( printf_param ) do { printf("TSL2561:"__XSTRING(__LINE__)":"); printf printf_param ; printf("\n"); }while(0)
-#define TSL2561_DBG( printf_param )
 
 /* ----------------------------------------------------------------------- */
 
 void TSL2561_init(uint8_t addr)
 {
-	_addr = addr;
+	_addr = (addr<<1);
 	_integration = TSL2561_INTEGRATIONTIME_402MS;
 	_gain = TSL2561_GAIN_16X;
 
@@ -265,6 +267,7 @@ uint32_t TSL2561_getFullLuminosity (void)
 
 	return x.Val;
 }
+
 uint16_t TSL2561_getLuminosity (uint8_t channel) {
 
 	UINT32_VAL x;
@@ -276,11 +279,43 @@ uint16_t TSL2561_getLuminosity (uint8_t channel) {
 	} else if (channel == 1) {
 		// Reads two byte value from channel 1 (infrared)
 		return x.word.HW;
-	} else if (channel == 2) {
-		// Reads all and subtracts out just the visible!
-		return x.word.LW - x.word.HW;
-	}
+	} // else if (channel == 2) {
+	// Reads all and subtracts out just the visible!
+	return x.word.LW - x.word.HW;
+}
 
-	// unknown channel!
-	return 0;
+uint16_t TSL2561_getLuminosity_nonblock_start()
+{
+	// Enable the device by setting the control bit to 0x03
+	TSL2561_enable();
+
+	// Wait x ms for ADC to complete
+	switch (_integration) {
+	case TSL2561_INTEGRATIONTIME_13MS:
+		return 14;
+	case TSL2561_INTEGRATIONTIME_101MS:
+		return 102;
+	}
+	return 403;
+}
+
+uint16_t TSL2561_getLuminosity_nonblock_stop(uint8_t channel)
+{
+	UINT32_VAL x;
+	x.word.LW = TSL2561_read16(_addr, TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN0_LOW);
+	TSL2561_DBG(("LW=%x",  x.word.LW));
+	x.word.HW = TSL2561_read16(_addr, TSL2561_COMMAND_BIT | TSL2561_WORD_BIT | TSL2561_REGISTER_CHAN1_LOW);
+	TSL2561_DBG(("HW=%x",  x.word.HW));
+
+	TSL2561_disable();
+
+	if (channel == 0) {
+		// Reads two byte value from channel 0 (visible + infrared)
+		return x.word.LW;
+	} else if (channel == 1) {
+		// Reads two byte value from channel 1 (infrared)
+		return x.word.HW;
+	} //else if (channel == 2) {
+	// Reads all and subtracts out just the visible!
+	return x.word.LW - x.word.HW;
 }

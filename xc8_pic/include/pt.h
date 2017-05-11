@@ -22,11 +22,11 @@ SOFTWARE.**/
 /* ----------------------------------------------------------------------------------------- */
 /** from https://github.com/zserge/pt/blob/master/pt.h */
 /*
- * pt.h
- *
  *  Created on: 30.01.2017
- *      Author: Kamil Cukrowski
+ *  Changes by: Kamil Cukrowski
+ *
  */
+
 #ifndef PT_H_
 #define PT_H_
 
@@ -40,12 +40,9 @@ SOFTWARE.**/
 #define PT_STATUS_YIELDED    0x04
 #define PT_STATUS_TIMER_WAIT 0x08
 
-/* Helper macros to generate unique labels */
-#define _pt_line3(name, line) _pt_##name##line
-#define _pt_line2(name, line) _pt_line3(name, line)
-#define _pt_line(name) _pt_line2(name, __LINE__)
 
 #if defined(PT_USE_SETJMP)
+
 /*
  * Local continuation that uses setjmp()/longjmp() to keep thread state.
  *
@@ -54,7 +51,7 @@ SOFTWARE.**/
  */
 #include <setjmp.h>
 #include <stdbool.h>
-struct pt {
+struct pt_s {
   jmp_buf env;
   bool isset;
   uint8_t status;
@@ -74,14 +71,22 @@ struct pt {
     setjmp((pt)->env);                                                         \
   } while (0)
 #define pt_end(pt) pt_label(pt, PT_STATUS_FINISHED)
+
 #elif defined(PT_USE_GOTO) || defined(__GNUC__) || defined(__clang__)
+
 /*
  * Local continuation based on labels as values compiler extension.
  *
  * Pros: works with all control structures.
  * Cons: requires GCC or Clang, doesn't preserve local variables.
  */
-struct pt {
+
+/* Helper macros to generate unique labels */
+#define _pt_line3(name, line) _pt_##name##line
+#define _pt_line2(name, line) _pt_line3(name, line)
+#define _pt_line(name) _pt_line2(name, __LINE__)
+
+struct pt_s {
   void *label;
   uint8_t status;
 };
@@ -101,7 +106,9 @@ struct pt {
   _pt_line(label) :;                                                           \
   } while (0)
 #define pt_end(pt) pt_label(pt, PT_STATUS_FINISHED)
+
 #else
+
 /*
  * Local continuation based on switch/case and line numbers.
  *
@@ -109,44 +116,76 @@ struct pt {
  * Cons: doesn't allow more than one label per line, doesn't preserve local
  * variables.
  *
- * BUG: __LINE__ is assigned to label and label is uint16_t
- * This implementation may break on files longer then 32768 lines.
- * Probably this could be fixed using smth like BOOST_PP_COUNTER.
  */
-struct pt {
-  uint16_t label;
-  uint8_t status;
+#define PT_USE_BOOST_PP_COUNTER 1
+#ifndef PT_USE_BOOST_PP_COUNTER
+#define PT_LABEL_TYPE          uint16_t
+#define PT_LABEL_LABELVAL_END  1
+#define PT_LABEL_LABELVAL     __LINE__
+#else
+/**
+ * This is the same as implementation above, but
+ * - we have shorten label to uint8_t.
+ * - label name is derived from BOOST_PP_COUNTER
+ * Usage example:
+	pt_begin(&pt);
+	// YOUR CODE HERE
+	pt_yield(&pt);
+#include BOOST_PP_UPDATE_COUNTER()
+	// YOUR CODE HERE
+	pt_yield(&pt);
+#include BOOST_PP_UPDATE_COUNTER()
+	// YOUR CODE HERE
+	pt_end(&pt);
+ *
+ */
+#define PT_LABEL_TYPE          uint8_t
+#define PT_LABEL_LABELVAL_END  0xff
+#define PT_LABEL_LABELVAL      BOOST_PP_COUNTER
+#endif
+
+struct pt_s {
+  PT_LABEL_TYPE label;
+  uint8_t       status;
 };
-#define pt_init()  { 0, PT_STATUS_STARTED }
+
+#define pt_init()           { 0, PT_STATUS_STARTED }
+
+#define pt_init_ended()     { PT_LABEL_LABELVAL_END, PT_STATUS_STARTED }
+
 #define pt_begin(pt)                                                           \
   switch ((pt)->label) {                                                       \
   case 0:
-#define pt_label(pt, stat)                                                     \
-  do {                                                                         \
-    (pt)->status = (stat);                                                     \
-    (pt)->label = __LINE__;                                                    \
-  case __LINE__:;                                                              \
-  } while (0)
+
+#define pt_label_label(pt, stat, labelval)                                     \
+    do {                                                                       \
+      (pt)->status = (stat);                                                   \
+      (pt)->label = (labelval);                                                \
+  case (labelval):;                                                            \
+    } while (0)
+
+#define pt_label(pt, stat)  pt_label_label(pt, stat, PT_LABEL_LABELVAL)
+
 #define pt_end(pt)                                                             \
-  pt_label(pt, PT_STATUS_FINISHED);                                            \
+    pt_label_label(pt, PT_STATUS_FINISHED, PT_LABEL_LABELVAL_END);             \
   }
+
 #endif
+
+/* ------------------------------------------------------------------------------------- */
 
 /*
  * Core protothreads API
  */
 #define pt_status(pt) (pt)->status
 
-#define pt_wait(pt, cond)                                                      \
+#define pt_wait_until(pt, cond)                                                \
   do {                                                                         \
     pt_label(pt, PT_STATUS_BLOCKED);                                           \
     if (!(cond)) {                                                             \
       return;                                                                  \
     }                                                                          \
   } while (0)
-
-#define pt_wait_for(pt, cond)                                                  \
-  pt_wait((pt), (cond))
 
 #define pt_wait_while(pt, cond)                                                \
   do {                                                                         \
@@ -234,5 +273,8 @@ struct pt {
 
 #define pt_reset(ptpnt) do { (ptpnt)->label = 0, (ptpnt)->status = PT_STATUS_STARTED; } while(0)
 #define pt_restart(ptpnt) pt_reset(ptpnt)
+
+
+/* -------------------------------- pt with timeout ----------------------- */
 
 #endif /* PT_H_ */

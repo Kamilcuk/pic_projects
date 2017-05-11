@@ -41,12 +41,12 @@ void SoftReturnAddressStack_push(void)
 #endif
 	myret.byte.HB = TOSH;
 	myret.byte.LB = TOSL;
-	--STKPTRbits.STKPTR;
+	ReturnAddressStack_dec();
 
 	// we need to save this many ReturnAdresses
 	const unsigned char stkptr = STKPTRbits.STKPTR;
 
-	while( STKPTRbits.STKPTR != 0 ) {
+	for(uint8_t i = stkptr; i; --i) {
 
 		// save ReturnAdresses
 		*addrstack_pnt = TOSL;
@@ -58,7 +58,7 @@ void SoftReturnAddressStack_push(void)
 		++addrstack_pnt;
 #endif
 
-		--STKPTRbits.STKPTR;
+		ReturnAddressStack_dec();
 	}
 
 	// remember how many ReturnAddresses we saved
@@ -66,7 +66,7 @@ void SoftReturnAddressStack_push(void)
 	++addrstack_pnt;
 
 	// restore our ReturnAddress
-	++STKPTRbits.STKPTR;
+	ReturnAddressStack_inc();
 #if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
 	WREG = myret.byte.UB;
 	TOSU = WREG;
@@ -100,7 +100,7 @@ void SoftReturnAddressStack_pop(void)
 #endif
 	myret.byte.HB = TOSH;
 	myret.byte.LB = TOSL;
-	--STKPTRbits.STKPTR;
+	ReturnAddressStack_dec();
 
 	// first char is length of ReturnAddresses we saved
 	--addrstack_pnt;
@@ -110,7 +110,7 @@ void SoftReturnAddressStack_pop(void)
 	while( stkptr != 0 ) {
 
 		// STKPTR is first incremented
-		++STKPTRbits.STKPTR;
+		ReturnAddressStack_inc();
 		--stkptr;
 
 		// restore ReturnAddress
@@ -128,7 +128,7 @@ void SoftReturnAddressStack_pop(void)
 	}
 
 	// restore our ReturnAddress
-	++STKPTRbits.STKPTR;
+	ReturnAddressStack_inc();
 #if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
 	WREG = myret.byte.UB;
 	TOSU = WREG;
@@ -160,7 +160,7 @@ void SoftReturnAddressStack_save(uint8_t *pnt, uint8_t *len)
 #endif
 	myret.byte.HB = TOSH;
 	myret.byte.LB = TOSL;
-	--STKPTRbits.STKPTR;
+	ReturnAddressStack_dec();
 
 	*len = STKPTRbits.STKPTR;
 
@@ -176,11 +176,11 @@ void SoftReturnAddressStack_save(uint8_t *pnt, uint8_t *len)
 		++pnt;
 #endif
 
-		--STKPTRbits.STKPTR;
+		ReturnAddressStack_dec();
 	}
 
 	// restore our ReturnAddress
-	++STKPTRbits.STKPTR;
+	ReturnAddressStack_inc();
 #if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
 	WREG = myret.byte.UB;
 	TOSU = WREG;
@@ -219,7 +219,7 @@ void SoftReturnAddressStack_load(uint8_t *pnt, uint8_t stkptr)
 	while( stkptr != 0 ) {
 
 		// STKPTR is first incremented
-		++STKPTRbits.STKPTR;
+		ReturnAddressStack_inc();
 		--stkptr;
 
 		// restore ReturnAddress
@@ -237,7 +237,7 @@ void SoftReturnAddressStack_load(uint8_t *pnt, uint8_t stkptr)
 	}
 
 	// restore our ReturnAddress
-	++STKPTRbits.STKPTR;
+	ReturnAddressStack_inc();
 #if SOFT_RETURN_ADDRESS_SAVE_UPPER_BYTE == 1
 	WREG = myret.byte.UB;
 	TOSU = WREG;

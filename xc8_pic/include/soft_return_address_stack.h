@@ -69,8 +69,22 @@ void SoftReturnAddressStack_pop(void);
 
 #endif
 
+/**
+ * increment ReturnAdressStack pointer
+ */
+void ReturnAddressStack_inc(void);
+#define ReturnAddressStack_inc() asm(" push")
 
-void SoftReturnAddressStack_save(uint8_t *ptr, uint8_t *stkptr);
+/**
+ * decrement ReturnAdressStack pointer
+ */
+void ReturnAddressStack_dec(void);
+#define ReturnAddressStack_dec() asm(" pop")
+
+/**
+ * save ReturnAddressStack to place pointed by ptr
+ */
+void SoftReturnAddressStack_save(uint8_t *ptr, uint8_t /*reference*/ stkptr);
 #define SoftReturnAddressStack_save( ptr , stkptr ) do{ \
 	uint8_t *_ptr = (ptr); \
 	(stkptr) = STKPTRbits.STKPTR; \
@@ -79,11 +93,13 @@ void SoftReturnAddressStack_save(uint8_t *ptr, uint8_t *stkptr);
 		++_ptr; \
 		*_ptr = TOSH; \
 		++_ptr; \
-		--STKPTRbits.STKPTR; \
+		ReturnAddressStack_dec(); \
 	} \
 }while(0)
 
-
+/**
+ * load ReturnAddressStack from place pointed by ptr
+ */
 void SoftReturnAddressStack_load(uint8_t *pnt, uint8_t stkptr);
 #define SoftReturnAddressStack_load( ptr , stkptr ) do{\
 	uint8_t *_ptr = (ptr); \
@@ -92,13 +108,23 @@ void SoftReturnAddressStack_load(uint8_t *pnt, uint8_t stkptr);
 	_ptr += _stkptr * SOFT_RETURN_ADDRESS_BYTES_LEN; \
 	while( _stkptr != 0 ) { \
 		--_stkptr; \
-		++STKPTRbits.STKPTR; \
+		ReturnAddressStack_inc(); \
 		--_ptr; \
 		WREG = *_ptr; \
 		TOSH = WREG; \
 		--_ptr; \
 		WREG = *_ptr; \
 		TOSL = WREG; \
+	} \
+}while(0)
+
+/**
+ * clear all ReturnAddressStack
+ */
+void ReturnAddressStack_Clear(void);
+#define ReturnAddressStack_Clear() do{ \
+	for(uint8_t optimize = STKPTRbits.STKPTR; optimize; --optimize) { \
+		asm(" pop"); \
 	} \
 }while(0)
 

@@ -18,7 +18,7 @@
 
 // default timer
 #ifndef SYSTICK_USE_TIMER
-#define SYSTICK_USE_TIMER 1
+#define SYSTICK_USE_TIMER 0
 #endif
 
 // default prescaler
@@ -88,9 +88,9 @@
 #endif
 
 #define SYSTICK_FREQ                      ( _XTAL_FREQ / ( 4  * SYSTICK_TIMER_PRESCALER ) )
-#define SYSTICK_TIMER_WRITE_VALUE         ( (0xffff) - SYSTICK_TIMER_VALUE )
+#define SYSTICK_TIMER_WRITE_VALUE         ( 0xffff - SYSTICK_TIMER_VALUE )
 #define SYSTICK_TIMER_WRITE_VALUE_H       ( ( SYSTICK_TIMER_WRITE_VALUE >> 8 ) & 0xff )
-#define SYSTICK_TIMER_WRITE_VALUE_L       ( ( SYSTICK_TIMER_WRITE_VALUE      )        )
+#define SYSTICK_TIMER_WRITE_VALUE_L       ( ( SYSTICK_TIMER_WRITE_VALUE      ) & 0xff )
 
 #define SYSTICK_TICK_FREQ                 ( SYSTICK_FREQ               / SYSTICK_TIMER_VALUE )
 #define SYSTICK_TICK_DURATION_SEC         ( SYSTICK_TIMER_VALUE               / SYSTICK_FREQ )
@@ -190,7 +190,7 @@ extern volatile systick_t systick_counter;
 
 /* ------------------------------------------- timeout implementation ----------------------------------------- */
 
-#define SYSTICK_TIMEOUT_DECLARE(varname) systick_t varname = systickGet()
+#define SYSTICK_TIMEOUT_DECLARE(varname) systick_t varname = 0
 #define SYSTICK_TIMEOUT_SET(varname, ms) do{ varname = systickGet() + SYSTICK_MS_TO_SYSTICKS(ms); }while(0)
 #define SYSTICK_TIMEOUT_ELAPSED(varname) ( SYSTICK_EQUAL( systickGet(), varname ) )
 

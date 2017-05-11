@@ -72,10 +72,10 @@ extern "C" {
 
 // conversion times in milliseconds
 #define DS18B20_TCONV_12BIT       750
-#define DS18B20_TCONV_11BIT       DS18B20_TCONV_12_BIT/2
-#define DS18B20_TCONV_10BIT       DS18B20_TCONV_12_BIT/4
-#define DS18B20_TCONV_9BIT        DS18B20_TCONV_12_BIT/8
-#define DS18S20_TCONV             DS18B20_TCONV_12_BIT
+#define DS18B20_TCONV_11BIT       DS18B20_TCONV_12BIT / 2
+#define DS18B20_TCONV_10BIT       DS18B20_TCONV_12BIT / 4
+#define DS18B20_TCONV_9BIT        DS18B20_TCONV_12BIT / 8
+#define DS18S20_TCONV             DS18B20_TCONV_12BIT
 
 // constant to convert the fraction bits to cel*(10^-4)
 #define DS18X20_FRACCONV          625

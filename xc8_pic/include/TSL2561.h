@@ -171,4 +171,7 @@ void TSL2561_setGain(tsl2561Gain_t gain);
 uint16_t TSL2561_getLuminosity (uint8_t channel);
 uint32_t TSL2561_getFullLuminosity ();
 
+uint16_t TSL2561_getLuminosity_nonblock_start();
+uint16_t TSL2561_getLuminosity_nonblock_stop(uint8_t channel);
+
 #endif

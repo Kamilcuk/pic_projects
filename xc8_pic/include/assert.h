@@ -9,47 +9,20 @@
 #ifndef XC8_PIC_INCLUDE_ASSERT_H_
 #define XC8_PIC_INCLUDE_ASSERT_H_
 
-#include <system.h>
+#include <system.h> // configuration - ASSERT_USE_*
 
-#if  defined( USE_ASSERT_MORSE )
-
-#include "morse.h" // morse_send_string
 #include "cdefs.h" // __XSTRING
 
-#define assert(expr) do{ if(!(expr)) { \
-	for(;;) { \
-		morse_send_string(__XSTRING(__LINE__) ":" __XSTRING(expr) ".assert failed:" __XSTRING(__FILE__) ":" ); \
-	} \
-} }while(0)
+#if defined( ASSERT_USE_MORSE ) || defined( ASSERT_USE_PRINTF )
 
-#elif defined( USE_ASSERT_PRINTF )
-
-#include <stdio.h> // putchar
-
-#define assert(expr) do{ \
-	if(!(expr)) { \
-		for(unsigned char _a_i = 3; _a_i; --_a_i) { \
-			static const unsigned char _a_str[] = \
-"assert failed:" __XSTRING(__FILE__) ":" __XSTRING(__LINE__) ":" __XSTRING(expr) ".\n" ;\
-			const unsigned char *_a_pnt = _a_str; \
-			unsigned char _a_c; \
-			for(;;) { \
-				_a_c = *_a_pnt; \
-				if ( !_a_c ) { \
-					break; \
-				} \
-				putchar(_a_c); \
-				++_a_pnt; \
-			} \
-		} \
-		for(;;); \
-	} \
-}while(0)
+#define assert(expr) if(!(expr)) { _my_assert(__XSTRING(__LINE__), __FILE__, __XSTRING(expr)); }
 
 #else
 
 #define assert(expr)
 
 #endif
+
+void _my_assert(const unsigned char *line, const unsigned char *file, const unsigned char *exp);
 
 #endif /* XC8_PIC_INCLUDE_ASSERT_H_ */

@@ -10,7 +10,7 @@
 # include TARGETDIR/Makefile
 #
 ifndef TARGETDIR
- TARGETDIR := $(notdir $(realpath ./TARGETDIR))
+ TARGETDIR := $(notdir $(realpath TARGETDIR))
  $(warning TARGETDIR not defined. Default TARGETDIR=[$(TARGETDIR)])
  include ${TARGETDIR}/Makefile
 endif
@@ -40,7 +40,7 @@ LDFLAGS := --memorysummary $(OBJDIR)/memoryfile.xml
 
 # in user TARGETDIR/Makefile define SOURCES for additional files
 SOURCES ?=
-SOURCES += $(wildcard $(addprefix $(TARGETDIR), /*.c /*.as) )
+SOURCES += $(wildcard $(addprefix $(TARGETDIR),/*.c /*.as))
 CFLAGS  += -I$(TARGETDIR)
 
 # my include directory
@@ -55,7 +55,7 @@ define CHECK_FILES_EXISTS_FUNC
   $(if $(err),
     $(if $(2),
       $(info $(1) can be one of the following:)
-      $(foreach p,$(addprefix    ,$(2)),$(info $(p)))
+      $(foreach p,$(addprefix    ,$(filter $(INCLUDE_SOURCES_LIST),$(2))),$(info $(p)))
     ,) 
     $(error Aborting)
   ,)
@@ -76,7 +76,7 @@ endif
 
 ifdef PLIB_SOURCES
   # add all .c and .as files to SOURCES that are in directories under $(PLIB_SOURCES_DIR)/$(PLIB_SOURCES)
-  PLIB_SOURCES_DIR := ./plib
+  PLIB_SOURCES_DIR := plib
   PLIB_SOURCES_DIR_LIST := $(PLIB_SOURCES:%=$(PLIB_SOURCES_DIR)/%)
   $(call CHECK_FILES_EXISTS_FUNC,PLIB_SOURCES_DIR_LIST,$(notdir $(wildcard $(PLIB_SOURCES_DIR)/*)))
   SOURCES += $(wildcard $(PLIB_SOURCES_DIR_LIST:%=%/*.c) $(PLIB_SOURCES_DIR_LIST:%=%/*.as) )
@@ -92,7 +92,7 @@ endif
 
 TARGET    := $(TARGETDIR)/main
 TARGET_OBJECT := $(OBJDIR)/$(notdir $(TARGET))
-OBJECTS   := $(addprefix $(OBJDIR)/, $(patsubst %.as, %.obj, $(patsubst %.c, %.p1, $(SOURCES) ) ) )
+OBJECTS   := $(addprefix $(OBJDIR)/,$(patsubst %.as,%.obj,$(patsubst %.c,%.p1,$(SOURCES))))
 DEP_FILES := $(patsubst %.p1,%.d,$(filter %.p1,$(OBJECTS)))
 
 all: $(TARGET).hex
@@ -119,7 +119,6 @@ program_fsusb: $(TARGET_OBJECT).hex
 program_pk3cmd: $(TARGET_OBJECT).hex
 	while ! lsusb -d 04d8:900a; do sleep 0.1; done; sleep 0.1;
 	pk3cmd.sh $<
-# from http://stackoverflow.com/questions/16467718/how-to-print-out-a-variable-in-makefile
 print-%:
 	$(info )
 	$(info $* is $(flavor $*) variable set to [$($*)]) @true
@@ -130,6 +129,6 @@ distclean: clean
 	rmdir $(OBJDIR)
 	rm -f $(TARGETDIR)/main.hex
 
-.PHONY: $(OBJDIR) clean distclean hexinfo simulate program_fsusb program_pk3cmd print-%
+.PHONY: clean distclean hexinfo simulate program_fsusb program_pk3cmd print-%
 -include $(DEP_FILES)
 

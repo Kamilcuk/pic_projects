@@ -56,6 +56,7 @@ trap_EXIT() {
 	wait;
 }
 trap 'trap_EXIT;' EXIT
+trap 'kill -s 9 $childs||true; rm -f $fifo;' SIGQUIT
 
 echo "## Running writing thread $f"
 writingThread() {

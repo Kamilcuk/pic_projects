@@ -30,7 +30,6 @@ extern "C" {
 #define DS18X20_VERBOSE           0
 #endif
 
-
 /* return values */
 #define DS18X20_OK                0x00
 #define DS18X20_ERROR             0x01
@@ -52,9 +51,9 @@ extern "C" {
 
 #define DS18X20_CONVERT_T         0x44
 #define DS18X20_READ              0xBE
-#define DS18X20_WRITE             0x4E
-#define DS18X20_EE_WRITE          0x48
-#define DS18X20_EE_RECALL         0xB8
+#define DS18X20_WRITE_SCRATCHPAD  0x4E
+#define DS18X20_COPY_SCRATCHPAD   0x48
+#define DS18X20_RECALL_E2         0xB8
 #define DS18X20_READ_POWER_SUPPLY 0xB4
 
 #define DS18B20_CONF_REG          4
@@ -84,9 +83,6 @@ extern "C" {
 #define DS18X20_SP_SIZE           9
 
 // DS18X20 EEPROM-Support
-#define DS18X20_WRITE_SCRATCHPAD  0x4E
-#define DS18X20_COPY_SCRATCHPAD   0x48
-#define DS18X20_RECALL_E2         0xB8
 #define DS18X20_COPYSP_DELAY      10 /* ms */
 #define DS18X20_TH_REG            2
 #define DS18X20_TL_REG            3

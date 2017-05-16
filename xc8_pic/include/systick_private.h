@@ -40,19 +40,7 @@
 
 #endif
 
-/**
- * In stupid xc8:
- * If an "static" equation has no numbers higher then "int" (2^16), then equations are done with int resolution.
- * Example:
- *  uint16_t a = ( 500*256/256 );
- *    gives a = 0;
- * However adding a stupid ( bignumer/bignumer ) devision "upscales" the (preprocessor?) resolution to long
- * Examples:
- *  uint16_t a = ( 100000/100000 * 500*256/256 );
- *    gives a = 500;
- */
-#define SYSTICK_CALC_FUCK_XC8_BIG_NUMBER   1073741824 // = 2^30
-#define SYSTICK_CALC_FUCK_XC8_CAST_TO_LONG ( SYSTICK_CALC_FUCK_XC8_BIG_NUMBER / SYSTICK_CALC_FUCK_XC8_BIG_NUMBER )
+#include <xc_ex.h> // FUCK_XC8_CAST_TO_LONG
 
 /**
  * Converts x seconds to systicks with specified seconds resolution.
@@ -60,8 +48,7 @@
  * Example: SYSTICK_SEC_TO_SYSTICKS_RES(123, 1000) - converts 123 seconds to systicks
  */
 #define SYSTICK_SEC_TO_SYSTICKS_RES( x, resolution ) \
-	( SYSTICK_CALC_FUCK_XC8_CAST_TO_LONG * \
-			(x) * (SYSTICK_CALC_TICK_FREQ_ADD_RES) / (resolution) )
+	( FUCK_XC8_CAST_TO_LONG * (x) * (SYSTICK_CALC_TICK_FREQ_ADD_RES) / (resolution) )
 
 /**
  * Converts x systicks to seconds with specified seconds resolution.
@@ -69,7 +56,6 @@
  * Example: SYSTICK_SYSTICKS_TO_SEC_RES(123, 1)    - converts 123 systicks to seconds
  */
 #define SYSTICK_SYSTICKS_TO_SEC_RES( x, resolution ) \
-	( SYSTICK_CALC_FUCK_XC8_CAST_TO_LONG * \
-			(SYSTICK_CALC_TICK_DURATION_ADD_RES) * (resolution) * (x) / (SYSTICK_CALC_ADDITIONAL_RESOLUTION) )
+	( FUCK_XC8_CAST_TO_LONG * (SYSTICK_CALC_TICK_DURATION_ADD_RES) * (resolution) * (x) / (SYSTICK_CALC_ADDITIONAL_RESOLUTION) )
 
 #endif /* SYSTICK_PRIVATE_H_ */

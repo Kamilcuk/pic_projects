@@ -70,18 +70,23 @@ void main_test1(void)
 		for(; i < ARRAY_SIZE(str)-1 && (c = str[i]); ++i) {
 			hd44780_write_data(j, c);
 		}
+#if HD44780_CHECKER
 		printf("checker curpos: %u =? %u =? %x\n", hd44780_checker_curpos[j], i, hd44780_get_rawcurpos(j));
+#endif
 	}
 
 #define TEST_PRINTF(printf_arg) printf printf_arg
 #define TEST_DISPLAY 0
+
 	hd44780_set_rawcurpos(TEST_DISPLAY, hd44780_curpos_to_raw(0));
-	TEST_PRINTF(("checker curpos: %u =? 0 =? %x\n", hd44780_checker_curpos[TEST_DISPLAY], hd44780_get_rawcurpos(TEST_DISPLAY)));
 	printf("Recv 1line:");
 	for(uint8_t i=0;i<20;++i) {
 		printf("%c", hd44780_read_data(TEST_DISPLAY));
 	}
 	printf("\n");
+
+#if HD44780_CHECKER
+
 
 	uint8_t curposs[] = { 0, 10, 20, 30, 40, 50, 60, 70, 39, 79 };
 	for(uint8_t i=0;i<ARRAY_SIZE(curposs);++i) {
@@ -120,6 +125,7 @@ void main_test1(void)
 		}
 		printf("\"\n");
 	}
+#endif
 
 	printf("Checker!\n");
 	hd44780_checker_check();
@@ -156,6 +162,15 @@ void main_test1(void)
 #endif
 
 	__delay_ms(1000);
+}
+
+void main_test2(void)
+{
+	static uint8_t a = 0xff;
+	PCF8574_WRITE(PCF8574_DATA, a);
+	PCF8574_WRITE(PCF8574_FLAG, a);
+	__delay_ms(1000);
+	a ^= 0xff;
 }
 
 void main(void)

@@ -18,7 +18,15 @@
 #define WRITE_BIT 0x00
 #define READ_BIT  0x01
 
-void smbus_write_quick(uint8_t addr, uint8_t data)
+void smbus_quick_command(uint8_t addr)
+{
+	IdleI2C();
+	StartI2C();
+	WriteI2C(addr|WRITE_BIT);
+	StopI2C();
+}
+
+void smbus_send_byte(uint8_t addr, uint8_t data)
 {
 	IdleI2C();
 	StartI2C();
@@ -27,13 +35,14 @@ void smbus_write_quick(uint8_t addr, uint8_t data)
 	StopI2C();
 }
 
-uint8_t smbus_read_quick(uint8_t addr)
+uint8_t smbus_receive_byte(uint8_t addr)
 {
 	uint8_t data;
 	IdleI2C();
 	StartI2C();
-	WriteI2C(addr|WRITE_BIT);
+	WriteI2C(addr|READ_BIT);
 	data = ReadI2C();
+	NotAckI2C();
 	StopI2C();
 	return data;
 }
@@ -114,25 +123,13 @@ uint16_t smbus_process_call(uint8_t addr, uint8_t command, uint8_t data_low, uin
 }
 
 
-void smbus_read_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen)
-{
-	IdleI2C();
-	StartI2C();
-	WriteI2C(addr|WRITE_BIT);
-	WriteI2C(command);
-	RestartI2C();
-	WriteI2C(addr|READ_BIT);
-	getsI2C(pnt, pntlen);
-	NotAckI2C();
-	StopI2C();
-}
-
 void smbus_write_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen)
 {
 	IdleI2C();
 	StartI2C();
 	WriteI2C(addr|WRITE_BIT);
 	WriteI2C(command);
+	WriteI2C(pntlen);
 	while(pntlen) {
 		WriteI2C(*pnt);
 		++pnt;
@@ -140,3 +137,31 @@ void smbus_write_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntl
 	}
 	StopI2C();
 }
+
+uint8_t smbus_read_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen)
+{
+	uint8_t bytecount, min;
+	IdleI2C();
+	StartI2C();
+	WriteI2C(addr|WRITE_BIT);
+	WriteI2C(command);
+	RestartI2C();
+	WriteI2C(addr|READ_BIT);
+	bytecount = ReadI2C();
+	min = bytecount < pntlen ? bytecount : pntlen;
+	if ( min ) {
+		AckI2C();
+		for(;;) {
+			*pnt++ = ReadI2C();
+			--min;
+			if ( min ) {
+				break;
+			}
+			AckI2C();
+		}
+	}
+	NotAckI2C();
+	StopI2C();
+	return bytecount;
+}
+

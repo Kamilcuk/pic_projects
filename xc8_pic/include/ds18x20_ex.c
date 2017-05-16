@@ -18,19 +18,15 @@ uint8_t DS18X20_search_sensors(struct ds18x20_s *sensors, const uint8_t sensorsl
 {
 	uint8_t diff = OW_SEARCH_FIRST;
 	uint8_t nSensors = 0;
-	uint8_t i;
 
-	ow_reset();
-
-	while ( diff != OW_LAST_DEVICE && nSensors < sensorslen ) {
-
-		DS18X20_find_sensor( &diff, sensors->romcode );
-
-		if ( diff == OW_PRESENCE_ERR || diff == OW_DATA_ERR ) {
+	while(nSensors < sensorslen) {
+		if ( DS18X20_find_sensor( &diff, &sensors->romcode[0] ) == DS18X20_ERROR ){
 			break;
 		}
-
 		++sensors;
+		++nSensors;
+	}
+	if ( diff == OW_LAST_DEVICE ) {
 		++nSensors;
 	}
 

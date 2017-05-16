@@ -13,13 +13,10 @@
 #ifndef BIT_H_
 #define BIT_H_
 
-#define BIT_SET(REG, BIT)     ((REG) |=  (1<<(BIT)))
-
-#define BIT_CLEAR(REG, BIT)   ((REG) &= ~(1<<(BIT)))
-
-#define BIT_READ(REG, BIT)    ((REG) &   (1<<(BIT)))
-
-#define BIT_TOGGLE(REG, BIT)  ((REG) ^=  (1<<(BIT)))
+#define BIT_READ(REG, BIT)    ( (REG) &   (1<<(BIT)) )
+#define BIT_CLEAR(REG, BIT)   ( (REG) &= ~(1<<(BIT)) )
+#define BIT_SET(REG, BIT)     ( (REG) |=  (1<<(BIT)) )
+#define BIT_TOGGLE(REG, BIT)  ( (REG) ^=  (1<<(BIT)) )
 
 #define BIT_WRITE(REG, BIT, VAL) do{ \
 	if((VAL)) { \
@@ -30,5 +27,8 @@
 }while(0)
 
 #define BIT_WRITE_EXPRESSION(REG, BIT, VAL) ( (REG) = ( (REG)& ~(1<<(BIT)) ) | ( (VAL)<<(BIT) ) )
+
+//#define BIT_WRITE(REG, BIT, VAL) ( (REG) = ((VAL) ? ((REG) | (1<<(BIT))) : ((REG) & (1<<(BIT))) ) )
+//#define BIT_WRITE(REG, BIT, VAL) ( (REG)  = ((REG)&(~(1<<(BIT)))) | ((VAL)?(1<<(BIT):0)) )
 
 #endif /* BIT_H_ */

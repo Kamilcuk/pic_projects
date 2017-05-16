@@ -29,13 +29,12 @@ changelog:
 
 #include <system.h> // configuration
 
-#include <xc.h>
+#include <xc.h> // __delay_ms __delay_us
 #include <stdlib.h>
 #include <stdint.h>
 
-
-#define _delay_us __delay_us
-#define _delay_ms __delay_ms
+#define _delay_us(x) __delay_us(x)
+#define _delay_ms(x) __delay_ms(x)
 
 /*----------- start of "debug-functions" ---------------*/
 
@@ -280,27 +279,31 @@ uint8_t DS18X20_read_meas_all_verbose( void )
    input/ouput: diff is the result of the last rom-search
                 *diff = OW_SEARCH_FIRST for first call
    output: id is the rom-code of the sensor found */
+#include <stdio.h>
 uint8_t DS18X20_find_sensor( uint8_t *diff, uint8_t id[] )
 {
-	uint8_t go;
 	uint8_t ret;
+	uint8_t optimize;
 
-	ret = DS18X20_OK;
-	go = 1;
-	do {
-		*diff = ow_rom_search( *diff, &id[0] );
-		if ( *diff == OW_PRESENCE_ERR || *diff == OW_DATA_ERR ||
-		     *diff == OW_LAST_DEVICE ) { 
-			go  = 0;
+	optimize = *diff;
+	for(;;) {
+		optimize = ow_rom_search( optimize, &id[0] );
+		if ( optimize == OW_PRESENCE_ERR ||
+			 optimize == OW_DATA_ERR ||
+			 optimize == OW_LAST_DEVICE ) {
 			ret = DS18X20_ERROR;
+			break;
 		} else {
-			if ( id[0] == DS18B20_FAMILY_CODE || id[0] == DS18S20_FAMILY_CODE ||
-			     id[0] == DS1822_FAMILY_CODE ) { 
-				go = 0;
+			if ( id[0] == DS18B20_FAMILY_CODE ||
+				 id[0] == DS18S20_FAMILY_CODE ||
+			     id[0] == DS1822_FAMILY_CODE ) {
+				ret = DS18X20_OK;
+				break;
 			}
 		}
-	} while (go);
+	}
 
+	*diff = optimize;
 	return ret;
 }
 

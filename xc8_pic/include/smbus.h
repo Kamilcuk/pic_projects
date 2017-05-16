@@ -13,6 +13,8 @@
 #ifndef SMBUS_H_
 #define SMBUS_H_
 
+#include <xc_ex.h>  // FUCK_XC8_CAST_TO_LONG
+
 #include <plib/i2c.h> // for smbus_open_master
 #include <stdint.h>
 
@@ -26,18 +28,23 @@
 #define smbus_open_master(clock_speed_in_herz) do{ \
 	CloseI2C(); \
 	OpenI2C(MASTER, SLEW_OFF); \
-	SSPADD = ( ( ( _XTAL_FREQ / 4 ) / ( clock_speed_in_herz ) ) - 1 ); \
+	SSPADD = FUCK_XC8_CAST_TO_LONG * ( ( _XTAL_FREQ / 4 / (clock_speed_in_herz) ) - 1 ); \
 	IdleI2C(); \
 }while(0);
 
 /**
+ * 5.5.1. Quick command
+ */
+void smbus_quick_command(uint8_t addr);
+
+/**
  * 5.5.2. Send byte
  */
-void smbus_write_quick(uint8_t addr, uint8_t data);
+void smbus_send_byte(uint8_t addr, uint8_t data);
 /**
  * 5.5.3. Receive byte
  */
-uint8_t smbus_read_quick(uint8_t addr);
+uint8_t smbus_receive_byte(uint8_t addr);
 
 /**
  * 5.5.4. Write byte/word
@@ -66,7 +73,11 @@ uint16_t smbus_process_call(uint8_t addr, uint8_t command, uint8_t data_low, uin
  * 5.5.7. Block write/read
  */
 void smbus_write_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen);
-void smbus_read_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen);
+/**
+ * 5.5.7. Block write/read
+ * Returns number bytes read
+ */
+uint8_t smbus_read_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntlen);
 
 
 

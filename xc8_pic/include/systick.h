@@ -13,6 +13,8 @@
 
 #include <cdefs.h>  // __CONCAT(x,y)
 #include <timers.h> // OpenTimerX
+#include <stdbool.h>
+#include <stdint.h>
 
 /* ----------------------------------- timer configuration ------------------------------------- */
 
@@ -110,35 +112,6 @@
 #define SYSTICK_MS_TO_SYSTICKS(x)         SYSTICK_SEC_TO_SYSTICKS_RES( x, 1000 )
 #define SYSTICK_SYSTICKS_TO_MS(x)         SYSTICK_SYSTICKS_TO_SEC_RES( x, 1000 )
 
-/* -------------------------- systick compare macros and handle overflow while comparing ------------------- */
-
-/**
- * compare with this margin - 100 miliseconds
- */
-#ifndef SYSTICK_EQUAL_MARGIN
-#define SYSTICK_EQUAL_MARGIN SYSTICK_MS_TO_SYSTICKS( 100 )
-#endif
-
-/**
- * SYSTICK_EQUAL checks if two systicks are equal to each other, with specified margin.
- * Margin is equal to 100ms, so you need to run this function at least 10 times per second.
- * If you pass systickGet() as parameter, it should be the first parameter (x1).
- */
-#if     SYSTICK_EQUAL_MARGIN != 0
-#define SYSTICK_EQUAL(x1, x0) ( \
-		( (x0) > (x1) ) ? \
-				( (systick_t)( (x0) - (x1) ) <= (systick_t)(SYSTICK_EQUAL_MARGIN) ) : \
-				( (systick_t)( (x1) - (x0) ) <= (systick_t)(SYSTICK_EQUAL_MARGIN) ) \
-)
-#else
-#define SYSTICK_EQUAL(x1, x0)   ( (x0) == (x1) )
-#endif
-
-/**
- * SYSTICK_COMAPRE - not equal
- */
-#define SYSTICK_COMPARE(x1, x0)  ( ! SYSTICK_EQUAL( x1 , x0 ) )
-
 /* -------------------------------------------- public defines -------------------------------------------------- */
 
 /**
@@ -149,7 +122,7 @@
  * 	to measure more seconds with greater/smaller accuracy.
  */
 #ifndef systick_t
-typedef unsigned int systick_t;
+typedef uint16_t systick_t;
 #define systick_t systick_t
 #endif
 
@@ -190,9 +163,19 @@ extern volatile systick_t systick_counter;
 
 /* ------------------------------------------- timeout implementation ----------------------------------------- */
 
-#define SYSTICK_TIMEOUT_DECLARE(varname) systick_t varname = 0
-#define SYSTICK_TIMEOUT_SET(varname, ms) do{ varname = systickGet() + SYSTICK_MS_TO_SYSTICKS(ms); }while(0)
-#define SYSTICK_TIMEOUT_ELAPSED(varname) ( SYSTICK_EQUAL( systickGet(), varname ) )
+#ifndef SYSTICK_TIMEOUT_EQUAL_MARGIN
+#define SYSTICK_TIMEOUT_EQUAL_MARGIN SYSTICK_MS_TO_SYSTICKS( 100 )
+#endif
+
+#if SYSTICK_TIMEOUT_EQUAL_MARGIN == 0
+#error SYSTICK_TIMEOUT_EQUAL_MARGIN == 0
+#endif
+
+bool systickTimeoutElapsed(systick_t tick, systick_t timeout);
+
+#define SYSTICK_TIMEOUT_DECLARE(varname)     systick_t varname = 0
+#define SYSTICK_TIMEOUT_SET(varname, ms)     ( varname = systickGet() + SYSTICK_MS_TO_SYSTICKS(ms) )
+#define SYSTICK_TIMEOUT_ELAPSED(varname, ms) ( systickTimeoutElapsed(varname, SYSTICK_MS_TO_SYSTICKS(ms) ) )
 
 /* ------------------------------------------- examples ----------------------------------------------------- */
 

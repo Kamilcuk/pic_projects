@@ -35,4 +35,17 @@ ret = DS18X20_search_sensors(gSensorIDs, MAXSENSORS);
  * */
 uint8_t DS18X20_search_sensors(struct ds18x20_s *sensors, const uint8_t sensorslen);
 
+/**
+ * Pullup transistor:
+The 1-Wire bus must be switched to the strong pullup within
+10µs (max) after a Convert T [44h] or Copy Scratchpad
+[48h] command is issued, and the bus must be held high
+by the pullup for the duration of the conversion (tCONV)
+or data transfer (tWR = 10ms). No other activity can take
+place on the 1-Wire bus while the pullup is enabled.
+ *
+ * After functions DS18X20_start_meas() and DS18X20_scratchpad_to_eeprom()
+ * You must enable transistor pullup
+ */
+
 #endif /* DS18X20_EX_H_ */

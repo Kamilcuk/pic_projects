@@ -11,19 +11,20 @@
 #include <system.h> // SW_SPI_PORT , SW_SPI_PIN
 
 /**
+ * Example:
  * To use SwSpiWrite define in system.h:
- * SW_SPI_SCK_PORT
- * SW_SPI_SCK_PIN
- * SW_SPI_OUT_PORT
- * SW_SPI_OUT_PIN
+#define SW_SPI_SCK_PORT A
+#define SW_SPI_SCK_PIN  2
+#define SW_SPI_OUT_PORT A
+#define SW_SPI_OUT_PIN  3
+ * or define:
+#define SW_SPI_SCK_PORTPIN A, 2
+#define SW_SPI_OUT_PORTPIN A, 3
  */
-#if defined(SW_SPI_SCK_PORT) && defined(SW_SPI_SCK_PIN) && defined(SW_SPI_OUT_PORT) && defined(SW_SPI_OUT_PIN)
 
 /**
- * Write blockingly SPI in MODE0
+ * Write blocking SPI. Mode is MODE0
  */
 void SwSpiWrite(char input);
-
-#endif
 
 #endif /* SWSPIWRITE_H_ */

@@ -20,11 +20,9 @@ modified by Martin Thomas (mthomas(at)rhrk.uni-kl.de)
 #include "onewire.h"
 
 #include <system.h> // configuration
+#include <interrupt.h> // ATOMIC_BLOCK
 
-#define _delay_us __delay_us
-#define ATOMIC_BLOCK( unused ) \
-	for(unsigned char _once = (di(), 1); _once; _once = 0, ei())
-
+#define _delay_us(x) __delay_us(x)
 
 #ifdef OW_ONE_BUS
 
@@ -100,7 +98,7 @@ uint8_t ow_reset(void)
 	OW_DIR_OUT();            // pull OW-Pin low for 480us
 	_delay_us(480);
 
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+	ATOMIC_BLOCK() {
 		// set Pin as input - wait for clients to pull low
 		OW_DIR_IN(); // input
 #if OW_USE_INTERNAL_PULLUP
@@ -132,7 +130,7 @@ uint8_t ow_reset(void)
    but around 14 cyles in configureable bus (us-Delay is 4 cyles per uS) */
 static uint8_t ow_bit_io_intern( uint8_t b, uint8_t with_parasite_enable )
 {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+	ATOMIC_BLOCK() {
 #if OW_USE_INTERNAL_PULLUP
 		OW_OUT_LOW();
 #endif

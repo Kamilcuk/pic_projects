@@ -50,10 +50,10 @@
 #define HD44780_BFCHECK_ENABLE(ctrl)         BIT_CLEAR(hd44780.nobfcheck, (ctrl))
 #define HD44780_BFCHECK_IS_DISABLED(ctrl)     BIT_READ(hd44780.nobfcheck, (ctrl))
 #define HD44780_BFCHECK_IS_ENABLED(ctrl)     !BIT_READ(hd44780.nobfcheck, (ctrl))
-#define HD44780_BFCHECK_IS_ANY_DISABLED()            ( hd44780.nobfcheck != 0 )
-#define HD44780_BFCHECK_IS_ANY_ENABLED()             ( hd44780.nobfcheck != 0xFF )
-#define HD44780_BFCHECK_ENABLE_ALL()                 ( hd44780.nobfcheck =  0 )
-#define HD44780_BFCHECK_DISABLE_ALL()                ( hd44780.nobfcheck =  0xFF )
+#define HD44780_BFCHECK_IS_ANY_DISABLED()            ( hd44780.nobfcheck !=  0 )
+#define HD44780_BFCHECK_IS_ANY_ENABLED()             ( hd44780.nobfcheck != ~0 )
+#define HD44780_BFCHECK_ENABLE_ALL()                 ( hd44780.nobfcheck =   0 )
+#define HD44780_BFCHECK_DISABLE_ALL()                ( hd44780.nobfcheck =  ~0 )
 #else
 #define HD44780_BFCHECK_DISABLE(ctrl)
 #define HD44780_BFCHECK_ENABLE(ctrl)
@@ -110,6 +110,9 @@ struct hd44780_s {
 #endif
 };
 
+/**
+ * Our struct
+ */
 extern struct hd44780_s hd44780;
 
 /* ---------------------------------------------------------------------------------- */
@@ -167,6 +170,11 @@ unsigned char hd44780_read(unsigned char ctrl, unsigned char flags);
  * See example implementation in hd44780.c
  */
 extern unsigned char *hd44780_checker_state[HD44780_NUM_CONTROLLERS];
+
+/**
+ * This array stores the information of cursor position in all controllers
+ */
+extern unsigned char hd44780_checker_curpos[HD44780_NUM_CONTROLLERS];
 
 /**
  * Checks and corrects error on hd44780 displays.

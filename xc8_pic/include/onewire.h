@@ -31,14 +31,14 @@ extern "C" {
 #endif
 
 #define OW_CONF_CYCLESPERACCESS 13
-#define OW_CONF_DELAYOFFSET ( (uint16_t)( ((OW_CONF_CYCLESPERACCESS) * 1000000L) / F_CPU ) )
+#define OW_CONF_DELAYOFFSET     ( (uint16_t)( ((OW_CONF_CYCLESPERACCESS) * 1000000L) / F_CPU ) )
 
 // Recovery time (T_Rec) minimum 1usec - increase for long lines
 // 5 usecs is a value give in some Maxim AppNotes
 // 30u secs seem to be reliable for longer lines
 //#define OW_RECOVERY_TIME        5  /* usec */
-//#define OW_RECOVERY_TIME      300 /* usec */
-#define OW_RECOVERY_TIME         10 /* usec */
+#define OW_RECOVERY_TIME      300 /* usec */
+//#define OW_RECOVERY_TIME         10 /* usec */
 
 // Use AVR's internal pull-up resistor instead of external 4,7k resistor.
 // Based on information from Sascha Schade. Experimental but worked in tests

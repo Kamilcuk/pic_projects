@@ -13,6 +13,7 @@
 #ifndef HD44780_CONFIG_H_
 #define HD44780_CONFIG_H_
 
-#include "hd44780-default-config.h"
+//#include "hd44780-default-config.h"
+#include "hd44780-config-2xpcf8574.h"
 
 #endif /* HD44780_CONFIG_H_ */

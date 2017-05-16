@@ -12,18 +12,18 @@
 #include <timers.h>
 #include <bitmask.h>
 #include <cdefs.h>
+#include <usbhid_stdio/usbhid_stdio.h>
 #include <cmdline.h>
 #include <assert.h>
+#include <swSpiWrite.h>
 #include <TSL2561.h>
 #include <systick.h>
-#include <swSpiWrite.h>
-#include <ds18x20.h>
-#include <usbhid_stdio/usbhid_stdio.h>
 #include <hd44780.h>
+#include <ds18x20.h>
 #include <ds18x20_ex.h>
-#include <onewire.h>
-#include <pt.h>
-#include <boost/counter.h>
+#include <pt.h> // prothread
+#include <boost/counter.h> // BOOST_PP_COUNTER
+#include <interrupt.h> // ATOMIC_CODE
 
 #include <stdint.h>
 #include <time.h>
@@ -33,32 +33,6 @@
 #include <stdbool.h>
 
 #include "usbhid_stdio/usbhid_stdio.h"
-
-/**
-| PIC18F2550 | description | to |
-| ----- | --- | --- |
-| left | | |
-| RA0 | TACHO channel A out | 4051 A |
-| RA1 | TACHO channel B out | 4051 B |
-| RA2 | TACHO channel C out | 4051 C |
-| RA3 | onewire | DS18B20 |
-| RA4 | | |
-| RA5 | | |
-| RC0 | USB sense in | USB +5V |
-| RC1 | | |
-| RC2 | TACHO in / CCP1| 4051 X |
-| right  | | |
-| RB7 | in | button |
-| RB6 | out | diode |
-| RB5 | out | MCP4812 no. 2 chip select |
-| RB4 | out | MCP4812 no. 1 chip select |
-| RB3 | software SCK | MCP4812 SCK |
-| RB2 | software SDI | MCP4812 SDA |
-| RB1 | SCL | TSL2561 SCL |
-| RB0 | SDA | TSL2561 SDA |
-| RC7 | UART | |
-| RC6 | UART | |
- */
 
 /* ------------------------------------ configuration ------------------------------------ */
 
@@ -70,9 +44,11 @@
 #endif
 #endif
 
+#define DEBUG_MAIN(pre, printf_args ) do{printf(pre); printf printf_args ; putchar('\n'); }while(0)
+
 /* ------------------------------------ rpm* - reading RPM part -------------------------- */
 
-#define FAN_MAX_NUMBER 8
+#define FAN_MAX_NUMBER 4
 #define RPM_VALUE_UPPER_MAX 32
 
 // temp synchronization variables
@@ -86,8 +62,8 @@ static volatile UINT24_VAL rpmResult[FAN_MAX_NUMBER] = {0};
 static volatile uint8_t rpmResultpos = 0;
 
 // 4051 connections - choosing fan rpm input
-#define rpmPortInit()    BITMASK_SET(TRISA, 0b11100000)
-#define rpmPortSet(a)  BITMASK_WRITE(PORTA, 0b11100000, a<<5)
+#define rpmPortInit()  BITMASK_CLEAR(TRISA, 0b00000111)
+#define rpmPortSet(a)  BITMASK_WRITE(PORTA, 0b00000111, a)
 
 static void rpmInit(void)
 {
@@ -97,11 +73,11 @@ static void rpmInit(void)
 	rpmPortSet(0);
 	rpmResultpos = 0;
 
-	SetTmrCCPSrc( T1_CCP1_T3_CCP2 );
 	IPR1bits.CCP1IP = 0;
+	IPR1bits.TMR1IP = 0;
+	SetTmrCCPSrc( T1_SOURCE_CCP );
 	// Capture1 on RC2
 	OpenCapture1( C1_EVERY_RISE_EDGE & CAPTURE_INT_ON );
-	IPR1bits.TMR1IP = 0;
 	OpenTimer1( T1_16BIT_RW & TIMER_INT_ON & T1_PS_1_8 & T1_SOURCE_INT & T1_SYNC_EXT_OFF );
 }
 
@@ -131,9 +107,9 @@ static uint24_t rpmGet(const uint8_t i)
 
 	assert(i < rpmResultlen);
 
-	di();
-	ret = rpmResult[i].Val;
-	ei();
+	ATOMIC_CODE(
+			ret = rpmResult[i].Val;
+	);
 	return ret;
 }
 
@@ -182,17 +158,16 @@ void interrupt  low_priority SYS_InterruptLow(void)
 
 /* ------------------- fan module - setting fan speeds using I2C 4802 modules -------------- */
 
-/*| RB5 | out | MCP4812 no. 2 chip select |
-  | RB4 | out | MCP4812 no. 1 chip select |*/
-#define FAN_CHIP_SELECT_1()     do{PORT(B,4)                 = 0;}while(0)
-#define FAN_CHIP_SELECT_2()     do{                PORTBbits.RB5 = 0;}while(0)
-#define FAN_CHIP_DESELECT_ALL() do{PORTBbits.RB4 = PORTBbits.RB5 = 1;}while(0)
-#define FAN_CHIP_SELECT_INIT()  do{TRISBbits.RB4 = TRISBbits.RB5 = 0;}while(0)
+#define FAN_CHIP_SELECT_1()     do{ PORT1(FAN_CS1_PORTPIN)                          = 0; }while(0)
+#define FAN_CHIP_SELECT_2()     do{                          PORT1(FAN_CS2_PORTPIN) = 0; }while(0)
+#define FAN_CHIP_DESELECT_ALL() do{ PORT1(FAN_CS1_PORTPIN) = PORT1(FAN_CS2_PORTPIN) = 1; }while(0)
+#define FAN_CHIP_SELECT_INIT()  do{ TRIS1(FAN_CS1_PORTPIN) = TRIS1(FAN_CS2_PORTPIN) = TRIS_OUT; }while(0)
 
+#define FAN_COUNT 4
 #define fanSpeedslen 4
 static uint16_t fanSpeeds[fanSpeedslen];
 
-static void fanWrite(UINT8 num, UINT16 val)
+static void fanWrite(uint8_t num, uint16_t val)
 {
 	struct WriteCommandRegisterMCP48x2_s {
 		unsigned char D_lower : 8;
@@ -245,7 +220,7 @@ static void fanWrite(UINT8 num, UINT16 val)
 	wcr.v._dont_care = 1;
 	wcr.v.GA = 0;
 	wcr.v.SHDN = 1;
-	BITMASK_WRITE((UINT16)wcr.byte.Val, (UINT16)0x0fff, val);
+	BITMASK_WRITE(wcr.byte.Val, (uint16_t)0x0fff, val);
 
 	// actual write
 	__delay_ms(1); // select stabilize
@@ -261,71 +236,130 @@ static void fanWrite(UINT8 num, UINT16 val)
 static void fanInit(void) {
 	FAN_CHIP_SELECT_INIT();
 	FAN_CHIP_DESELECT_ALL();
+	__delay_ms(1);
+	for(uint8_t i = 0; i < fanSpeedslen; ++i) {
+		fanWrite(i, 0x800);
+	}
 }
 
 /* ----------------------------------------ds18b20 ------------------------------------------  */
 
-#define DS18X20_MAXSENSORS 10
-static struct pt_s sense_pt = pt_init();
+#define SENSE_DEBUG(printf_args) //DEBUG_MAIN("SENSE:", printf_args)
+#define DS18X20_DYNAMIC_COUNT 1
+#if DS18X20_DYNAMIC_COUNT
+#define DS18X20_MAXSENSORS 20
 static struct ds18x20_s senses[DS18X20_MAXSENSORS];
+static uint8_t sense_count = 0;
+#else
+#define DS18X20_MAXSENSORS 4
+static struct ds18x20_s senses[DS18X20_MAXSENSORS] = {
+		0x28,0xed,0xff,0x5b,0x05,0x00,0x00,0xcd,
+		0x28,0xf2,0xdc,0x5b,0x05,0x00,0x00,0x04,
+		0x28,0x2d,0xa6,0x5b,0x05,0x00,0x00,0x34,
+		0x28,0x4a,0xdc,0x5b,0x05,0x00,0x00,0xa2,
+};
+static uint8_t sense_count = DS18X20_MAXSENSORS;
+#endif
+#define DS18B20_RESOLUTION_BITS             12 // 9 or 10 or 11 or 12
+#define DS18B20_CONFIG                      __CONCAT(__CONCAT(DS18B20_, DS18B20_RESOLUTION_BITS), _BIT)
+#define DS18B20_WAITTIME                    __CONCAT(__CONCAT(DS18B20_TCONV_, DS18B20_RESOLUTION_BITS), BIT)
 static int16_t sense_val[DS18X20_MAXSENSORS];
-static uint8_t sense_count;
+
+// 28edff5b050000cd , 28f2dc5b05000004 , 282da65b05000034 , 284adc5b050000a2
 
 static void sense_thread()
 {
+	static struct pt_s sense_pt = pt_init();
 	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
-	uint8_t i;
+	static uint8_t i;
 
 #include <boost/counter_reset.h>
 	pt_begin(&sense_pt);
 
-	// init
-	sense_count = DS18X20_search_sensors(senses, (sizeof(senses)/sizeof(*senses)));
+	// disable pullup
+	TRIS1(OW_PULLUP_PORTPIN) = TRIS_OUT;
+	PORT1(OW_PULLUP_PORTPIN) = 1;
+
+#if DS18X20_DYNAMIC_COUNT
+	ATOMIC_BLOCK() {
+		sense_count = DS18X20_search_sensors(senses, ARRAY_SIZE(senses));
+	}
+#endif
 
 	for ( i = 0; i < sense_count; i++ ) {
-		DS18X20_write_scratchpad( senses[i].romcode , 0, 0, DS18B20_12_BIT );
+		DS18X20_write_scratchpad( senses[i].romcode , 0, 0, DS18B20_CONFIG );
 	}
 
-	printf("ds18b20 initialized.\n");
+	printf("ds18x20 initialized. %u sensors found.\n", sense_count);
+	for ( i = 0; i < sense_count; ++i) {
+		printf("ds18x20[%u]\n", i);
+		printf(" ^ romcode=\"");
+		for(uint8_t j=0;j<OW_ROMCODE_SIZE;++j) {
+			printf("%02x", senses[i].romcode[j]);
+		}
+		printf("\"\n");
+		printf(" ^ external power = %x\n", DS18X20_get_power_status(senses[i].romcode));
+		uint8_t sp[3];
+		DS18X20_read_scratchpad(senses[i].romcode, sp, 3);
+		for(uint8_t j=0;j<3;++j) {
+			printf(" ^ scratchpad[%u] = 0x%02x\n", j, sp[j]);
+		}
+	}
+
 
 	pt_yield(&sense_pt);
 #include <boost/counter_inc.h>
+
+	if ( sense_count == 0 ) {
+		goto END;
+	}
 
 	while(1) {
 
 		// measure temperature for every senses
 		for(i = 0; i < sense_count; ++i) {
 
+			SENSE_DEBUG(("Start conversion on %u", i));
 			// start the conversion
 			if ( DS18X20_start_meas( DS18X20_POWER_PARASITE, senses[i].romcode ) != DS18X20_OK ) {
 				// disable this sensor?
 			}
 
+			// enable pullup during Convert T
+			PORT1(OW_PULLUP_PORTPIN) = 0;
+
 			// wait for conversion
-			SYSTICK_TIMEOUT_SET( Tickstop, DS18B20_TCONV_12BIT );
-			pt_wait_while( &sense_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop ) );
+			SYSTICK_TIMEOUT_SET( Tickstop , DS18B20_WAITTIME );
+			pt_wait_while( &sense_pt, !SYSTICK_TIMEOUT_ELAPSED(Tickstop, DS18B20_WAITTIME));
 #include <boost/counter_inc.h>
+
+			// disable pullup
+			PORT1(OW_PULLUP_PORTPIN) = 1;
 
 			if ( DS18X20_read_decicelsius( senses[i].romcode , &sense_val[i] ) != DS18X20_OK ) {
 				// disable this sensor?
 			}
+			SENSE_DEBUG(("read decicelsius from %u = %u", i, sense_val[i]));
 
 			pt_yield(&sense_pt);
 #include <boost/counter_inc.h>
 
 		}
+
+		pt_yield(&sense_pt);
+#include <boost/counter_inc.h>
 	}
 
+END:
 	pt_end(&sense_pt);
 }
 
 /* ----------------------------------------- hd44780 ---------------------------------------- */
 
-static struct pt_s display_pt = pt_init();
-static uint8_t display_state_next = 0; /* increment this to update display */
-static uint8_t display_state_cur = 0xFF;
 static uint8_t display_custom_msg[16+1] = {0};
 static uint8_t display[2][16+1];
+static uint8_t display_state_next = 0; /* increment this to update display */
+static uint8_t display_state_cur = 0xFF;
 
 static void display_update(uint8_t *display)
 {
@@ -378,6 +412,7 @@ DISPLAY_RESET_STATE:
 
 static void display_thread()
 {
+	static struct pt_s display_pt = pt_init();
 	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
 
 #include <boost/counter_reset.h>
@@ -392,13 +427,13 @@ static void display_thread()
 
 	while(1) {
 
-		SYSTICK_TIMEOUT_SET(Tickstop, 2000);
+		SYSTICK_TIMEOUT_SET( Tickstop, 2000 );
 		pt_wait_while( &display_pt,
-				display_state_cur == display_state_next && !SYSTICK_TIMEOUT_ELAPSED(Tickstop) );
+				display_state_cur == display_state_next && !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 2000 ) );
 #include <boost/counter_inc.h>
 
 		// update hd44780
-		hd44780_clrscr();
+		hd44780_clrscr_all();
 		for(uint8_t col = 0; col < 2; ++col) {
 
 			display_update(display[col]);
@@ -421,11 +456,13 @@ static void display_thread()
 
 /* ------------------------------------------- tls2561 ---------------------------------------- */
 
+#define LUMINOSITY_DEBUG(printf_args) //DEBUG_MAIN("LUMINOSITY:", printf_args)
 static uint16_t luminosity;
-static struct pt_s luminosity_pt = pt_init();
 static void luminosity_thread()
 {
+	static struct pt_s luminosity_pt = pt_init();
 	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
+	static SYSTICK_TIMEOUT_DECLARE(Timeout);
 
 #include <boost/counter_reset.h>
 	pt_begin(&luminosity_pt);
@@ -434,16 +471,22 @@ static void luminosity_thread()
 	TSL2561_begin();
 	printf("TLS2561 initialized.\n");
 
-	pt_yield(&display_pt);
+	pt_yield(&luminosity_pt);
 #include <boost/counter_inc.h>
 
 	while(1) {
-		SYSTICK_TIMEOUT_SET(Tickstop, TSL2561_getLuminosity_nonblock_start() );
+		TSL2561_getLuminosity_nonblock_start();
+		SYSTICK_TIMEOUT_SET(Tickstop, 1000);
+		LUMINOSITY_DEBUG(("nonblock start tick=%u tickstop=%u", systickGet(), Tickstop));
 
-		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED(Tickstop) );
+		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 1000 ) );
 #include <boost/counter_inc.h>
 
 		luminosity = TSL2561_getLuminosity_nonblock_stop(2);
+		LUMINOSITY_DEBUG(("noblock stop luminosity=%u", luminosity));
+
+		pt_yield(&luminosity_pt);
+#include <boost/counter_inc.h>
 	}
 
 	pt_end(&luminosity_pt);
@@ -482,7 +525,7 @@ void cmdlineService_callback(void)
 			);
 		}
 		for( i = 0; i < sizeof(fanSpeeds)/sizeof(*fanSpeeds); ++i) {
-			printf("FAN[%u]=%d", i, fanSpeeds[i]);
+			printf("FAN[%u]=%u\n", i, fanSpeeds[i]);
 		}
 		for( i = 0; i < sense_count; ++i) {
 			printf("ds18x20(%u)=%d\n", i, sense_val[i]);
@@ -564,6 +607,8 @@ void app_thread(void)
 
 }
 
+#include <pin_pointer.h>
+
 /* ----------------------------------------------------------------------------------------- */
 
 void main_preinit(void)
@@ -571,26 +616,35 @@ void main_preinit(void)
 	// wait for PLL HS oscillator
 	//while( OSCCONbits.OSTS == 0 );
 	// set all ports as inputs
-	PORTA = PORTB = PORTC = 0x00;
-	TRISA = TRISB = TRISC = 0xff;
-	LATA = LATB = LATC = 0x00;
+	CONFIG_ALL_PORTS_AS_INPUTS();
 	// enable interrupts
 	RCONbits.IPEN = 1;
 	INTCONbits.GIEH = 1;
 	INTCONbits.GIEL = 1;
-	// start i2c 100kHz
-	smbus_open_master(100000);
 }
 
 void main(void)
 {
 	main_preinit();
 
+	TRIS1(USB_BUS_SENSE_PORTPIN) = TRIS_IN;
 	usbStdioInitBlocking(1);
 	systickInitInterrupt(0);
+	smbus_open_master(100000);
 
-	__delay_ms(500);
 	printf("USB Startup completed.\n");
+	__delay_ms(4000);
+	printf("USB Startup completed.\n");
+
+	BITMASK_CLEAR(TRISA, 0b00000111);
+	BITMASK_CLEAR(PORTA, 0b00000111);
+	uint8_t last;
+	while(1) {
+		if ( last != PORTCbits.RC2 ) {
+			last = PORTCbits.RC2;
+			printf("RC2=%x\n", last);
+		}
+	}
 
 	rpmInit();
 	printf("rpm initialized.\n");
@@ -600,15 +654,15 @@ void main(void)
 
 	while(1) {
 
-		display_thread();
+		//display_thread();
 
-		sense_thread();
+		//sense_thread();
 
-		luminosity_thread();
+		//luminosity_thread();
 
-		app_thread();
+		//app_thread();
 
-		usbStdioService();
+		//usbStdioService();
 
 		cmdlineService_nonblock();
 

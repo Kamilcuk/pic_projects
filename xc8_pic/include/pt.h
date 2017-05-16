@@ -271,8 +271,15 @@ struct pt_s {
               !(((call) == -1) && (errno == EAGAIN || errno == EWOULDBLOCK ||  \
                                    errno == EINPROGRESS || errno == EINTR)))
 
-#define pt_reset(ptpnt) do { (ptpnt)->label = 0, (ptpnt)->status = PT_STATUS_STARTED; } while(0)
-#define pt_restart(ptpnt) pt_reset(ptpnt)
+#define pt_restart(ptpnt) do {                                                 \
+	(ptpnt)->label = 0;                                                        \
+	(ptpnt)->status = PT_STATUS_STARTED;                                       \
+} while(0)
+
+#define pt_stop(ptpnt) do{                                                     \
+	(ptpnt)->label = PT_LABEL_LABELVAL_END,                                    \
+	(ptpnt)->status = PT_STATUS_ENDED;                                         \
+}while(0)
 
 
 /* -------------------------------- pt with timeout ----------------------- */

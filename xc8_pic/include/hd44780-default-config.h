@@ -125,7 +125,7 @@
  * Enable counting of characters read or wrote
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_COUNTERS          1
+#define HD44780_COUNTERS          0
 
 /**
  * Type of hd44780 counter, uint16_t is too short, but good for debugging.
@@ -139,13 +139,109 @@
  * Uses much memory to store whole display state.
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_CHECKER           1
+#define HD44780_CHECKER           0
 
 /**
  * If enabled, disables the function hd44780_recv()
  * @param 0 - disabled, 1 - enabled
  */
 #define HD44780_WRITE_ONLY        0
+
+/**
+ * How many times check busyflag, to stop checking busyflag on this controller
+ */
+#define HD44780_BUSYFLAG_STUCK          ( 0xffff )
+
+/* -------------------------------- pinout configuration ----------------------------- */
+
+/**
+ * User function to initialize port parameters
+ */
+#define HD44780_INIT_CALLBACK() do { \
+	PORTA=LATA=TRISA=0x00; \
+	PORTB=LATB=TRISB=0x00; \
+	PORTC=LATC=TRISC=0x00; \
+} while(0)
+
+/**
+ * Set data lines as outputs and set address (RS and RW) lines
+ */
+#define HD44780_ADDRESS_SET_READ_CALLBACK(flags)     do{ TRISB = 0x00; PORTC = flags; }while(0)
+
+/**
+ * Set data lines as inputs and set address (RS and RW) lines
+ */
+#define HD44780_ADDRESS_SET_WRITE_CALLBACK(flags)    do{ TRISB = 0xFF; PORTC = flags; }while(0)
+
+/*
+ * In 8-bit mode: Read DB0 through DB7
+ * In 4-bit mode: Read DB4 through DB7. Output as lower bits.
+ */
+#if !HD44780_MODE_4_BIT
+#define HD44780_DATA_GET_CALLBACK()             ( PORTB )
+#else
+#define HD44780_DATA_GET_CALLBACK()             ( (PORTB) >> 4 )
+#endif
+
+/**
+ * Set DB0 through DB7.
+ * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
+ * @data Data to set.
+ * @upper For 8-bit mode may be ignored.
+ *   For 4-bit:
+ *     If upper = 0 then set data&0x0f to DB4 through DB7
+ *     If upper = 1 then set data>>4   to DB4 through DB7
+ */
+#if !HD44780_MODE_4_BIT
+#define HD44780_DATA_SET_CALLBACK(flags, data, upper)  ( PORTB = (data) )
+#else
+#define HD44780_DATA_SET_CALLBACK(flags, data, upper) do{ \
+	if ( upper ) { \
+		PORTB = (data<<4)&0xF0; \
+	} else { \
+		PORTB = (data)&0xF0; \
+	} \
+}while(0)
+#endif
+
+/**
+ * Enables specific controler
+ * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
+ * @param ctrl_nr controller number to enable
+ */
+#define HD44780_ENABLE_CALLBACK(flags, ctrl_nr) do { \
+	unsigned char _n = ( ctrl_nr == 7 ) ? 1 : ( 2<<(ctrl_nr) ); \
+	PORTA = _n & 0x3f; \
+	PORTC = ( _n & 0xc0 ) | flags; \
+} while(0);
+
+/**
+ * Enables all controllers - drives all hd44780 controller Enable pin high
+ * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
+ */
+#define HD44780_ENABLE_ALL_CALLBACK(flags) do { \
+	PORTA = 0x3f; \
+	PORTC = 0xc0 | flags; \
+} while(0)
+
+/**
+ * Disable all controllers - drives all hd44780 controller Enable pin low
+ * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
+ */
+#define HD44780_DISABLE_ALL_CALLBACK(flags) do { \
+	PORTA = 0x00; \
+	PORTC = flags; \
+} while(0)
+
+/* ------------------------- flags, that are passed as 'flags' parameter to above functions  ----------------- */
+
+/**
+ * Those are the arguments for 'flags' parameter to the functions above
+ */
+#define HD44780_RS_DATA           (0x02)
+#define HD44780_RS_INST           (0x00)
+#define HD44780_RW_READ           (0x01)
+#define HD44780_RW_WRITE          (0x00)
 
 /* -------------------------------- delays configuration -------------------------------- */
 
@@ -195,127 +291,5 @@
  * This value should be at longer then: t_cyclE - PW_EH - t_H =~ 270 ns
  */
 #define HD44780_EXTRA_ENABLE_CYCLE_TIME() __delay_us(2)
-
-/**
- * How many times check busyflag, to disable this device
- */
-#define HD44780_BUSYFLAG_STUCK          ( 0xffff )
-
-/* -------------------------------- pinout configuration ----------------------------- */
-
-/**
- * User function to initialize port parameters
- */
-#define HD44780_INIT_CALLBACK() do { \
-	PORTA=LATA=TRISA=0x00; \
-	PORTB=LATB=TRISB=0x00; \
-	PORTC=LATC=TRISC=0x00; \
-} while(0)
-
-/**
- * Set data lines as outputs
- */
-#define HD44780_DATA_OUT_CALLBACK()             ( TRISB = 0x00 )
-
-/**
- * Set data lines as inputs
- */
-#define HD44780_DATA_IN_CALLBACK()              ( TRISB = 0xFF )
-
-/**
- * Read DB0 through DB7
- */
-#if !HD44780_MODE_4_BIT
-#define HD44780_DATA_GET_CALLBACK()             ( PORTB )
-#else
-#define HD44780_DATA_GET_CALLBACK()             ( (PORTB) >> 4 )
-#endif
-
-/**
- * Sets DB0 through DB7 to data
- * For 8-bit operation the "upper" parameter can be safely omitted.
- * For 4-bit operation the "upper" parameters says, if we should write
- *  the lower 4-bits of data or the upper 4-bits of data.
- *  If upper = 0, this function should write data&0x0f to DB4 hrough DB7x
- *  If upper = 1, this function should write data>>4   to DB4 hrough DB7
- */
-#if !HD44780_MODE_4_BIT
-#define HD44780_DATA_SET_CALLBACK(data, upper)  ( PORTB = (data) )
-#else
-#define HD44780_DATA_SET_CALLBACK(data, upper) do{ \
-	if ( upper ) { \
-		PORTB = (data<<4)&0xF0; \
-	} else { \
-		PORTB = (data)&0xF0; \
-	} \
-}while(0)
-
-	//( PORTB = ( upper ? (data<<0) : (data<<4) ) &0xf0 )
-	//( PORTB = ( (upper) ? ((data)<<4) : ((data)<<0) ) & 0x0f )
-
-#endif
-
-/**
- * Sets the flags for the controler.
- * This function should wait for ADDRESS_SET_UP_TIME before continuing.
- */
-#define HD44780_CAPABLE_CALLBACK(flags)         ( PORTC = flags )
-
-/**
- * enables controler
- * @param flags to set
- * @param ctrl_nr hd44780 controller number to enable
- * Flags to set may be ignored, as they are the same as in hd44780_capabla_callback,
- * however they are passed here to speed up things a bit.
- */
-#define HD44780_ENABLE_CALLBACK(flags, ctrl_nr) do { \
-	unsigned char _n = ( ctrl_nr == 7 ) ? 1 : ( 2<<(ctrl_nr) ); \
-	PORTA = _n & 0x3f; \
-	PORTC = ( _n & 0xc0 ) | flags; \
-} while(0);
-
-/**
- * Enables all controllers - drives all hd44780 controller Enable pin high
- * @param flags to set
- */
-#define HD44780_ENABLE_ALL_CALLBACK(flags) do { \
-	PORTA = 0x3f; \
-	PORTC = 0xc0 | flags; \
-} while(0)
-
-/**
- * Disable all controllers - drives all hd44780 controller Enable pin low
- */
-#define HD44780_DISABLE_ALL_CALLBACK(flags) do { \
-	PORTA = 0x00; \
-	PORTC = flags; \
-} while(0)
-
-/* ------------------------- flags, that are passed as 'flags' parameter to above functions  ----------------- */
-
-/**
- * Those are the arguments for 'flags' parameter to the functions above
- */
-
-#ifndef HD44780_RS_DATA
-#define HD44780_RS_DATA           (0x02)
-#endif
-
-#ifndef HD44780_RS_INST
-#define HD44780_RS_INST           (0x00)
-#endif // HD44780_RS_INST
-
-#ifndef HD44780_RW_READ
-#define HD44780_RW_READ           (0x01)
-#endif // HD44780_RW_READ
-
-#ifndef HD44780_RW_WRITE
-#define HD44780_RW_WRITE          (0x00)
-#endif // HD44780_RW_WRITE
-
-#ifndef HD44780_IS_RS_INST
-#define HD44780_IS_RS_INST(flags) ( !( flags&0x02 ) )
-#endif // HD44780_IS_RS_INST
-
 
 #endif // _HD44780_CONFIG_DEFAULT_H_

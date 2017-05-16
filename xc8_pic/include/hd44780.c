@@ -26,67 +26,154 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/* -------------------- placeholders  ---------------- */
-#define HD44780_PDEBUG(         printf_args ) //do{ printf printf_args ; }while(0)
-#define HD44780_PDEBUG_CHECKER( printf_args ) //do{ printf printf_args ; }while(0)
-#define HD44780_PERR(           printf_args ) //do{ printf printf_args ;}while(0)
-#define HD44780_ASSERT(expr)                  //do{ if(!(expr)) { HD44780_PERR(("ERR "#expr"\n")); for(;;); } }while(0)
-#define HD44780_CHECK_RAWCURPOS               1
-
 /* -------------------- private defines ---------------------- */
 
-#define HD44780_CAPABLE(flags) do{ \
-	HD44780_CAPABLE_CALLBACK((flags)); \
-	HD44780_ADDRESS_SET_UP_TIME(); \
-}while(0)
+#define HD44780_CHECK_RAWCURPOS               1
 
-#if defined(HD44780_ENABLE_CALLBACK)
+#if HD44780_DEBUG
+#define HD44780_PDEBUG(         printf_args ) do{ ( printf printf_args ); }while(0)
+#else // HD44780_DEBUG
+#define HD44780_PDEBUG(         printf_args )
+#endif // HD44780_DEBUG
 
-#define HD44780_ENABLE(flags, ctrl_nr) do{ \
-	HD44780_ENABLE_CALLBACK((flags), (ctrl_nr)); \
-	HD44780_ENABLE_PULSE_WIDTH(); \
-}while(0)
+#if HD44780_DEBUG || HD44780_PRINT_ERRORS
+#define HD44780_PERR(           printf_args ) do{ ( printf printf_args ); }while(0)
+#else // HD44780_PRINT_ERRORS
+#define HD44780_PERR(           printf_args )
+#endif // HD44780_PRINT_ERRORS
+#if HD44780_DEBUG || HD44780_DEBUG_CHECKER
+#define HD44780_PDEBUG_CHECKER( printf_args ) do{ ( printf printf_args ); }while(0)
+#else // HD44780_DEBUG_CHECKER
+#define HD44780_PDEBUG_CHECKER( printf_args )
+#endif // HD44780_DEBUG_CHECKER
+#if HD44780_DEBUG || HD44780_USE_ASSERT
+#define HD44780_ASSERT(expr)                  do{ if(!(expr)) { HD44780_PERR(("ERR "#expr"\n")); for(;;); } }while(0)
+#else // HD44780_USE_ASSERT
+#define HD44780_ASSERT(expr)
+#endif // HD44780_USE_ASSERT
 
-#elif defined(HD44780_ENABLE_ALL_CALLBACK)
+/* wrappers around user functions callbacks */
 
-#define HD44780_ENABLE(flags, ctrl_nr) HD44780_ENABLE_ALL((flags))
-
-#else
-#error in hd44780-config.h you must define at least HD44780_ENABLE_ALL_CALLBACK or HD44780_ENABLE_CALLBACK
+#ifndef HD44780_DATA_SET
+	#ifndef HD44780_DATA_SET_CALLBACK
+		#error HD44780_DATA_SET_CALLBACK not defined
+	#endif // HD44780_DATA_SET_CALLBACK
+	#ifndef HD44780_DATA_SET_UP_TIME
+		#error HD44780_DATA_SET_UP_TIME not defined
+	#endif // HD44780_DATA_SET_UP_TIME
+	#define HD44780_DATA_SET(flags, data, upper) do{ \
+		HD44780_DATA_SET_CALLBACK(flags, data, upper); \
+		HD44780_DATA_SET_UP_TIME(); \
+	}while(0)
 #endif
 
-#if defined(HD44780_ENABLE_ALL_CALLBACK)
+#ifndef HD44780_ADDRESS_SET_READ
+	#ifndef HD44780_ADDRESS_SET_READ_CALLBACK
+		#error HD44780_ADDRESS_SET_READ_CALLBACK not defined
+	#endif // HD44780_ADDRESS_SET_READ_CALLBACK
+	#ifndef HD44780_ADDRESS_SET_UP_TIME
+		#error HD44780_ADDRESS_SET_UP_TIME not defined
+	#endif // HD44780_ADDRESS_SET_UP_TIME
+	#define HD44780_ADDRESS_SET_READ(flags) do{ \
+		HD44780_ADDRESS_SET_READ_CALLBACK((flags)); \
+		HD44780_ADDRESS_SET_UP_TIME(); \
+	}while(0)
+#endif // HD44780_ADDRESS_SET_READ
 
-#define HD44780_ENABLE_ALL(flags) do{ \
-	HD44780_ENABLE_ALL_CALLBACK((flags)); \
-	HD44780_ENABLE_PULSE_WIDTH(); \
-}while(0)
+#ifndef HD44780_ADDRESS_SET_WRITE
+	#ifndef HD44780_ADDRESS_SET_WRITE_CALLBACK
+		#error HD44780_ADDRESS_SET_WRITE_CALLBACK not defined
+	#endif // HD44780_ADDRESS_SET_WRITE_CALLBACK
+	#ifndef HD44780_ADDRESS_SET_UP_TIME
+		#error HD44780_ADDRESS_SET_UP_TIME not defined
+	#endif // HD44780_ADDRESS_SET_UP_TIME
+	#define HD44780_ADDRESS_SET_WRITE(flags) do{ \
+		HD44780_ADDRESS_SET_WRITE_CALLBACK((flags)); \
+		HD44780_ADDRESS_SET_UP_TIME(); \
+	}while(0)
+#endif // HD44780_ADDRESS_SET_WRITE
 
-#elif defined(HD44780_ENABLE_CALLBACK)
+#ifndef HD44780_ENABLE
+	#ifndef HD44780_ENABLE_PULSE_WIDTH
+		#error HD44780_ENABLE_PULSE_WIDTH not defined
+	#endif // HD44780_ENABLE_PULSE_WIDTH
+	#if defined(HD44780_ENABLE_CALLBACK)
+		#define HD44780_ENABLE(flags, ctrl_nr) do{ \
+			HD44780_ENABLE_CALLBACK((flags), (ctrl_nr)); \
+			HD44780_ENABLE_PULSE_WIDTH(); \
+		}while(0)
+	#elif defined(HD44780_ENABLE_ALL_CALLBACK)
+		#define HD44780_ENABLE(flags, ctrl_nr) HD44780_ENABLE_ALL((flags))
+	#else
+		#error in hd44780-config.h you must define at least HD44780_ENABLE_ALL_CALLBACK or HD44780_ENABLE_CALLBACK
+	#endif
+#endif // HD44780_ENABLE
 
-#define HD44780_ENABLE_ALL(flags) do{ \
-	for(unsigned char i = 0; i < HD44780_NUM_CONTROLLERS; ++i) { \
-		HD44780_ENABLE_CALLBACK((flags), (i)); \
-	} \
-	HD44780_ENABLE_PULSE_WIDTH(); \
-}while(0)
+#ifndef HD44780_ENABLE_ALL
+	#ifndef HD44780_ENABLE_PULSE_WIDTH
+		#error HD44780_ENABLE_PULSE_WIDTH not defined
+	#endif // HD44780_ENABLE_PULSE_WIDTH
+	#if defined(HD44780_ENABLE_ALL_CALLBACK)
+		#define HD44780_ENABLE_ALL(flags) do{ \
+			HD44780_ENABLE_ALL_CALLBACK((flags)); \
+			HD44780_ENABLE_PULSE_WIDTH(); \
+		}while(0)
+	#elif defined(HD44780_ENABLE_CALLBACK)
+		#define HD44780_ENABLE_ALL(flags) do{ \
+			for(unsigned char i = 0; i < HD44780_NUM_CONTROLLERS; ++i) { \
+				HD44780_ENABLE_CALLBACK((flags), (i)); \
+			} \
+			HD44780_ENABLE_PULSE_WIDTH(); \
+		}while(0)
+	#else
+		#error in hd44780-config.h you must define at least HD44780_ENABLE_ALL_CALLBACK or HD44780_ENABLE_CALLBACK
+	#endif
+#endif // HD44780_ENABLE_ALL
 
-#else
-#error in hd44780-config.h you must define at least HD44780_ENABLE_ALL_CALLBACK or HD44780_ENABLE_CALLBACK
-#endif
+#ifndef HD44780_DISABLE_ALL
+	#ifndef HD44780_DISABLE_ALL_CALLBACK
+		#error HD44780_DISABLE_ALL_CALLBACK not defined
+	#endif // HD44780_DISABLE_ALL_CALLBACK
+	#ifndef HD44780_DATA_HOLD_TIME
+		#error HD44780_DATA_HOLD_TIME not defined
+	#endif // HD44780_DATA_HOLD_TIME
+	#define HD44780_DISABLE_ALL(flags) do{ \
+		HD44780_DISABLE_ALL_CALLBACK((flags)); \
+		HD44780_DATA_HOLD_TIME(); \
+	}while(0)
+#endif // HD44780_DISABLE_ALL
 
-#define HD44780_DISABLE_ALL(flags) do{ \
-	HD44780_DISABLE_ALL_CALLBACK((flags)); \
-	HD44780_DATA_HOLD_TIME(); \
-}while(0)
+/* ---------------- wrappers around flags --------------- */
+#ifndef HD44780_RW_READ
+	#error HD44780_RW_READ not defined
+#endif // HD44780_RW_READ
+#ifndef HD44780_RW_WRITE
+	#error HD44780_RW_WRITE not defined
+#endif // HD44780_RW_WRITE
+#ifndef HD44780_RS_INST
+	#error HD44780_RS_INST not defined
+#endif // HD44780_RS_INST
+#ifndef HD44780_RS_DATA
+	#error HD44780_RS_DATA not defined
+#endif // HD44780_RS_DATA
 
+/* ------------------ check user defines ---------- */
+#ifndef HD44780_LONG_DELAY
+	#error HD44780_LONG_DELAY not defined
+#endif // HD44780_LONG_DELAY
+#ifndef HD44780_NORMAL_DELAY
+	#error HD44780_NORMAL_DELAY not defined
+#endif // HD44780_NORMAL_DELAY
+#ifndef HD44780_INIT_CALLBACK
+	#error HD44780_INIT_CALLBACK not defined
+#endif // HD44780_INIT_CALLBACK
 
 /* ------------------------ static vars ------------------- */
 
 /**
- * out struct
+ * our struct
  */
-struct hd44780_s hd44780;
+struct hd44780_s hd44780 = {0};
 
 /* -------------------------- predeclarations -------------------- */
 
@@ -321,8 +408,7 @@ static void _hd44780_wait_for_ready_(unsigned char ctrl)
 
 	HD44780_PDEBUG(("hd wait_for_ready(%d)\n", ctrl));
 
-	HD44780_DATA_IN_CALLBACK();
-	HD44780_CAPABLE(HD44780_RW_READ|HD44780_RS_INST);
+	HD44780_ADDRESS_SET_READ(HD44780_RW_READ|HD44780_RS_INST);
 #ifdef HD44780_BUSYFLAG_STUCK
 	uint16_t count;
 	for ( count = HD44780_BUSYFLAG_STUCK; count; --count )
@@ -384,14 +470,12 @@ static void hd44780_write_8bit_op(const unsigned char ctrl, unsigned char flags,
 
 	/** write data */
 	flags |= HD44780_RW_WRITE;
-	HD44780_DATA_OUT_CALLBACK();
-	HD44780_CAPABLE(flags);
-	HD44780_DATA_SET_CALLBACK(command, 1);
-	HD44780_DATA_SET_UP_TIME();
+	HD44780_ADDRESS_SET_WRITE(flags);
+	HD44780_DATA_SET(flags, command, 1);
 	if ( all ) {
 		HD44780_ENABLE_ALL(flags);
 	} else {
-		HD44780_ENABLE(ctrl, flags);
+		HD44780_ENABLE(flags, ctrl);
 	}
 	HD44780_DISABLE_ALL(flags);
 }
@@ -431,8 +515,7 @@ static void inline _hd44780_write_(const unsigned char ctrl, const unsigned char
 	}
 #endif // HD44780_NO_BF_CHECKING
 
-	HD44780_DATA_OUT_CALLBACK();
-	HD44780_CAPABLE(flags);
+	HD44780_ADDRESS_SET_WRITE(flags);
 
 #if HD44780_MODE_4_BIT
 	for(uint8_t upper = 0; upper < 2; ++upper)
@@ -441,13 +524,12 @@ static void inline _hd44780_write_(const unsigned char ctrl, const unsigned char
 		/** write data */
 #if !HD44780_MODE_4_BIT
 		HD44780_PDEBUG(("hd_write(%x,%x,%x)\n", ctrl, flags, data));
-		HD44780_DATA_SET_CALLBACK(data, 0);
+		HD44780_DATA_SET(flags, data, 0);
 #else //HD44780_MODE_4_BIT
 		HD44780_EXTRA_ENABLE_CYCLE_TIME();
 		HD44780_PDEBUG(("hd_4write(%x,%x,%x) upper=%x\n", ctrl, flags, data, upper));
-		HD44780_DATA_SET_CALLBACK(data, upper);
+		HD44780_DATA_SET(flags, data, upper);
 #endif //HD44780_MODE_4_BIT
-		HD44780_DATA_SET_UP_TIME();
 		if ( all ) {
 			HD44780_ENABLE_ALL(flags);
 		} else {
@@ -556,8 +638,7 @@ unsigned char hd44780_read(const unsigned char ctrl, unsigned char flags)
 #endif
 
 	// prepare read data
-	HD44780_DATA_IN_CALLBACK();
-	HD44780_CAPABLE(flags);
+	HD44780_ADDRESS_SET_READ(flags);
 
 #if HD44780_MODE_4_BIT
 	for(uint8_t upper = 0; upper < 2; ++upper)
@@ -602,10 +683,9 @@ unsigned char hd44780_read(const unsigned char ctrl, unsigned char flags)
 				data, flags, hd44780_rawcurpos_check(data), hd44780_col_from_rawcurpos(data)
 		));
 	}
-
-	return data;
 #endif // HD44780_CHECK_RAWCURPOS
 
+	return data;
 }
 #endif
 
@@ -694,6 +774,7 @@ static void hd44780_initialize_by_instruction(uint8_t ctrl)
 
 void hd44780_init(void) 
 {
+	HD44780_PDEBUG(("HD44780_INIT_CALLBACK()\n"));
 	HD44780_INIT_CALLBACK();
 
 #if HD44780_CHECKER

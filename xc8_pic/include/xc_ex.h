@@ -30,6 +30,4 @@
 #define FUCK_XC8_BIG_NUMBER     1073741824 // = 2^30
 #define FUCK_XC8_CAST_TO_LONG   ( (FUCK_XC8_BIG_NUMBER) / (FUCK_XC8_BIG_NUMBER) )
 
-#define __at(x) @ (x)
-
 #endif /* XC_EX_H_ */

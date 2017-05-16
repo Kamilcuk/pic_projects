@@ -8,7 +8,7 @@ fi
 
 echo "while ! lsusb -d 04d8:000b; do :; done; sleep 0.1; ( dmesg -wH )&"
 
-( dmesg -wH ) &
+( dmesg -wH | { timeout 0.1 cat >/dev/null || true; cat; }; ) &
 child=$!
 while ! lsusb -d 04d8:000b; do :; done; sleep 0.1
 kill -s 9 $child

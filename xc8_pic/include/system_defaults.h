@@ -8,7 +8,9 @@
 #ifndef SYSTEM_DEFAULTS_H
 #define SYSTEM_DEFAULTS_H
 
+#ifndef _XTAL_FREQ
 #define _XTAL_FREQ 48000000
+#endif
 
 /** CONFIGURATION Bits **********************************************/
 #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)

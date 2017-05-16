@@ -4,8 +4,8 @@ cd "$(readlink -f "$(dirname "$(readlink -f $0)")")"
 
 files=(
 	/opt/microchip/xc8/*/include/pic18f2550.h
-	../include/mla_usb/src/{usb_device.c,usb_device_hid.c,usb_device_local.h}
-	../include/mla_usb/inc/{usb.h,usb_device.h,usb_hal_pic18.h,usb_ch9.h}
+	../../include/mla_usb/src/{usb_device.c,usb_device_hid.c,usb_device_local.h}
+	../../include/mla_usb/inc/{usb.h,usb_device.h,usb_hal_pic18.h,usb_ch9.h}
 )
 
 # copy files here
@@ -21,16 +21,13 @@ echo '
 #define ATTACHED_STATE 11
 #define POWERED_STATE 11
 #define DEFAULT_STATE 11
-#define This state is internally used to indicate that the device has received a 11
-#define SET_ADDRESS command but has not received the STATUS stage of the transfer yet. 11
-#define The device is should not switch addresses until after the STATUS stage is 11
 #define ADR_PENDING_STATE 11
 #define ADDRESS_STATE 11
 #define CONFIGURED_STATE 11
 #define EVENT_CONFIGURED 11
 #define EVENT_SET_DESCRIPTOR, 11
-#define EVENT_EP0_REQUEST, 11
-#define EVENT_ATTACH, 11
+#define EVENT_EP0_REQUEST 11
+#define EVENT_ATTACH 11
 #define EVENT_TRANSFER_TERMINATED 11
 ' >> usb_device.h
 

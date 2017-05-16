@@ -1,1 +1,1 @@
-../plib_installation/include/plib.h
+../third_party/plib_installation/include/plib.h

@@ -1,13 +1,9 @@
-#  ----------------------------------------------------------------------------
-# "THE BEER-WARE LICENSE" (Revision 42):
-# Kamil Cukrowski wrote this file. As long as you retain this notice you
-# can do whatever you want with this stuff. If we meet some day, and you think
-# this stuff is worth it, you can buy me a beer in return.
-# ----------------------------------------------------------------------------
+# Author: Kamil Cukrowski
 #
 # compilation takes place in OBJDIR
 #
 # include TARGETDIR/Makefile
+# Docu: http://scottmcpeak.com/autodepend/autodepend.html
 #
 ifndef TARGETDIR
  TARGETDIR := $(notdir $(realpath TARGETDIR))
@@ -76,7 +72,7 @@ endif
 
 ifdef PLIB_SOURCES
   # add all .c and .as files to SOURCES that are in directories under $(PLIB_SOURCES_DIR)/$(PLIB_SOURCES)
-  PLIB_SOURCES_DIR := plib
+  PLIB_SOURCES_DIR := plib_sources
   PLIB_SOURCES_DIR_LIST := $(PLIB_SOURCES:%=$(PLIB_SOURCES_DIR)/%)
   $(call CHECK_FILES_EXISTS_FUNC,PLIB_SOURCES_DIR_LIST,$(notdir $(wildcard $(PLIB_SOURCES_DIR)/*)))
   SOURCES += $(wildcard $(PLIB_SOURCES_DIR_LIST:%=%/*.c) $(PLIB_SOURCES_DIR_LIST:%=%/*.as) )
@@ -90,21 +86,26 @@ endif
 
 ######################################3 eof config ##############################
 
-TARGET    := $(TARGETDIR)/main
-TARGET_OBJECT := $(OBJDIR)/$(notdir $(TARGET))
-OBJECTS   := $(addprefix $(OBJDIR)/,$(patsubst %.as,%.obj,$(patsubst %.c,%.p1,$(SOURCES))))
-DEP_FILES := $(patsubst %.p1,%.d,$(filter %.p1,$(OBJECTS)))
+TARGET           := $(TARGETDIR)/main
+TARGET_OBJECT    := $(OBJDIR)/$(notdir $(TARGET))
+OBJECTS          := $(addprefix $(OBJDIR)/,$(patsubst %.as,%.obj,$(patsubst %.c,%.p1,$(SOURCES))))
+DEPENDENCY_FILES := $(patsubst %.p1,%.d,$(filter %.p1,$(OBJECTS)))
+-include $(DEPENDENCY_FILES)
 
-all: $(TARGET).hex
+.DEFAULT_GOAL :=
 $(TARGET).hex: $(TARGET_OBJECT).hex
 	cp $< $@
 	
-$(TARGET_OBJECT).hex  $(TARGET_OBJECT).elf: $(OBJECTS)
+$(TARGET_OBJECT).hex $(TARGET_OBJECT).elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) -o$(basename $@).hex $^
 
-$(OBJDIR)/%.p1 $(OBJDIR)/%.d: %.c
+$(OBJDIR)/%.p1: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -o$@ $<
+	$(CC) $(CFLAGS) -o$(basename $@) $<
+	@cp -f $(basename $@).d $(basename $@).d.tmp
+	@sed -e 's/.*://' -e 's/\\$$//' < $(basename $@).d.tmp | fmt -1 | \
+		sed -e '1i\\' -e 's/^ *//' -e 's/$$/:/' >> $(basename $@).d
+	@rm -f $*.d.tmp
 
 $(OBJDIR)/%.obj: %.as
 	@mkdir -p $(dir $@)
@@ -124,11 +125,10 @@ print-%:
 	$(info $* is $(flavor $*) variable set to [$($*)]) @true
 
 clean:
-	cd $(OBJDIR) && rm -rf ./* || true
+	[ -d $(OBJDIR) ] && cd $(OBJDIR) && rm -rf ./* || true
 distclean: clean
 	rmdir $(OBJDIR)
 	rm -f $(TARGETDIR)/main.hex
 
 .PHONY: clean distclean hexinfo simulate program_fsusb program_pk3cmd print-%
--include $(DEP_FILES)
 

@@ -5,24 +5,16 @@ Folders:
 
 ```
 ./xc8_pic          - folder with projects using xc8 compiler
-./xc8_pic/*        - one folder per project
-./xc8_pic/system.h - main project configuration. system.h must be in every project and contains configuration (assert, usb_config.h, pin connections, memory layout configuration, etc.). File system.h is included from microchip's usb stack, so such file must exist.
+./xc8_pic/[0-9]{2} - one folder per project
 ./xc8_pic/include  - include directory
 ./utils            - utilities used on the host side to communicate with pic projects
 ./kamiltech.hwdb   - udev database with usb vendor numbers
-
-# deprecated:
-./pic              - folder with projects using sdcc compiler (deprecated)
-./pic/include      - include files for pic projects
-./pic/scripts      - scripts used in pic projects makefile
-./pic/*            - one folder per pic firmware
 ```
 
 ## Compile
 
 Makefile, make.  
 To compile projects under xc8_pic directory you need xc8 compiler.   
-To compile projects undev pic directory you need sdcc compiler.  
 
 ### sdcc notice
 
@@ -119,13 +111,15 @@ sudo udevadm hwdb --update
 Kamil Cukrowski <kamilcukrowski@g_m_a_i_l.com>
 
 # License
-Mostly GNU, as stated in LICENSE file.  
-Unless stated differently in a particular file.  
-Small files are under beerware, so at least I can hope to get some beers some day.  
+See LICENSE file.
+Copyright (C) by Kamil Cukrowski under MIT Expat License with added Beerware license clause.
 
-There's a possibility, that I forgot to mention original author of some files.  
-I try to, but I may forgot.  
-Please contact me then immediately!  
+Microchips usb pic18 stack mla_usb is under Apache license  
+Boost is under Boost Software License  
+Microchips peripheral library plib is under their license and can be used only with Microchip products  
+The protothread library is copyright by Serge Zaitsev under MIT License  
+The author of ds18b20 code is Martin Thomas <eversmith@heizung-thomas.de>  
+Authors of onewire communication Martin Thomas (mthomas(at)rhrk.uni-kl.de) and Peter Dannegger (danni(at)specs.de)  
 
 # Thanks to
 To mom and dad!

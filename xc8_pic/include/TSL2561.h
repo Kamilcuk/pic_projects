@@ -130,6 +130,19 @@
 #define TSL2561_LUX_B8C           (0x0000)  // 0.000 * 2^LUX_SCALE
 #define TSL2561_LUX_M8C           (0x0000)  // 0.000 * 2^LUX_SCALE
 
+// Auto-gain thresholds
+#define TSL2561_AGC_THI_13MS      (4850)    // Max value at Ti 13ms = 5047
+#define TSL2561_AGC_TLO_13MS      (100)
+#define TSL2561_AGC_THI_101MS     (36000)   // Max value at Ti 101ms = 37177
+#define TSL2561_AGC_TLO_101MS     (200)
+#define TSL2561_AGC_THI_402MS     (63000)   // Max value at Ti 402ms = 65535
+#define TSL2561_AGC_TLO_402MS     (500)
+
+// Clipping thresholds
+#define TSL2561_CLIPPING_13MS     (4900)
+#define TSL2561_CLIPPING_101MS    (37000)
+#define TSL2561_CLIPPING_402MS    (65000)
+
 enum
 {
   TSL2561_REGISTER_CONTROL          = 0x00,
@@ -156,7 +169,7 @@ typedef enum
 
 typedef enum
 {
-  TSL2561_GAIN_0X                   = 0x00,    // No gain
+  TSL2561_GAIN_1X                   = 0x00,    // No gain
   TSL2561_GAIN_16X                  = 0x10,    // 16x gain
 } tsl2561Gain_t;
 

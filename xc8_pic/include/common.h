@@ -11,14 +11,37 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <time.h>
 #include <GenericTypeDefs.h>
 #include <stdlib.h>
-#include <errata.h>
+
+/**
+ * from http://stackoverflow.com/questions/4234004/is-maxa-b-defined-in-stdlib-h-or-not:
+ *
+Any C library which defines a macro named max in its standard headers is broken beyond imagination. Fortunately, an easy workaround if you need to support such platforms is to #undef max (and any other problematic macros it defines) after including the system headers and before any of your own headers/code.
+
+Note that everyone else is saying to wrap your definition in #ifndef max ... #endif. This is not a good idea. Defining max in a system header is an indication that the implementor was incompetent, and it's possible that certain versions of the environment have incorrect macros (for example, ones which do not properly protect arguments with parentheses, but I've even seen a max macro that was incorrectly performing min instead of max at least once in my life!). Just use #undef and be safe.
+
+As for why it's so broken for stdlib.h to define max, the C standard is very specific about what names are reserved for the application and what names are reserved for standard functions and/or internal use by the implementation. There are very good reasons for this. Defining macro names in system headers that could clash with variable/function names used in the application program is dangerous. In the best case it leads to compile-time errors with an obvious cause, but in other cases it can cause very strange behavior that's hard to debug. In any case it makes it very difficult to write portable code because you never know what names will already be taken by the library.
+ */
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
+#define ARRAY_SIZE(x)                ( sizeof(x) / sizeof((x)[0]) )
+
+// sadly no typeof in xc8
+#define MIN(a,b)                     (((a)<(b))?(a):(b))
+#define MAX(a,b)                     (((a)>(b))?(a):(b))
 
 #define CONFIG(num)                  (*(const __far unsigned char *)(0x300000+num))
 #define  DEVID(num)                  (*(const __far unsigned char *)(0x3ffffe+num))
 
+#pragma warning disable 1404 // unsupported, used mostly for plib functions that i use
+#pragma warning disable 350  // unused typedef
+#define STATIC_ASSERT(COND) do{ typedef char __CONCAT(static_assert_at_line_,__LINE__)[(!!(COND))*2-1]; }while(0)
 
 /**
  * PORT and TRIS usage example:
@@ -36,21 +59,12 @@
 #define PORT(PORTNAME, PINNUMBER)    ( __CONCAT5( PORT , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
 #define TRIS(PORTNAME, PINNUMBER)    ( __CONCAT5( TRIS , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
 #define LAT(PORTNAME, PINNUMBER)     ( __CONCAT5( LAT  , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
-#define PORT1(PORTNAMEPINNUMBER)     PORT(PORTNAMEPINNUMBER)
-#define TRIS1(PORTNAMEPINNUMBER)     TRIS(PORTNAMEPINNUMBER)
-#define LAT1(PORTNAMEPINNUMBER)      LAT(PORTNAMEPINNUMBER)
+#define PORT1(PORTNAMEPINPORT)       PORT(PORTNAMEPINPORT)
+#define TRIS1(PORTNAMEPINPORT)       TRIS(PORTNAMEPINPORT)
+#define LAT1(PORTNAMEPINPORT)        LAT(PORTNAMEPINPORT)
 
-enum TRIS_DIRECTION {
-	TRIS_OUT = 0,
-	TRIS_IN  = 1,
-};
-
-#define ARRAY_SIZE(x)               ( sizeof(x) / sizeof((x)[0]) )
-
-// sadly no typeof in xc8
-#define MAX(X,Y) ( ((X) > (Y)) ? (X) : (Y))
-#define MIN(X,Y) ( ((X) < (Y)) ? (X) : (Y))
-
+#define TRIS_OUT                     0
+#define TRIS_IN                      1
 
 /**
  * PIC18f2550 documentation page 111 to 120:

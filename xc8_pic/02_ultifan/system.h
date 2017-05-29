@@ -73,8 +73,6 @@
 #define TSL2561_write8_callback smbus_write_byte
 #define TSL2561_read16_callback smbus_read_word
 
-#include <hd44780-config.h>
-
 #define SYSTICK_USE_TIMER 0
 #define SYSTICK_TIMER_PRESCALER 4
 

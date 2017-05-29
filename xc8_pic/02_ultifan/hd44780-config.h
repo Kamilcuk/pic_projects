@@ -35,7 +35,8 @@
 #include <xc.h> // Nop(); __delay_ms() __delay_us()
 #include <pcf8574.h>
 
-#define HD44780_PCF8574 PCF8574A_ADDR(0b000)
+#define HD44780_PCF8574    PCF8574A_ADDR(0b000)
+#define HD44780_PCF8574_EX PCF8574A_ADDR(0b111)
 
 /*
  * P0 - DB4
@@ -45,7 +46,7 @@
  * P4 - RW
  * P5 - RS
  * P6 - Enable
- * P7 - freepin
+ * P7 - diode
  */
 
 /* ---------------------------------- global options configuration ------------------------------- */
@@ -115,7 +116,7 @@
  * If enabled, disables the function hd44780_recv()
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_WRITE_ONLY        0
+#define HD44780_WRITE_ONLY        1
 
 /**
  * How many times check busyflag, to stop checking busyflag on this controller
@@ -124,30 +125,35 @@
 
 /* -------------------------------- pinout configuration ----------------------------- */
 
+extern unsigned char pcf8574_hd44780_freepin; // shuold be 0x01(ON) or 0x00(off)
+
 /**
  * User function to initialize port parameters
  */
-#define HD44780_INIT_CALLBACK() \
-		PCF8574_WRITE(HD44780_PCF8574, 0x00)
+#define HD44780_INIT_CALLBACK() do{ \
+		PCF8574_WRITE(HD44780_PCF8574, 0x00 | pcf8574_hd44780_freepin); \
+		PCF8574_WRITE(HD44780_PCF8574_EX, 0x00); \
+}while(0)
 
 /**
  * Set data lines as outputs and set address (RS and RW) lines
  */
-#define HD44780_ADDRESS_SET_WRITE_CALLBACK(flags) \
-	PCF8574_WRITE(HD44780_PCF8574, flags)
+#define HD44780_ADDRESS_SET_WRITE_CALLBACK(flags) do{ \
+		PCF8574_WRITE(HD44780_PCF8574, flags | pcf8574_hd44780_freepin); \
+}while(0)
 
 /**
  * Set data lines as inputs and set address (RS and RW) lines
  */
 #define HD44780_ADDRESS_SET_READ_CALLBACK(flags)     do { \
-	PCF8574_WRITE(HD44780_PCF8574, flags | 0x0f); PCF8574_READ(HD44780_PCF8574); \
+		PCF8574_WRITE(HD44780_PCF8574, flags | 0xf0 | pcf8574_hd44780_freepin); PCF8574_READ(HD44780_PCF8574); \
 }while(0)
 
 /*
  * In 8-bit mode: Read DB0 through DB7
  * In 4-bit mode: Read DB4 through DB7. Output as lower bits.
  */
-#define HD44780_DATA_GET_CALLBACK()            ( ( PCF8574_READ(HD44780_PCF8574) & 0xf0 ) >> 4 )
+//#define HD44780_DATA_GET_CALLBACK()            ( ( PCF8574_READ(HD44780_PCF8574) & 0xf0 ) >> 4 )
 
 /**
  * Set DB0 through DB7.
@@ -159,34 +165,41 @@
  *     If upper = 1 then set data>>4   to DB4 through DB7
  */
 #define HD44780_DATA_SET_CALLBACK(flags, data, upper) \
-		PCF8574_WRITE(HD44780_PCF8574, (((upper)?(data<<4):(data))&0xf0) | flags)
+		PCF8574_WRITE(HD44780_PCF8574, (((upper)?(data<<4):(data))&0xf0) | flags | pcf8574_hd44780_freepin)
 
 /**
  * Enables specific controler
  * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
  * @param ctrl_nr controller number to enable
  */
-#define HD44780_ENABLE_CALLBACK(flags, ctrl_nr) \
-	PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_ENABLE_CTRL)
+#define HD44780_ENABLE_CALLBACK(flags, ctrl_nr) do{ \
+		PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_ENABLE_CTRL | pcf8574_hd44780_freepin); \
+		PCF8574_WRITE(HD44780_PCF8574_EX, 0xff); \
+}while(0)
 
 /**
  * Disable all controllers - drives all hd44780 controller Enable pin low
  * @param flags parameter same as passed to ADDRESS_SET function. May be ignored.
  */
-#define HD44780_DISABLE_ALL_CALLBACK(flags) \
-	PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_DISABLE_CTRL)
+#define HD44780_DISABLE_ALL_CALLBACK(flags) do{ \
+		PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_DISABLE_CTRL | pcf8574_hd44780_freepin); \
+		PCF8574_WRITE(HD44780_PCF8574_EX, 0x00); \
+}while(0)
+
 
 /* ------------------------- flags, that are passed as 'flags' parameter to above functions  ----------------- */
 
 /**
  * Those are the arguments for 'flags' parameter to the functions above
  */
-#define HD44780_ENABLE_CTRL       (0x04)
-#define HD44780_DISABLE_CTRL      (0x00)
 #define HD44780_RS_DATA           (0x08)
 #define HD44780_RS_INST           (0x00)
 #define HD44780_RW_READ           (0x02)
 #define HD44780_RW_WRITE          (0x00)
+#define HD44780_ENABLE_CTRL       (0x04)
+#define HD44780_DISABLE_CTRL      (0x00)
+#define HD44780_FREEPIN_ON        (0x01)
+#define HD44780_FREEPIN_OFF       (0x00)
 
 /* -------------------------------- delays configuration -------------------------------- */
 
@@ -216,25 +229,25 @@
 /**
  * Address set-up time | t_DSW | 40 ns
  */
-#define HD44780_ADDRESS_SET_UP_TIME()
+#define HD44780_ADDRESS_SET_UP_TIME() __delay_ms(1)
 /**
  * Enable pulse width (high level) | PW_EH | 230 ns
  */
-#define HD44780_ENABLE_PULSE_WIDTH()
+#define HD44780_ENABLE_PULSE_WIDTH() __delay_ms(1)
 /**
  * Data set-up time | t_DSW | 80 ns
  */
-#define HD44780_DATA_SET_UP_TIME()
+#define HD44780_DATA_SET_UP_TIME()   __delay_ms(1)
 /**
  * Data hold time | t_H or t_DHR | 10 (or 5) ns
  */
-#define HD44780_DATA_HOLD_TIME()
+#define HD44780_DATA_HOLD_TIME()      __delay_ms(1)
 
 /**
  * Additional delay when busyflag checking.or when doing two 4-bit operations
  * Enable cycle time | t_cyclE | 500 ns
  * This value should be at longer then: t_cyclE - PW_EH - t_H =~ 270 ns
  */
-#define HD44780_EXTRA_ENABLE_CYCLE_TIME()
+#define HD44780_EXTRA_ENABLE_CYCLE_TIME() __delay_ms(1)
 
 #endif // _HD44780_CONFIG_DEFAULT_H_

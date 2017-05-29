@@ -100,7 +100,7 @@ AGAIN:
 static uint8_t cmdlineGetCmd_nonblock()
 {
 	static char state = 0xff;
-	volatile char c; // optimization
+	char c; // optimization
 
 	if ( state ) {
 		state = 0;

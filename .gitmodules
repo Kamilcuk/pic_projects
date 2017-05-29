@@ -6,5 +6,5 @@
 	url = https://github.com/MicrochipTech/mla_usb
 	ignore = dirty
 [submodule "xc8_pic/include/boost/boost_preprocessor"]
-	path = xc8_pic/include/boost/boost_preprocessor
+	path = xc8_pic/third_party/boost_preprocessor
 	url = https://github.com/boostorg/preprocessor

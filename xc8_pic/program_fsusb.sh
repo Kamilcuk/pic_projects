@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash
 
 if [ "$#" -lt 1 ] || [ ! -r "$1" ]; then
 	echo "Error: file not given or not readable."
@@ -8,10 +8,14 @@ fi
 
 echo "while ! lsusb -d 04d8:000b; do :; done; sleep 0.1; ( dmesg -wH )&"
 
-( dmesg -wH | { timeout 0.1 cat >/dev/null || true; cat; }; ) &
+(
+	trap 'echo "CHILD EXIT!"' EXIT;
+	dmesg -wH | ( timeout 0.1 cat >/dev/null || true; cat; ); 
+) &
 child=$!
+trap 'kill "$child" || true' EXIT
 while ! lsusb -d 04d8:000b; do :; done; sleep 0.1
-kill -s 9 $child
+( set -x ; kill "$child"; )
 
 set -x
 fsusb $1

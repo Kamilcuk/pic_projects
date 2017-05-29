@@ -36,16 +36,35 @@ download_install_plib ${plibdir}
 # patch plib
 pushd ${plibdir}
 
-# patch includes - user defines!
 {
+	# backup includes
+        if [ ! -d include.bak ]; then
+                cp -a include include.bak
+        fi
+	# rsync backuped sources
+	rsync -va --delete sources.bak/ sources/
+	        # backup sources
+        if [ ! -d sources.bak ]; then
+                cp -a sources sources.bak
+        fi
+        # rsync backuped sources
+        rsync -va --delete sources.bak/ sources/
+}
+commentmacros() {
+        file="$1"
+        shift
+        exp=$(echo "$@" | sed -e 's/\s/\\|/g')
+        sed -i "$file" -e 's:^\(#define\s.*\('"${exp}"'\)\):// patched \1:'
+}
+{
+	# patch includes - user defines!
 	pushd include/plib >/dev/null
-	PRE='s/^\(#define.*\('
-	POST='\)\)/\\\\ \1/'
-	sed -i.bak sw_spi.h -e "$PRE"'PIN\|MODE'"$POST"
-	sed -i.bak xlcd.h   -e "$PRE"'PIN\|TRIS\|DATA'"$POST"
+	commentmacros sw_spi.h PIN MODE
+	commentmacros sw_i2c.h DATA_LOW DATA_HI DATA_LAT DATA_PIN CLOCK_LOW CLOCK_HI SCLK_LAT SCLK_PIN
+	commentmacros xlcd.h   PIN TRIS DATA
+	> sw_uart.h # sw_uart is broken
 	popd >/dev/null
 }
-
 {
 	# backup sources
 	if [ ! -d sources.bak ]; then
@@ -54,7 +73,6 @@ pushd ${plibdir}
 	# rsync backuped sources
 	rsync -va --delete sources.bak/ sources/
 }
-
 {
 	# patch sources
 	pushd sources/pic18/plib >/dev/null
@@ -68,9 +86,12 @@ pushd ${plibdir}
 		# if there are any *.c files in the directory
 		if ls ${i}/*.c 1>/dev/null 2>&1; then
 			# print all files into one file
-			cat ${i}/*.c > ${i}/$(basename ${i}).notc
-			rm ${i}/*.c
-			mv ${i}/$(basename ${i}).notc ${i}/$(basename ${i}).c
+			files=$(ls -1 ${i}/*.c | sort)
+			for file in $files; do
+				echo "/* ------ file content: $file ---------- */"
+				cat $file 
+			done > ${i}/$(basename ${i}).c
+			rm $files
 		fi
 	done
 
@@ -81,7 +102,9 @@ pushd ${plibdir}
 	sed -i 'CCP/CCP.c' -e 's/\*(unsigned char \*)/\*(const unsigned char \*)/'
 
 	# plib/i2c/i2c.c:2599: warning: (343) implicit return at end of non-void function
-	sed -i 'i2c/i2c.c' -e '2599i \ \ return 0;'
+	sed -i 'i2c/i2c.c' -e '2652i \ \ return 0;'
+
+	> SW_UART/SW_UART.c # sw_uart is broken
 	
 	popd >/dev/null
 }

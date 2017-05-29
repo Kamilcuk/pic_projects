@@ -33,6 +33,8 @@ SOFTWARE.**/
 #include <stddef.h>
 #include <stdint.h>
 
+#define PT_USE_BOOST_PP_COUNTER
+
 /* Protothread status values */
 #define PT_STATUS_STARTED    0x00
 #define PT_STATUS_BLOCKED    0x01
@@ -108,7 +110,6 @@ struct pt_s {
 #define pt_end(pt) pt_label(pt, PT_STATUS_FINISHED)
 
 #else
-
 /*
  * Local continuation based on switch/case and line numbers.
  *
@@ -117,12 +118,7 @@ struct pt_s {
  * variables.
  *
  */
-#define PT_USE_BOOST_PP_COUNTER 1
-#ifndef PT_USE_BOOST_PP_COUNTER
-#define PT_LABEL_TYPE          uint16_t
-#define PT_LABEL_LABELVAL_END  1
-#define PT_LABEL_LABELVAL     __LINE__
-#else
+#if !defined(PT_USE_BOOST_PP_COUNTER)
 /**
  * This is the same as implementation above, but
  * - we have shorten label to uint8_t.
@@ -142,11 +138,15 @@ struct pt_s {
 #define PT_LABEL_TYPE          uint8_t
 #define PT_LABEL_LABELVAL_END  0xff
 #define PT_LABEL_LABELVAL      BOOST_PP_COUNTER
+#else // defined (PT_USE_GOTO)
+#define PT_LABEL_TYPE          uint16_t
+#define PT_LABEL_LABELVAL_END  1
+#define PT_LABEL_LABELVAL     __LINE__
 #endif
 
 struct pt_s {
-  PT_LABEL_TYPE label;
-  uint8_t       status;
+	PT_LABEL_TYPE    label;
+	uint8_t          status;
 };
 
 #define pt_init()           { 0, PT_STATUS_STARTED }

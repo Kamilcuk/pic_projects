@@ -7,7 +7,7 @@
 #
 ifndef TARGETDIR
  TARGETDIR := $(notdir $(realpath TARGETDIR))
- $(warning TARGETDIR not defined. Default TARGETDIR=[$(TARGETDIR)])
+ $(info TARGETDIR not defined. Default TARGETDIR=[$(TARGETDIR)])
  include ${TARGETDIR}/Makefile
 endif
 
@@ -93,6 +93,7 @@ DEPENDENCY_FILES := $(patsubst %.p1,%.d,$(filter %.p1,$(OBJECTS)))
 -include $(DEPENDENCY_FILES)
 
 .DEFAULT_GOAL :=
+all: $(TARGET).hex
 $(TARGET).hex: $(TARGET_OBJECT).hex
 	cp $< $@
 	

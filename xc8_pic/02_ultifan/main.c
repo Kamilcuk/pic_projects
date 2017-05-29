@@ -22,8 +22,11 @@
 #include <ds18x20.h>
 #include <ds18x20_ex.h>
 #include <pt.h> // prothread
+#include <checkmacro.h>
 #include <boost/counter.h> // BOOST_PP_COUNTER
 #include <interrupt.h> // ATOMIC_CODE
+#include <checkmacro.h>
+#include <hd44780-config.h>
 
 #include <stdint.h>
 #include <time.h>
@@ -43,6 +46,7 @@
 #define VERSION "00.01.00"
 #endif
 #endif
+#pragma CHECKMACRO(1,VERSION)
 
 #define DEBUG_MAIN(pre, printf_args ) do{printf(pre); printf printf_args ; putchar('\n'); }while(0)
 
@@ -123,12 +127,12 @@ static uint16_t rpmComputeRpm(const uint24_t value)
 
 /* ------------------------------------- interrupts ------------------------------ */
 
-void interrupt high_priority SYS_InterruptHigh(void)
+void __interrupt(high_priority) SYS_InterruptHigh(void)
 {
 	usbStdioInterruptHandler();
 }
 
-void interrupt  low_priority SYS_InterruptLow(void)
+void __interrupt( low_priority) SYS_InterruptLow(void)
 {
 	systickServiceInterrupt();
 
@@ -169,22 +173,25 @@ static uint16_t fanSpeeds[fanSpeedslen];
 
 static void fanWrite(uint8_t num, uint16_t val)
 {
-	struct WriteCommandRegisterMCP48x2_s {
-		unsigned char D_lower : 8;
-		unsigned char D_upper : 4;
-		unsigned char SHDN : 1;
-		unsigned char GA : 1;
-		unsigned char _dont_care : 1;
-		unsigned char AB : 1;
-	};
-	union {
-		struct WriteCommandRegisterMCP48x2_s v;
+	union WriteCommandRegisterMCP48x2_u {
+		struct {
+				unsigned char D_lower : 8;
+				unsigned char D_upper : 4;
+				unsigned char SHDN : 1;
+				unsigned char GA : 1;
+				unsigned char _dont_care : 1;
+				unsigned char AB : 1;
+		} v;
 		UINT16_VAL byte;
-	} wcr = {0};
+	}
+	union WriteCommandRegisterMCP48x2_u wcr = {0};
 
+	STATIC_ASSERT( sizeof(union WriteCommandRegisterMCP48x2_u) == 2 );
+	STATIC_ASSERT( sizeof(uint8_t) == 1 );
+	STATIC_ASSERT( sizeof(uint16_t) == 2 );
+	STATIC_ASSERT( sizeof(uint24_t) == 3 );
+	STATIC_ASSERT( sizeof(uint32_t) == 4 );
 	assert( num < sizeof(fanSpeeds)/sizeof(*fanSpeeds) );
-	assert( sizeof(struct WriteCommandRegisterMCP48x2_s) == 2 );
-	assert( sizeof(wcr) == 2 );
 
 	// deselect all chips
 	FAN_CHIP_DESELECT_ALL();
@@ -238,7 +245,7 @@ static void fanInit(void) {
 	FAN_CHIP_DESELECT_ALL();
 	__delay_ms(1);
 	for(uint8_t i = 0; i < fanSpeedslen; ++i) {
-		fanWrite(i, 0x800);
+		fanWrite(i, 2500);
 	}
 }
 
@@ -247,7 +254,7 @@ static void fanInit(void) {
 #define SENSE_DEBUG(printf_args) //DEBUG_MAIN("SENSE:", printf_args)
 #define DS18X20_DYNAMIC_COUNT 1
 #if DS18X20_DYNAMIC_COUNT
-#define DS18X20_MAXSENSORS 20
+#define DS18X20_MAXSENSORS 2
 static struct ds18x20_s senses[DS18X20_MAXSENSORS];
 static uint8_t sense_count = 0;
 #else
@@ -282,7 +289,10 @@ static void sense_thread()
 
 #if DS18X20_DYNAMIC_COUNT
 	ATOMIC_BLOCK() {
-		sense_count = DS18X20_search_sensors(senses, ARRAY_SIZE(senses));
+		sense_count = DS18X20_search_sensors(senses, DS18X20_MAXSENSORS);
+		if ( sense_count > DS18X20_MAXSENSORS ) {
+			printf("ERROR: sense_count > DS18X20_MAXSENSORS");
+		}
 	}
 #endif
 
@@ -377,7 +387,7 @@ static void display_update(uint8_t *display)
 			strcpy(display, "V: "VERSION);
 			break;
 		case 3:
-			sprintf(display, "lm=%u\n", TSL2561_getLuminosity(2));
+			sprintf(display, "lm=%u", TSL2561_getLuminosity(2));
 			break;
 		default:
 			goto DISPLAY_RESET_STATE;
@@ -394,19 +404,18 @@ static void display_update(uint8_t *display)
 	} else if ( display_state_next < (this += sense_count) ) {
 		uint8_t i = display_state_next - (this - sense_count);
 		sprintf(display, "temp[%u]: %d", i, sense_val[i]);
-
 	} else {
 		goto DISPLAY_RESET_STATE;
 	}
 
-	display_state_cur = display_state_next;
 	++display_state_next;
+	display_state_cur = display_state_next;
 	return;/* success */
 
 DISPLAY_RESET_STATE:
 	*display = '\0';
-	display_state_next = 0xFF;
-	display_state_cur = 0;
+	display_state_next = 0;
+	display_state_cur = 0xFF;
 	return;
 }
 
@@ -425,6 +434,7 @@ static void display_thread()
 	pt_yield(&display_pt);
 #include <boost/counter_inc.h>
 
+
 	while(1) {
 
 		SYSTICK_TIMEOUT_SET( Tickstop, 2000 );
@@ -441,7 +451,7 @@ static void display_thread()
 			hd44780_set_cursor_rowcol(0, 0, col);
 			for(uint8_t i = 0; i < 16; ++i) {
 				uint8_t temp = display[col][i];
-				if ( temp == 0 ) {
+				if ( temp == '\0' ) {
 					break;
 				}
 				hd44780_write_data(0, temp);
@@ -476,14 +486,22 @@ static void luminosity_thread()
 
 	while(1) {
 		TSL2561_getLuminosity_nonblock_start();
-		SYSTICK_TIMEOUT_SET(Tickstop, 1000);
+		SYSTICK_TIMEOUT_SET(Tickstop, 600);
 		LUMINOSITY_DEBUG(("nonblock start tick=%u tickstop=%u", systickGet(), Tickstop));
-
-		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 1000 ) );
+		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 600 ) );
 #include <boost/counter_inc.h>
 
-		luminosity = TSL2561_getLuminosity_nonblock_stop(2);
-		LUMINOSITY_DEBUG(("noblock stop luminosity=%u", luminosity));
+		uint16_t temp;
+		temp = TSL2561_getLuminosity_nonblock_stop(2);
+		if ( temp != 0 ) {
+			luminosity = temp;
+		}
+		LUMINOSITY_DEBUG(("noblock stop temp=%u luminosity=%u", temp, luminosity));
+
+		SYSTICK_TIMEOUT_SET(Tickstop, 200);
+		LUMINOSITY_DEBUG(("empty wait tick=%u tickstop=%u", systickGet(), Tickstop));
+		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 200 ) );
+#include <boost/counter_inc.h>
 
 		pt_yield(&luminosity_pt);
 #include <boost/counter_inc.h>
@@ -494,15 +512,20 @@ static void luminosity_thread()
 
 /* ---------------------------------------- interaction -------------------------------------- */
 
+uint8_t report_luminosity = 0;
 void cmdlineService_callback(void)
 {
 	uint8_t i;
 	char *token;
+
+	// print received string
 	printf("R:");
 	for( i = 0; i <= cmdline.buffpos; ++i) {
 		printf("%c", cmdline.buff[i]);
 	}
 	printf("\n");
+
+	// parse command line
 	switch( cmdline.buff[0] ) {
 	case 'i':
 		printf(
@@ -535,8 +558,7 @@ void cmdlineService_callback(void)
 		}
 		printf("\n");
 		break;
-	case 'f':
-	{
+	case 'f': {
 		uint8_t num;
 		uint16_t val;
 
@@ -562,13 +584,22 @@ void cmdlineService_callback(void)
 		}
 
 		fanWrite(num, val);
-	}
-		break;
-	case 'l':
-		printf("%u\n", luminosity);
-		break;
+	}	break;
+	case 'l': {
+		token = strtok(&cmdline.buff[2], " ");
+		if ( token == NULL ) {
+			printf("%u\n", luminosity);
+		} else {
+			report_luminosity = atoi(token);
+			if ( report_luminosity > 30 ) {
+				printf("error report_luminosity=%u must be lower then 30\n", report_luminosity);
+				report_luminosity = 0;
+			}
+			printf("Reporting luminosity every %u seconds\n", report_luminosity);
+		}
+	}	break;
 	case 'd':
-		strncpy(display_custom_msg, &cmdline.buff[2], MIN(sizeof(display_custom_msg), cmdline.buffpos));
+		strncpy(display_custom_msg, &cmdline.buff[2], MIN(sizeof(display_custom_msg)/sizeof(*display_custom_msg), cmdline.buffpos));
 		break;
 	case 'r':
 		++display_state_cur;
@@ -585,6 +616,7 @@ void cmdlineService_callback(void)
 				"i                 - print current configuration\n"
 				"f NUM VAL         - set fan number num to VAL voltage in percent\n"
 				"l                 - get lumination value from TSL2560\n"
+				"l NUM             - report lumination value every NUM seconds\n"
 				"d <msg>           - set custom hd44780 msg"
 				"r                 - print hd44780 next screen"
 				"\n"
@@ -595,6 +627,7 @@ void cmdlineService_callback(void)
 		break;
 	}
 	return;
+
 NOT_ENOUGH_ARGUMENTS:
 	printf("error Not enough arguments\n");
 	return;
@@ -604,10 +637,59 @@ NOT_ENOUGH_ARGUMENTS:
 
 void app_thread(void)
 {
+	static struct pt_s app_thread_pt = pt_init();
+	static uint8_t last;
 
+#include <boost/counter_reset.h>
+	pt_begin(&app_thread_pt);
+
+	TRISAbits.RA0 = TRIS_OUT;
+	TRISAbits.RA1 = TRIS_OUT;
+	TRISAbits.RA2 = TRIS_OUT;
+	PORTAbits.RA0 = 0;
+	PORTAbits.RA1 = 0;
+	PORTAbits.RA2 = 0;
+
+	last = !PORTCbits.RC2;
+	printf("RC2=%x\n", PORTCbits.RC2);
+
+	while(1) {
+		pt_yield(&app_thread_pt);
+#include <boost/counter_inc.h>
+		if ( last != PORTCbits.RC2 ) {
+			last = PORTCbits.RC2;
+			printf("RC2=%x\n", last);
+		}
+	}
+	pt_end(&app_thread_pt);
 }
 
-#include <pin_pointer.h>
+
+unsigned char pcf8574_hd44780_freepin = 0; // referenced by hd44780-config.h
+void diode_thread(void)
+{
+	static SYSTICK_TIMEOUT_DECLARE(Timeout);
+
+	if ( SYSTICK_TIMEOUT_ELAPSED(Timeout, 1000 ) ) {
+		SYSTICK_TIMEOUT_SET(Timeout, 1000);
+		pcf8574_hd44780_freepin ^= 0x01;
+		PCF8574_WRITE(HD44780_PCF8574, 0x00 | pcf8574_hd44780_freepin);
+	}
+}
+
+void report_luminosity_thread(void)
+{
+	static SYSTICK_TIMEOUT_DECLARE(Timeout);
+	static uint16_t value = 0;
+
+	if ( report_luminosity ) {
+		if ( SYSTICK_TIMEOUT_ELAPSED(Timeout, value) ) {
+			value = (uint16_t)report_luminosity*1000;
+			SYSTICK_TIMEOUT_SET(Timeout, value);
+			printf("\n# luminosity=%u\n", luminosity);
+		}
+	}
+}
 
 /* ----------------------------------------------------------------------------------------- */
 
@@ -625,6 +707,7 @@ void main_preinit(void)
 
 void main(void)
 {
+	EEPROM_WRITE(0x01,0x01);
 	main_preinit();
 
 	TRIS1(USB_BUS_SENSE_PORTPIN) = TRIS_IN;
@@ -636,16 +719,6 @@ void main(void)
 	__delay_ms(4000);
 	printf("USB Startup completed.\n");
 
-	BITMASK_CLEAR(TRISA, 0b00000111);
-	BITMASK_CLEAR(PORTA, 0b00000111);
-	uint8_t last;
-	while(1) {
-		if ( last != PORTCbits.RC2 ) {
-			last = PORTCbits.RC2;
-			printf("RC2=%x\n", last);
-		}
-	}
-
 	rpmInit();
 	printf("rpm initialized.\n");
 
@@ -654,15 +727,19 @@ void main(void)
 
 	while(1) {
 
-		//display_thread();
+		display_thread();
 
-		//sense_thread();
+		sense_thread();
 
-		//luminosity_thread();
+		luminosity_thread();
 
-		//app_thread();
+		app_thread();
 
-		//usbStdioService();
+		diode_thread();
+
+		report_luminosity_thread();
+
+		usbStdioService();
 
 		cmdlineService_nonblock();
 

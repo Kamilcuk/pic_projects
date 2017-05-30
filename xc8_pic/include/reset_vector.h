@@ -16,7 +16,7 @@
 		asm("   global _" #FUNC ",powerup,start"); \
 		asm("   psect  powerup,class=CODE,delta=1,reloc=2"); \
 		asm("powerup:"); \
-		asm("   call   _SYS_InterruptReset"); \
+		asm("   call   _" #FUNC ); \
 		asm("   goto   start"); \
 		\
 		void FUNC (void)

@@ -148,10 +148,8 @@ void smbus_write_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pntl
 	WriteI2C(addr|WRITE_BIT);
 	WriteI2C(command);
 	WriteI2C(pntlen);
-	while(pntlen) {
-		WriteI2C(*pnt);
-		++pnt;
-		--pntlen;
+	while(pntlen--) {
+		WriteI2C(*pnt++);
 	}
 	StopI2C();
 }
@@ -166,17 +164,9 @@ uint8_t smbus_read_block(uint8_t addr, uint8_t command, uint8_t *pnt, uint8_t pn
 	RestartI2C();
 	WriteI2C(addr|READ_BIT);
 	bytecount = ReadI2C();
-	min = bytecount < pntlen ? bytecount : pntlen;
-	if ( min ) {
+	for(min = bytecount < pntlen ? bytecount : pntlen; min; --min) {
 		AckI2C();
-		for(;;) {
-			*pnt++ = ReadI2C();
-			--min;
-			if ( min ) {
-				break;
-			}
-			AckI2C();
-		}
+		*pnt++ = ReadI2C();
 	}
 	NotAckI2C();
 	StopI2C();

@@ -32,7 +32,7 @@
 #define XC_EX_H_
 
 /**
- * In stupid xc8:
+ * In xc8:
  * If an "static" equation has no numbers higher then "int" (2^16), then equations are done with int resolution.
  * Example:
  *  uint16_t a = ( 500*256/256 );
@@ -47,5 +47,10 @@
  */
 #define FUCK_XC8_BIG_NUMBER     1073741824 // = 2^30
 #define FUCK_XC8_CAST_TO_LONG   ( (FUCK_XC8_BIG_NUMBER) / (FUCK_XC8_BIG_NUMBER) )
+
+/**
+ * XC8 PreProcessor cast to LONG
+ */
+#define XC8PP_LONG(x)           ( FUCK_XC8_CAST_TO_LONG * x )
 
 #endif /* XC_EX_H_ */

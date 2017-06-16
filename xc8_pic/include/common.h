@@ -39,8 +39,9 @@ As for why it's so broken for stdlib.h to define max, the C standard is very spe
 #define CONFIG(num)                  (*(const __far unsigned char *)(0x300000+num))
 #define  DEVID(num)                  (*(const __far unsigned char *)(0x3ffffe+num))
 
-#pragma warning disable 1404 // unsupported, used mostly for plib functions that i use
+#pragma warning disable 1404 // __attribute__((unsupported)) -- used mostly for plib functions that i use
 #pragma warning disable 350  // unused typedef
+
 #define STATIC_ASSERT(COND) do{ typedef char __CONCAT(static_assert_at_line_,__LINE__)[(!!(COND))*2-1]; }while(0)
 
 /**
@@ -63,8 +64,14 @@ As for why it's so broken for stdlib.h to define max, the C standard is very spe
 #define TRIS1(PORTNAMEPINPORT)       TRIS(PORTNAMEPINPORT)
 #define LAT1(PORTNAMEPINPORT)        LAT(PORTNAMEPINPORT)
 
+#define PORT_LOW                     0
+#define PORT_HIGH                    1
 #define TRIS_OUT                     0
 #define TRIS_IN                      1
+#define INTERRUPT_FLAG_CLEAR         0
+#define INTERRUPT_FLAG_SET           1
+#define INTERRUPT_PRIORITY_BIT_LOW   0
+#define INTERRUPT_PRIORITY_BIT_HIGH  1
 
 /**
  * PIC18f2550 documentation page 111 to 120:
@@ -101,6 +108,19 @@ USB transceiver must be disabled
 	/* UCON = 0x00; UCFG = 0x03; *//* disable usb - RC4 and RC5 as digital */ \
 	TRISA = TRISB = TRISC = 0x00; \
 }while(0)
+
+#define COMMON_MAIN_PREINIT() do{ \
+	/* wait for PLL HS oscillator */ \
+	/* while( OSCCONbits.OSTS == 0 ); */ \
+	/* set all ports as inputs */ \
+	CONFIG_ALL_PORTS_AS_INPUTS(); \
+	/* enable priority interrupts */ \
+	RCONbits.IPEN = 1; \
+	/* enable interrupts */ \
+	INTCONbits.GIEH = 1; \
+	INTCONbits.GIEL = 1; \
+}while(0)
+
 
 #endif	/* COMMON_H */
 

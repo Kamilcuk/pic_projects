@@ -39,13 +39,7 @@
 
 /* ------------------------------------ configuration ------------------------------------ */
 
-#ifndef VERSION
-#ifdef GIT_REV_PARSE_HEAD_SHORT
 #define VERSION __XSTRING( GIT_REV_PARSE_HEAD_SHORT )
-#else
-#define VERSION "00.01.00"
-#endif
-#endif
 #pragma CHECKMACRO(1,VERSION)
 
 #define DEBUG_MAIN(pre, printf_args ) do{printf(pre); printf printf_args ; putchar('\n'); }while(0)
@@ -187,10 +181,6 @@ static void fanWrite(uint8_t num, uint16_t val)
 	union WriteCommandRegisterMCP48x2_u wcr = {0};
 
 	STATIC_ASSERT( sizeof(union WriteCommandRegisterMCP48x2_u) == 2 );
-	STATIC_ASSERT( sizeof(uint8_t) == 1 );
-	STATIC_ASSERT( sizeof(uint16_t) == 2 );
-	STATIC_ASSERT( sizeof(uint24_t) == 3 );
-	STATIC_ASSERT( sizeof(uint32_t) == 4 );
 	assert( num < sizeof(fanSpeeds)/sizeof(*fanSpeeds) );
 
 	// deselect all chips

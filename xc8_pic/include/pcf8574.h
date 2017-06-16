@@ -41,7 +41,7 @@ typedef unsigned char pcf8574_t;
 
 #define PCF8574_READ(addr)         smbus_receive_byte(addr)
 #define PCF8574_WRITE(addr, byte)  smbus_send_byte(addr, byte)
-#define PCF8574_TOGGLE(addr)       smbus_send_byte(addr, ~smbus_read_quick(addr))
+#define PCF8574_TOGGLE(addr)       PCF8574_WRITE(addr, ~PCF8574_READ(addr))
 
 #define PCF8574_WRITEPIN(state, addr, PIN, VAL) do { \
 	BIT_WRITE(state, PIN, VAL); \

@@ -10,6 +10,7 @@
 #define CMDLINE_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * Reprints current line when backspace key is pressed.
@@ -38,9 +39,14 @@ struct cmdline_s {
 };
 
 /**
- * State struct.
+ * state variable
  */
 extern struct cmdline_s cmdline;
+
+/**
+ * Flag to indicate if cmdlineGetCmd has parsed a whole command
+ */
+extern bool cmdlineGetCmd_busy;
 
 /**
  * User callback function.
@@ -56,13 +62,31 @@ void cmdlineService_callback(void);
 void cmdlineService_standard(void);
 
 /**
+ * Read until '\n' is received or until cmdline.buff is full
+ * All non-printable (except '\n') characters are omitted.
+ * During read, buffer cmdline.buff is filled and cmdline.buffpos is set to number chars read.
+ * Upper layers are notified of oparation end via cmdlineGetCmd_busy flag.
+ */
+void cmdlineGetCmd_nonblock(void);
+
+/**
  * Service command line in a blocking fashion.
  */
-void cmdlineService(void);
+#define cmdlineService() do { \
+	do { \
+		cmdlineGetCmd_nonblock(); \
+	} while( cmdlineGetCmd_busy ); \
+	cmdlineService_callback(); \
+} while(0)
 
 /**
  * Service command line in a non-blocking fashion.
  */
-void cmdlineService_nonblock(void);
+#define cmdlineService_nonblock() do{ \
+	cmdlineGetCmd_nonblock(); \
+	if ( !cmdlineGetCmd_busy ) { \
+		cmdlineService_callback(); \
+	} \
+} while(0)
 
 #endif /* CMDLINE_H_ */

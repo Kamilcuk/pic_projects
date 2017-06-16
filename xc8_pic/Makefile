@@ -102,7 +102,7 @@ $(TARGET_OBJECT).hex $(TARGET_OBJECT).elf: $(OBJECTS)
 
 $(OBJDIR)/%.p1: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -o$(basename $@) $<
+	$(CC) -o$(basename $@) $(CFLAGS) $<
 	@cp -f $(basename $@).d $(basename $@).d.tmp
 	@sed -e 's/.*://' -e 's/\\$$//' < $(basename $@).d.tmp | fmt -1 | \
 		sed -e '1i\\' -e 's/^ *//' -e 's/$$/:/' >> $(basename $@).d
@@ -110,7 +110,7 @@ $(OBJDIR)/%.p1: %.c
 
 $(OBJDIR)/%.obj: %.as
 	@mkdir -p $(dir $@)
-	$(AS) $(ASFLAGS) -o$@ $<
+	$(AS) -o$@ $(ASFLAGS) $<
 
 hexinfo: $(TARGET_OBJECT).hex
 	./hexinfo.sh $<

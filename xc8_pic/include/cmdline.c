@@ -8,15 +8,17 @@
 
 #include "cmdline.h"
 
-#include "cdefs.h"
-#include "stdio_ex.h"
-#include "common.h"
+#include "cdefs.h" // __XSTRING
+#include "stdio_ex.h" // getchar_ready() flush()
 
-#include <system.h>
+#include <common.h> // CONFIG(x) DEVID(x)
 
-#include <stdio.h>
-#include <ctype.h>
+#include <system.h> // CMDLINE_ENABLED
 
+#include <xc.h> // di()
+#include <stdio.h> // printf() getchar()
+#include <ctype.h> // isprint()
+#include <stdbool.h>
 
 /**
  * Just like PS1 in bash
@@ -25,95 +27,25 @@
 #define CMDLINE_PROMPT "$ "
 #endif
 
-/**
- * state variable
- */
 struct cmdline_s cmdline = {0};
 
-/**
- * If CMDLINE_ENABLED is not set,
- * then provide empty callback function.
- * We don't have __weak symbols, need to do it defines style.
- */
-#ifndef CMDLINE_ENABLED
-void cmdlineService_callback(void) {}
-#endif
+bool cmdlineGetCmd_busy = false;
 
-/**
- * Blocking read/wait until '\n' is received or until buff is full
- * All non-printable (except '\n') characters are omitted.
- * During read, buffer buff is filled and cmdline.buffpos is set to number chars read.
- */
-static void cmdlineGetCmd(void)
+void cmdlineGetCmd_nonblock(void)
 {
-	char c; // optimization
-
-	{
-AGAIN:
-		printf( CMDLINE_PROMPT );
-		cmdline.buffpos = 0;
-	}
-
-	do {
-
-		flush();
-
-		c = getchar();
-
-		if ( c == '\n' ) {
-			break;
-		}
-#ifdef CMDLINE_BACKSPACE_ENABLED
-		if ( c == '\b' || c == 0x7f ) { // '\b' is backspace , 0x7f is DEL
-			printf("\n");
-			if ( cmdline.buffpos ) {
-				uint8_t i;
-				--cmdline.buffpos;
-				cmdline.buff[cmdline.buffpos] = '\0';
-				printf( CMDLINE_PROMPT "%s", cmdline.buff);
-			}
-			continue;
-		}
-#endif
-		if ( !isprint(c) ) {
-			continue;
-		}
-
-		printf("%c", c);
-
-		cmdline.buff[cmdline.buffpos] = c;
-		++cmdline.buffpos;
-	} while( cmdline.buffpos < (sizeof(cmdline.buff)-1) );
-	printf("\n");
-	// last byte fill with '\0' sign
-	cmdline.buff[cmdline.buffpos] = '\0';
-	// if we received only newline character, start over
-	if ( cmdline.buffpos == 0 ) {
-		goto AGAIN;
-	}
-}
-
-/**
- * Same as cmdGetCmd but in a non-blocking fashion.
- * @return 0xff if '\n' was received and reading is done, 0 otherwise
- */
-static uint8_t cmdlineGetCmd_nonblock()
-{
-	static char state = 0xff;
-	char c; // optimization
-
-	if ( state ) {
-		state = 0;
+	if ( !cmdlineGetCmd_busy ) {
+		cmdlineGetCmd_busy = true;
 AGAIN:
 		// "first run"
 		cmdline.buffpos = 0;
 		printf( CMDLINE_PROMPT );
 	}
+
 	do {
+		char c; // optimization
 
 		if ( !getchar_ready() ) {
-			flush();
-			return 0;
+			goto END;
 		}
 		c = getchar();
 
@@ -121,39 +53,42 @@ AGAIN:
 
 		if ( c == '\n' ) {
 			break;
-		}
+		} else
 #ifdef CMDLINE_BACKSPACE_ENABLED
 		if ( c == '\b' || c == 0x7f ) { // '\b' is backspace , 0x7f is DEL
-			printf( "\n" CMDLINE_PROMPT );
+			putchar( '\n' );
+			printf( CMDLINE_PROMPT );
 			if ( cmdline.buffpos ) {
-				uint8_t i;
+				uint8_t i, *pnt;
 				--cmdline.buffpos;
-				for(i=0;i<cmdline.buffpos;++i) {
-					printf("%c", cmdline.buff[i]);
+				pnt = &cmdline.buff[0];
+				for(i = cmdline.buffpos; i; --i) {
+					putchar( *pnt++ );
 				}
 			}
-			continue;
-		}
+		} else
 #endif
-		if ( !isprint(c) ) {
-			continue;
+		if ( isprint(c) ) {
+
+			putchar( c );
+
+			cmdline.buff[cmdline.buffpos++] = c;
 		}
 
-		printf("%c", c);
+	} while( cmdline.buffpos < ( (sizeof(cmdline.buff)/sizeof(*cmdline.buff)) - 1 ) );
+	putchar( '\n' );
 
-		cmdline.buff[cmdline.buffpos] = c;
-		++cmdline.buffpos;
-	} while( cmdline.buffpos < (sizeof(cmdline.buff)-1) );
-	printf("\n");
 	// if we received only newline character, start over
-	if ( cmdline.buffpos == 0 ) {
+	if ( !cmdline.buffpos ) {
 		goto AGAIN;
 	}
 	// last byte fill with '\0' sign
 	cmdline.buff[cmdline.buffpos] = '\0';
 	// success
-	state = 0xff;
-	return 0xff;
+	cmdlineGetCmd_busy = false;
+
+END:
+	flush();
 }
 
 void cmdlineService_standard(void)
@@ -214,19 +149,6 @@ void cmdlineService_standard(void)
 				sizeof(cmdline.buff[0])
 		);
 		return;
-	}
-}
-
-void cmdlineService(void)
-{
-	cmdlineGetCmd();
-	cmdlineService_callback();
-}
-
-void cmdlineService_nonblock()
-{
-	if ( cmdlineGetCmd_nonblock() ) {
-		cmdlineService_callback();
 	}
 }
 

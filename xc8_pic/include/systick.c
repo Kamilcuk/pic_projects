@@ -8,19 +8,42 @@
 
 #include "systick.h"
 
-#include <xc.h> // di ei
 #include <stdbool.h>
-#include <interrupt.h>
+#include <interrupt.h> // ATOMIC_CODE
 
 volatile systick_t systick_counter = 0;
 
-bool systickTimeoutElapsed(systick_t tick, systick_t timeout)
+systick_t systickGet(void)
 {
-	bool ret;
 	systick_t systick_buff;
 	ATOMIC_CODE(
-			systick_buff = systick_counter;
+		systick_buff = systick_counter;
 	);
-	ret = ( tick < systick_buff ) || ( ((systick_t)( tick -systick_buff )) > timeout );
-	return ret;
+	return systick_buff;
+}
+
+bool systickElapsed(systick_t Tickstop, systick_t MaxMargin)
+{
+	systick_t systick_buff;
+	ATOMIC_CODE(
+		systick_buff = systick_counter;
+	);
+	return
+			( Tickstop < systick_buff ) ||
+			(
+					(
+							Tickstop < MaxMargin ?
+							((systick_t)(SYSTICK_MAX_VALUE - MaxMargin + Tickstop)) :
+							((systick_t)(Tickstop - MaxMargin))
+					) > systick_buff
+			);
+}
+
+bool systickElapsed_unsafe(systick_t Tickstop)
+{
+	systick_t systick_buff;
+	ATOMIC_CODE(
+		systick_buff = systick_counter;
+	);
+	return Tickstop < systick_buff;
 }

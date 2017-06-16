@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 ################## config ########################
 
@@ -8,15 +8,11 @@ $DEBUG && set -x
 ################## get usb device to connect to ###################
 
 gethidraws() {
-	local productvendor=${1^^}
-	for i in /sys/class/hidraw/*; do 
-		if basename $(readlink -f $i/../../) | grep -q ":${productvendor}\."; then
-		       echo -n "/dev/"; basename $i;
-	        fi
-	done
+	readlink -f /sys/class/hidraw/* | cut -d'/' -f9,11 | \
+		grep ":${1^^}\." | sed 's;^.*/;/dev/;'
 }
 
-f="$(gethidraws ffff:0100)"
+f="$(gethidraws ffff:0100 | head -n1)"
 if [ -z "$f" ]; then
 	echo "Error: no usb device found."
 	exit
@@ -38,65 +34,22 @@ fi
 
 ###################### open usb device ###########################
 
-fifo=$(mktemp)
-childs=""
+fdin=10 fdout=11
+exec $fdin>$f $fdout<$f # open file for writing and reading
+trap 'childs=$(pgrep -P $$ || true); [ -n "$childs" ] && kill $childs; wait;' EXIT
+trap 'exit 1' SIGUSR1
 
-rm -f $fifo
-mkfifo $fifo
+echo "## Running reading thread from $f"
+(
+	trap 'kill -SIGUSR1 $$' EXIT
+	set -x
+	cat <&$fdin
+) &
 
-trap_SIGUSR1() {
-	#echo Exitting because my child killed me. >&2;
-	exit;
-}
-trap 'trap_SIGUSR1;' SIGUSR1
-trap_EXIT() {
-	$DEBUG && set -x;
-	kill $childs 2>/dev/null;
-	rm -f $fifo;
-	wait;
-}
-trap 'trap_EXIT;' EXIT
-trap 'kill -s 9 $childs||true; rm -f $fifo;' SIGQUIT
-
-echo "## Running writing thread $f"
-writingThread() {
-	$DEBUG && set -x
-	trap_EXIT_write() {
-		$DEBUG && set -x;
-		echo "Exit writing thread";
-		rm -f $fifo;
-		kill -SIGUSR1 $$ 2>/dev/null;
-	}
-	trap 'trap_EXIT_write;' EXIT
-	while IFS= read -r -N 1 -d '' -s str; do
-		$DEBUG && echo "FIFO IN: $str"
-		if [ -c "$f" ]; then
-			echo -ne "\x01$str" >> "$f"
-			sleep 0.01
-		fi
-	done < "$fifo"
-}
-( writingThread ) &
-childs+=" $!"
-
-echo "## Running reading thread $f"
-readingThread() {
-	$DEBUG && set -x
-	trap_EXIT_read() {
-		$DEBUG && set -x;
-		echo "Exit reading thread";
-		kill -SIGUSR1 $$ 2>/dev/null;
-	}
-	trap 'trap_EXIT_read;' EXIT
-	( set -x; cat "$f"; )
-}
-( readingThread ) &
-childs+=" $!"
-
-while IFS= read -r -N 1 -d '' -s str; do
-	echo -ne "$str" 
-done >> "$fifo"
-
-echo "## ERROR - END!"
-
+echo "## Writing to $f"
+while IFS= read -r -N 1 -s str; do
+	$DEBUG && echo "FIFO IN: $str" >&2
+	echo -ne "\x01$str" >&$1
+	sleep 0.01
+done
 

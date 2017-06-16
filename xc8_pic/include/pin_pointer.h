@@ -64,7 +64,7 @@ enum pinPointer_e {
 	PP_RC0 = 0x11,PP_RC1 = 0x12,PP_RC2 = 0x13,PP_RC3 = 0x14,PP_RC4 = 0x15,PP_RC5 = 0x16,PP_RC6 = 0x17,PP_RC7 = 0x18,
 	PP_RD0 = 0x11,PP_RD1 = 0x12,PP_RD2 = 0x13,PP_RD3 = 0x14,PP_RD4 = 0x15,PP_RD5 = 0x16,PP_RD6 = 0x17,PP_RD7 = 0x18,
 	PP_RE0 = 0x11,PP_RE1 = 0x12,PP_RE2 = 0x13,PP_RE3 = 0x14,PP_RE4 = 0x15,PP_RE5 = 0x16,PP_RE6 = 0x17,PP_RE7 = 0x18,
-}
+};
 #define PP_GET_REG(WHAT, pp)        (*(unsigned char*)( __CONCAT( PINPOINTER_ADDR_ , WHAT ) + ( pp >> 4 ) ) )
 #define PP_GET_PIN(WHAT, pp)        ( 1<<( (pp) & 0x0f ) )
 

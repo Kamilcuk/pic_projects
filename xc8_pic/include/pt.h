@@ -42,7 +42,6 @@ SOFTWARE.**/
 #define PT_STATUS_YIELDED    0x04
 #define PT_STATUS_TIMER_WAIT 0x08
 
-
 #if defined(PT_USE_SETJMP)
 
 /*

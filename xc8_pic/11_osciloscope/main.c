@@ -15,7 +15,7 @@
 #define ADC_SET_CH(x) BITMASK_WRITE(ADCON0, 0b00111100, (x<<2))
 bool ADCupdated[ADC_CH_NUM];
 bool ADCenabled[ADC_CH_NUM] = {1,0};
-uint8_t ADCpos = 0;
+uint16_t ADCpos = 0;
 uint16_t ADCresult[ADC_CH_NUM];
 
 void __interrupt(high_priority) SYS_InterruptHigh(void)
@@ -45,6 +45,11 @@ void __interrupt( low_priority) SYS_InterruptLow(void)
 	}
 }
 
+void a() {
+	int a=0;
+	a=2+2;
+}
+
 int main() {
 	IPR1bits.ADIP = 0;
 	OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD,
@@ -54,6 +59,7 @@ int main() {
 	ConvertADC();
 
 	while(1){
+		a();
 
 	}
 }

@@ -1,5 +1,5 @@
-#!/bin/bash -ue
-
+#!/bin/bash -eu
+set -o pipefail
 ############################# fucntions ###################
 
 sed_args=() # global variable, exported from functions
@@ -94,7 +94,7 @@ sed_args_Cfuncs() {
 	export sed_args
 }
 
-sed_args_callgraph() {
+sed_args_digraph() {
 	sed_args=( "
 /${rgx_anyfuncstart}/{
 	s/${rgx_anyfuncstart}/\1 ->/;
@@ -173,6 +173,276 @@ do_mode_listlen() {
 	done
 }
 
+do_graph_depth() {
+	# from https://stackoverflow.com/questions/29320556/finding-longest-path-in-a-graph
+	local temp
+	temp="$(
+		main_do_mode digraph | sed 's/^\([0-9A-Za-z_]*\) -> \([0-9A-Za-z_]*\);$/["\1","\2"],/'
+	)"
+	python -c '
+from collections import *;
+
+def DFS(graph,current,visited,cpath):
+	npath = [] #new path
+	for node in graph[current]:
+		if node not in visited:
+			visited.append(node)
+			tpath = cpath + [node] #tmp path
+			npath.append(tpath)    #append to existing path
+			#extend current path
+			npath.extend(DFS(graph,node,visited,tpath))
+	return npath
+def do_DFS(G, root):
+	# Run DFS, compute metrics
+	all_paths = DFS(G,root,[root],[root])
+	max_len   = max(len(p) for p in all_paths)
+	max_paths = [p for p in all_paths if len(p) == max_len]
+	# Output
+	#print("All Paths:"); print(all_paths);
+	#print("Longest Paths:"); for p in max_paths: print("  ", p);
+	#print("Longest Path Length:"); print(max_len);
+	print("%3d %s" % (max_len, root));
+	for p in max_paths: print("  ", p);
+
+def find_roots(G):
+	roots=[];
+	for k,v in G.items():
+		found = True;
+		for k2,v2 in G.items():
+			if k in v2:
+				found = False;
+				break;
+		if found:
+			roots.append(k)
+	return roots
+
+
+# Define graph by edges
+edges = [
+'"${temp}"'
+]
+G = defaultdict(list)
+# Build graph dictionary
+for (s,t) in edges:
+    G[s].append(t)
+for root in find_roots(G):
+	do_DFS(G, root)
+'
+}
+
+do_mode_listlenhistory() {
+	# options passed via global variables
+	ADDPLUSSIGN=${ADDPLUSSIGN:-true}
+	FILTERDIFFS=${FILTERDIFFS:-true}
+	PRINTDIFFS=${PRINTDIFFS:-true}
+	USEDATEFROMFILE=${USEDATEFROMFILE:-true}
+	DATEFROMFILE=${DATEFROMFILE:-.obj/main.hex}
+	PRINTVALWITHDIFF=${PRINTVALWITHDIFF:-true}
+
+	# options passed via command line
+	local maxtimes statefile
+	maxtimes="${1:-10}"
+	statefile="${2:-.obj/lstparse_statefile.sqlite3}"
+
+	if [ "$maxtimes" = "clean" ]; then
+		echo "Cleaning statefile=${statefile}!"
+		rm -f "${statefile}"
+		return;
+	fi
+	
+	dodb() { sqlite3 "$statefile" "$(echo "$@" | sed 's/^[[:space:]]\+//')"; }
+	if $DEBUG; then
+		eval "$(echo "dodb_real()"; declare -f dodb | tail -n +2)"
+		dodb() { (set -x; dodb_real "$@";) | tee >(cat >&2); }
+	fi
+
+	local listlen now insertnewvalues dodb lastvalues i lastnumdates lastdate allfunctions f vals IFS
+	if [ "$maxtimes" -ne "$maxtimes" ] >/dev/null; then
+		error "Error numtimes is not a number"
+		exit 1
+	fi
+
+	{
+		# recreate tables if not exist
+		dodb '
+			CREATE TABLE IF NOT EXISTS listlendates (
+				date INTEGER PRIMARY KEY
+			);
+			CREATE TABLE IF NOT EXISTS listlenhistory (
+				date INTEGER, func TEXT, len INTEGER,
+				FOREIGN KEY(date) REFERENCES listlendates(date)
+			);
+		'
+	}
+
+	{
+		local listlen lastdate filedate lastvalues
+		# insert new data only if needed
+		dodb_insertnewvalues() {
+			# uses global variable listlen
+			local now insertnewvalues
+			if $USEDATEFROMFILE && [ -e "$DATEFROMFILE" ]; then
+				log "new values into database - date from file"
+				now=$(stat -c %Y "$DATEFROMFILE")
+			else
+				log "new values into database - date now"
+				now=$(date +%s)
+			fi
+			dodb "$(
+				echo "BEGIN TRANSACTION;"
+				echo "INSERT INTO listlendates (date) VALUES ($now);"
+				while IFS=' ' read -r n f; do
+					echo "INSERT INTO listlenhistory (date,func,len) VALUES ($now,\"$f\",$n);"
+				done <<<"$listlen"
+				echo "COMMIT;"
+			)"
+		}
+		# insert current values - if needed
+		if [ "$(dodb 'select count(*) from listlendates;')" -eq 0 ]; then
+			# no values in database - insert new
+			listlen=$(SORT=false main_do_mode listlen "$@" | sed 's/[[:space:]]\+/ /g' | sort -h)
+			dodb_insertnewvalues
+		else
+			while :; do # do{ }while(0)
+				lastdate=$(dodb 'select max(date) from listlendates;')
+
+				if $USEDATEFROMFILE; then
+					if [ ! -e "$DATEFROMFILE" ]; then
+						error "File DATEFROMFILE=$DATEFROMFILE does not exists!"
+					else
+						filedate=$(stat -c %Y "$DATEFROMFILE")
+						if [ "$lastdate" -eq "$filedate" ]; then
+							log "last compile time equal"
+							break;
+						fi
+					fi
+				fi
+
+				# insert new values only if they differ from the last ones
+				listlen="$(SORT=false main_do_mode listlen "$@" | \
+						sed             -e 's/[[:space:]]\+/ /g' | sort -h)"
+				lastvalues="$(dodb "select len,func from listlenhistory	where date = '$lastdate';" | \
+						sed -e 's/|/ /' -e 's/[[:space:]]\+/ /g' | sort -h)"
+				if [ -z "$lastvalues" ]; then
+					error "lastvaules are empty!"
+					error "Attemping to fix that."
+					dodb 'delete from listlendates where date = (select max(date) from listlendates);'
+					error "Rerun script!"
+					exit 1;
+				fi
+				if [ "$lastvalues" == "$listlen" ]; then
+					log "values in database"
+					break;
+				fi
+
+				dodb_insertnewvalues
+			break; done;
+		fi
+	}
+
+
+	{
+		local lstnumdates firstdate allfunctions 
+		# pre display - some variables
+		lastnumdates=($(
+			dodb "select date from listlendates order by date ASC limit $maxtimes;"
+		))
+		firstdate=$(head -n 1 <<<"$lastnumdates")
+		allfunctions=($(
+			dodb "select distinct func from listlenhistory where date >= '$firstdate' order by func ASC;"
+		))
+		if [ "${#lastnumdates[@]}" -eq 0 ]; then
+			error '"${#lastnumdates[@]}" -eq 0 ' "WTF?"
+			exit 1;
+		fi
+		if [ "${#allfunctions[@]}" -eq 0 ]; then
+			error '"${#allfunctions[@]}" -eq 0' WTF
+			exit 1;
+		fi
+	}
+
+	# simple output header
+	echo "funcname$(for d in "${lastnumdates[@]}"; do echo -n " $(date --date=@$d +%T)"; done)"
+	echo "---$(for d in "${lastnumdates[@]}"; do echo -n " ---"; done)"
+	{
+		local f vals allowprint diffs lastval nextval vals val diffscopy d 
+		# for every function - line in output
+		for f in "${allfunctions[@]}"; do
+
+			# for every date - column in output
+
+			# get length values from database
+			vals=($(dodb "select len from listlenhistory where date >= '$firstdate' and func = '$f';"))
+			if [ "${#vals[@]}" -ne "${#lastnumdates[@]}" ]; then
+				# when some values are missing (the function was missing in some compiles) 
+				# we get less numbers then expected
+				# we need to do vals one by line, and fills missing ones with zeros
+				vals=()
+				# fill vals with length from database
+				for date in "${lastnumdates[@]}"; do
+					# get next value
+					newval="$(dodb "select len from listlenhistory where date = '$date' and func = '$f';")"
+					# some sanity
+					if   [ -z "$newval" ]; then # catch missing values
+						newval=0;
+					elif [ "$newval" -eq "$newval" ] 2>/dev/null; then
+						:;
+					else
+						error "newval is not a number!"
+						exit 1
+					fi
+					# add this values to values
+					vals+=("$newval")
+				done
+			fi
+
+			while :; do #do{
+				if $PRINTDIFFS && [ "${#vals[@]}" -gt 1 ]; then
+					local diffs lastval val allowprint diffscopy val1
+					diffs=()
+					lastval="${vals[0]}"
+					for val in "${vals[@]:1}"; do 
+						nextval=$((val - lastval))
+						diffs+=("$nextval");
+						lastval="$val"
+					done
+
+					if $FILTERDIFFS; then
+						# print only, when all of diffs numbers are zero
+						if [ -z "$(printf "%s" "${diffs[@]//0/}")" ]; then
+							break; # out of while
+						fi
+					fi
+
+					if $ADDPLUSSIGN; then
+						# add '+' sign to every positive number
+						diffscopy=("${diffs[@]}")
+						diffs=()
+						for d in "${diffscopy[@]}"; do
+							if [ "$d" -gt 0 ]; then
+								diffs+=("+$d")
+							else
+								diffs+=("$d")
+							fi
+						done
+					fi
+
+					if $PRINTVALWITHDIFF; then
+						for i in $(seq 0 $((${#diffs[@]}-1))); do
+								diffs[$i]="${vals[$((i+1))]}(${diffs[i]})"
+						done
+					fi
+
+					vals=("${vals[0]}" "${diffs[@]}")
+				fi
+
+				# print this line
+				echo "$f ${vals[*]}"
+
+			break; done; #}while(0)
+		done
+	}
+}
 ############################# common functions #####################
 
 log() { if $VERBOSE; then echo "> " "$@" >&2; fi; }
@@ -195,8 +465,8 @@ OPTIONS:
     -V                             - more verbose output
     -D                             - debug mode
     -h                             - print this text and exit
-    -s                             - sort output
-    -S                             - don't sort output
+    -s                             - sort/beauty output
+    -N                             - don't sort/beauty output
     -k                             - when listing function bodies, remove line numbers and code numbers
                                      usufull for listcode to see only function code
     -M                             - measure execution speed using ttic.sh and ttoc.sh commands
@@ -209,8 +479,14 @@ MODEs:
     listlen  [<function name>,...] - print instruction count of functions
     funcs                          - list all functions
     Cfuncs                         - print all functions as declared in C sources
+    digraph                        - print digraph used to generate callgraph
     callgraph <.png file>          - generate call graph of functions
+    graph_depth                    - give some info about graph depth information
     listlen2 [<function name>,...] - slower listlen version, left for reference
+    listlenhistory [times] [statefile] - print changes in length of functions
+                                         times, default: 10
+                                         statefile, default: .obj/lststatefile
+    listlenhistory clean   [statefile] - remove statefile
 
 if none of -f and -d options are given, then option '-d .obj' is assumed.
 If function names are ommitted, all functions are used.
@@ -235,7 +511,7 @@ if [ $# -eq 0 ]; then usage; exit 1; fi
 # getopts
 files=() OPTIONS=() VERBOSE=false DEBUG=${DEBUG:-false} mode="" 
 SORT=true SPEEDMEASURE=false REMOVELINENUMBERS=false
-args=$(getopt -o f:d:QVDhSMNk -- "$@")
+args=$(getopt -o f:d:QVDhNMNk -- "$@")
 eval set -- "$args"
 while true; do
 	case "${1/#-/}" in
@@ -246,7 +522,7 @@ while true; do
 		D) DEBUG=true; set -x; ;;
 		h) usage; exit 0; ;;
 		s) SORT=true; ;;
-		S) SORT=false; ;;
+		N) SORT=false; ;;
         k) REMOVELINENUMBERS=true; ;;
 		M) SPEEDMEASURE=true; ;;
 		-) shift; break; ;;
@@ -336,13 +612,23 @@ main_do_mode() {
 		main_do_mode_functions_arguments "$@"
 		do_mode_listlen2 "${functions[@]}" | { if $SORT; then sort -h | column -t -s' '; else cat; fi; }
 		;;
+	listlenhistory)
+		do_mode_listlenhistory "$@" | \
+			{ if $SORT; then sed 's/^/# /' | rev | column -t -s' ' -o' ' | rev | sed 's/^# //';  else cat; fi; }
+		;;
+	digraph)
+		sed_args_digraph
+        sed -n -e "${sed_args[@]}" ${files[@]}
+		;;
+	graph_depth)
+		do_graph_depth
+		;;
 	callgraph)
 		if [ $# -eq 0 ]; then error "Mode $mode takes .png file output name"; exit 1; fi
-		sed_args_callgraph
 		(
-			echo 'digraph G {' 
-			sed -n -e "${sed_args[@]}" ${files[@]}
-			echo '}' 
+			echo "digraph \"$0 ${files[@]}\" {"
+			main_do_mode callgraph_digraph
+	       		echo '}' 
 		) > $tempfile
 		( set -x; 
 		dot $tempfile -Tpng -o ${1}
@@ -353,9 +639,9 @@ main_do_mode() {
 }
 
 ########## substitute '*' in function modes for all passing function
-log "Running mode=\"$mode\" for arguments: $* "
+log "Running mode=\"$mode\" with $(case $# in 0) echo -n "arguments:";for i in "$@";do echo -n " \"$i\"";done; ;; *) echo -n "no arguments"; ;; esac)"
 
 ############# finally do smth main mode ###########################
 main_do_mode "$mode" "$@"
 
-if $SPEEDMEASURE; then ttoc.sh $$ >&2; fi
+if $SPEEDMEASURE; then echo "Execution time: $(ttoc.sh $$)" >&2; fi

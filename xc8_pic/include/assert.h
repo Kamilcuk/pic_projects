@@ -6,23 +6,23 @@
  *     License: beerware
  */
 
-#ifndef XC8_PIC_INCLUDE_ASSERT_H_
-#define XC8_PIC_INCLUDE_ASSERT_H_
+#ifndef ASSERT_H_
+#define ASSERT_H_ 1
 
 #include <system.h> // configuration - ASSERT_USE_*
 
-#include "cdefs.h" // __XSTRING
+extern void __assert (const char *__assertion, const char *__file, unsigned int __line);
 
-#if defined( ASSERT_USE_MORSE ) || defined( ASSERT_USE_PRINTF )
+# define assert(expr)                                                  \
+    ((expr)                                                            \
+     ? ((void)(0))                                                     \
+     : __assert (#expr, __FILE__, __LINE__))
 
-#define assert(expr) if(!(expr)) { _my_assert(__XSTRING(__LINE__), __FILE__, __XSTRING(expr)); }
-
-#else
-
-#define assert(expr)
-
+#ifndef static_assert
+# ifdef __XC
+#  pragma warning disable 350  // unused typedef
+# endif
+# define static_assert(expr) do{ typedef char static_assert[(!!(expr))*2-1]; }while(0)
 #endif
 
-void _my_assert(const unsigned char *line, const unsigned char *file, const unsigned char *exp);
-
-#endif /* XC8_PIC_INCLUDE_ASSERT_H_ */
+#endif /* ASSERT_H_ */

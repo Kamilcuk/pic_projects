@@ -1,4 +1,5 @@
-#!/bin/bash -eu
+#!/bin/bash
+set -ueo pipefail
 
 ################## config ########################
 
@@ -13,43 +14,29 @@ gethidraws() {
 }
 
 f="$(gethidraws ffff:0100 | head -n1)"
-if [ -z "$f" ]; then
-	echo "Error: no usb device found."
-	exit
-fi
-if [ ! -e $f ]; then
-	echo "Error $f: does no exists"
-	exit
-fi
-if [[ ! -r $f || ! -w $f ]]; then
-	echo "Error $f: permission denied"
-	exit
-fi
-echo "Detected $f device file."
-if [ ! -c "$f" ]; then
-	echo "error $f is not a character special file."
-	echo "do: ' sudo rm $f ' and reconnect the device"
-	exit 1
-fi
+testerr() { if eval [ "$1" ]; then echo "ERROR: $2" >&2; exit 1; fi; }
+testerr "! -n \"$f\"" "no usb device found"
+testerr "! -e \"$f\"" "file $f does not exists"
+testerr "! -r \"$f\"" "file $f is not readable"
+testerr "! -w \"$f\"" "file $f is not writable"
+testerr "! -c \"$f\"" "file $f is not a character special file"
+echo "Detected $f character special file"
 
 ###################### open usb device ###########################
 
-fdin=10 fdout=11
-exec $fdin>$f $fdout<$f # open file for writing and reading
-trap 'childs=$(pgrep -P $$ || true); [ -n "$childs" ] && kill $childs; wait;' EXIT
+exec 10<>$f
+trap 'exec 10<&-; [ -n "$(jobs -p)" ] && kill "$(jobs -p)" 2>/dev/null || true;' EXIT
 trap 'exit 1' SIGUSR1
 
-echo "## Running reading thread from $f"
+echo "Opened $f"
 (
-	trap 'kill -SIGUSR1 $$' EXIT
-	set -x
-	cat <&$fdin
+	trap 'exec 10<&-; kill -SIGUSR1 $$;' EXIT
+	cat <&10;
 ) &
 
-echo "## Writing to $f"
 while IFS= read -r -N 1 -s str; do
 	$DEBUG && echo "FIFO IN: $str" >&2
-	echo -ne "\x01$str" >&$1
+	echo -ne "\x01$str" >&10
 	sleep 0.01
 done
 

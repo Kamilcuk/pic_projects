@@ -20,12 +20,16 @@
 #include <ctype.h> // isprint()
 #include <stdbool.h>
 
+#ifndef CMDLINE_HAS_GETCHAR_READY
+#define CMDLINE_HAS_GETCHAR_READY 1
+#endif // CMDLINE_HAS_GETCHAR_READY
+
 /**
  * Just like PS1 in bash
  */
 #ifndef CMDLINE_PROMPT
 #define CMDLINE_PROMPT "$ "
-#endif
+#endif // CMDLINE_PROMPT
 
 struct cmdline_s cmdline = {0};
 
@@ -44,9 +48,12 @@ AGAIN:
 	do {
 		char c; // optimization
 
+#if CMDLINE_HAS_GETCHAR_READY
 		if ( !getchar_ready() ) {
 			goto END;
 		}
+#endif // CMDLINE_HAS_GETCHAR_READY
+
 		c = getchar();
 
 		flush();
@@ -66,7 +73,8 @@ AGAIN:
 					putchar( *pnt++ );
 				}
 			}
-		} else
+			continue;
+		}
 #endif
 		if ( isprint(c) ) {
 
@@ -97,12 +105,11 @@ void cmdlineService_standard(void)
 	case 'B':
 		di();
 		asm("goto 0x001C");
-		return;
+		break;
 	case 'R':
 		asm("reset");
-		return;
-	case 'C': /* Configuration bits */
-	{
+		break;
+	case 'C': { /* Configuration bits */
 		uint8_t i;
 		char c1, c2;
 		for(i=0;i<7;++i) {
@@ -126,11 +133,7 @@ void cmdlineService_standard(void)
 				c1,
 				c2
 		);
-	}
-		return;
-	default:
-		printf("Unrecognized command %c = 0x%02x\n", cmdline.buff[0], cmdline.buff[0]);
-		/* no break */
+	}	break;
 	case 'h':
 	case 'H': // usage
 	case 'v':
@@ -148,7 +151,10 @@ void cmdlineService_standard(void)
 				,
 				sizeof(cmdline.buff[0])
 		);
-		return;
+		break;
+	default:
+		printf("Unrecognized command %c = 0x%02x\n", cmdline.buff[0], cmdline.buff[0]);
+		break;
 	}
 }
 

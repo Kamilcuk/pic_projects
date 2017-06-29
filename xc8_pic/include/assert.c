@@ -29,45 +29,52 @@
  */
 
 #include <assert.h>
+#include <return_address_stack.h> // ReturnAddressStack_Clear
 
 #include <system.h> // configuration - ASSERT_USE_*
 #include <xc.h> // __delay_ms
-#include <soft_return_address_stack.h> // ReturnAddressStack_Clear
 
 #if defined( ASSERT_USE_MORSE )
 
 #include "morse.h" // morse_send_string morse_send_char
+#include <stdio.h> // sprintf
 
-void _my_assert(const unsigned char *line, const unsigned char *file, const unsigned char *exp)
+void __assert(const char *__assertion, const char *__file, int __line)
 {
-	ReturnAddressStack_Clear();
+	char __line_buff[6];
+	sprintf(__line_buff, "%u", __line);
+
+	ReturnAddressStack_clear();
 	for(;;) {
 		morse_send_char('(');
-		morse_send_string(line);
+		morse_send_string(__line_buff);
 		morse_send_char(':');
-		morse_send_string(file);
+		morse_send_string(__file);
 		morse_send_char(':');
-		morse_send_string(exp);
+		morse_send_string(__assertion);
 		morse_send_char(')');
 		__delay_ms(100);
 	}
 }
 
 
-#elif defined( ASSERT_USE_PRINTF )
+#else // if defined( ASSERT_USE_PRINTF )
 
-#include <stdio.h> // cputs
+#include <stdio.h> // cputs sprintf
 
-void _my_assert(const unsigned char *line, const unsigned char *file, const unsigned char *exp)
+void __assert(const char *__assertion, const char *__file, unsigned int __line)
 {
-	ReturnAddressStack_Clear();
+	char __line_buff[6];
+	sprintf(__line_buff, "%u", __line);
+
+	ReturnAddressStack_clear();
 	for(;;) {
 		cputs("assert failed: ");
-		cputs(line);
+		cputs(__line_buff);
 		cputs(" line ");
-		cputs(file);
+		cputs(__file);
 		cputs(": \"");
-		cputs(exp);
+		cputs(__assertion);
 		cputs("\"\n");
 		__delay_ms(100);
 	}

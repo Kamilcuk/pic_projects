@@ -16,15 +16,14 @@
  * Check if calling getchar() will block.
  * Corresponds with ( !feof(stdin) ) on a POSIX system.
  * This is only predeclaration, implementation is program specific.
- * @return true, if get
  */
-bool getchar_ready();
+extern bool getchar_ready();
 
 /**
  * Flush putchar() buffers.
  * Corresponds with fflush(stdout) on POSIX system.
  * This is only predeclaration, implementation is program specific.
  */
-void flush();
+extern void flush();
 
 #endif /* STDIO_EX_H_ */

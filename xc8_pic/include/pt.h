@@ -33,14 +33,14 @@ SOFTWARE.**/
 #include <stddef.h>
 #include <stdint.h>
 
-#define PT_USE_BOOST_PP_COUNTER
-
 /* Protothread status values */
-#define PT_STATUS_STARTED    0x00
-#define PT_STATUS_BLOCKED    0x01
-#define PT_STATUS_FINISHED   0x02
-#define PT_STATUS_YIELDED    0x04
-#define PT_STATUS_TIMER_WAIT 0x08
+enum PT_STATUS {
+	PT_STATUS_STARTED    = 0x00,
+	PT_STATUS_BLOCKED    = 0x01,
+    PT_STATUS_FINISHED   = 0x02,
+    PT_STATUS_YIELDED    = 0x04,
+    PT_STATUS_TIMER_WAIT = 0x08,
+};
 
 #if defined(PT_USE_SETJMP)
 
@@ -53,9 +53,9 @@ SOFTWARE.**/
 #include <setjmp.h>
 #include <stdbool.h>
 struct pt_s {
-  jmp_buf env;
   bool isset;
-  uint8_t status;
+  enum PT_STATUS status;
+  jmp_buf env;
 };
 #define pt_init()                                                              \
   { .isset = 0, .status = PT_STATUS_STARTED }
@@ -89,10 +89,11 @@ struct pt_s {
 
 struct pt_s {
   void *label;
-  uint8_t status;
+  enum PT_STATUS status;
 };
 #define pt_init()                                                              \
   { .label = NULL, .status = PT_STATUS_STARTED }
+
 #define pt_begin(pt)                                                           \
   do {                                                                         \
     if ((pt)->label != NULL) {                                                 \
@@ -106,9 +107,10 @@ struct pt_s {
     (pt)->label = &&_pt_line(label);                                           \
   _pt_line(label) :;                                                           \
   } while (0)
+
 #define pt_end(pt) pt_label(pt, PT_STATUS_FINISHED)
 
-#else
+#else // defined(PT_USE_GOTO)
 /*
  * Local continuation based on switch/case and line numbers.
  *
@@ -117,12 +119,16 @@ struct pt_s {
  * variables.
  *
  */
-#if !defined(PT_USE_BOOST_PP_COUNTER)
+#if defined(PT_USE_GOTO_BOOST_PP_COUNTER)
 /**
  * This is the same as implementation above, but
  * - we have shorten label to uint8_t.
  * - label name is derived from BOOST_PP_COUNTER
  * Usage example:
+comefunction() {
+	static struct pt_s pt = pt_init();
+#undef BOOST_PP_COUNTER
+#define BOOST_PP_COUNTER 1
 	pt_begin(&pt);
 	// YOUR CODE HERE
 	pt_yield(&pt);
@@ -132,42 +138,61 @@ struct pt_s {
 #include BOOST_PP_UPDATE_COUNTER()
 	// YOUR CODE HERE
 	pt_end(&pt);
+}
  *
  */
-#define PT_LABEL_TYPE          uint8_t
-#define PT_LABEL_LABELVAL_END  0xff
-#define PT_LABEL_LABELVAL      BOOST_PP_COUNTER
-#else // defined (PT_USE_GOTO)
-#define PT_LABEL_TYPE          uint16_t
-#define PT_LABEL_LABELVAL_END  1
-#define PT_LABEL_LABELVAL     __LINE__
+#define PT_LABEL_LABELVAL        BOOST_PP_COUNTER
+#define PT_LABEL_TYPE            uint8_t
+#define PT_LABEL_LABELVAL_BEGIN  0
+#define PT_LABEL_LABELVAL_END    0xff
+
+#else // defined(PT_USE_BOOST_PP_COUNTER)
+
+#define PT_LABEL_LABELVAL        __LINE__
+#define PT_LABEL_TYPE            uint16_t
+#define PT_LABEL_LABELVAL_BEGIN  0
+#define PT_LABEL_LABELVAL_END    1
+
 #endif
 
 struct pt_s {
-	PT_LABEL_TYPE    label;
-	uint8_t          status;
+  PT_LABEL_TYPE   label;
+  enum PT_STATUS status;
 };
 
-#define pt_init()           { 0, PT_STATUS_STARTED }
+#define pt_init()       { PT_LABEL_LABELVAL_BEGIN, PT_STATUS_STARTED }
 
-#define pt_init_ended()     { PT_LABEL_LABELVAL_END, PT_STATUS_STARTED }
+#define pt_init_ended() { PT_LABEL_LABELVAL_END,   PT_STATUS_FINISHED }
 
 #define pt_begin(pt)                                                           \
   switch ((pt)->label) {                                                       \
-  case 0:
+  case PT_LABEL_LABELVAL_BEGIN:
 
 #define pt_label_label(pt, stat, labelval)                                     \
-    do {                                                                       \
-      (pt)->status = (stat);                                                   \
-      (pt)->label = (labelval);                                                \
+  do {                                                                         \
+     (pt)->status = (stat);                                                    \
+     (pt)->label = (labelval);                                                 \
   case (labelval):;                                                            \
-    } while (0)
+  } while (0)
 
-#define pt_label(pt, stat)  pt_label_label(pt, stat, PT_LABEL_LABELVAL)
+#define pt_label(pt, stat)                                                     \
+  pt_label_label(pt, stat, PT_LABEL_LABELVAL)
 
 #define pt_end(pt)                                                             \
     pt_label_label(pt, PT_STATUS_FINISHED, PT_LABEL_LABELVAL_END);             \
   }
+
+#define pt_restart(ptpnt)                                                      \
+  do {                                                                         \
+    (ptpnt)->label = PT_LABEL_LABELVAL_BEGIN;                                  \
+    (ptpnt)->status = PT_STATUS_STARTED;                                       \
+  } while(0)
+
+#define pt_stop(ptpnt)                                                         \
+  do {                                                                         \
+    (ptpnt)->label = PT_LABEL_LABELVAL_END,                                    \
+    (ptpnt)->status = PT_STATUS_ENDED;                                         \
+  } while(0)
 
 #endif
 
@@ -194,7 +219,7 @@ struct pt_s {
     }                                                                          \
   } while (0)
 
-#define pt_label_wait_while(pt, label, stat)                                   \
+#define pt_label_wait_while(pt, label, cond)                                   \
   do {                                                                         \
     pt_label(pt, label);                                                       \
     if ((cond)) {                                                              \
@@ -269,18 +294,5 @@ struct pt_s {
           (errno = 0) ||                                                       \
               !(((call) == -1) && (errno == EAGAIN || errno == EWOULDBLOCK ||  \
                                    errno == EINPROGRESS || errno == EINTR)))
-
-#define pt_restart(ptpnt) do {                                                 \
-	(ptpnt)->label = 0;                                                        \
-	(ptpnt)->status = PT_STATUS_STARTED;                                       \
-} while(0)
-
-#define pt_stop(ptpnt) do{                                                     \
-	(ptpnt)->label = PT_LABEL_LABELVAL_END,                                    \
-	(ptpnt)->status = PT_STATUS_ENDED;                                         \
-}while(0)
-
-
-/* -------------------------------- pt with timeout ----------------------- */
 
 #endif /* PT_H_ */

@@ -1,6 +1,6 @@
 # objects directory
 .obj
-
+cscope*
 # plib installation - license!
 plib_installation
 

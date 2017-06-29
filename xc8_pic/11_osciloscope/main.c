@@ -45,8 +45,8 @@ void __interrupt( low_priority) SYS_InterruptLow(void)
 	}
 }
 
-void a() {
-	int a=0;
+void A() {
+	uint8_t a=0;
 	a=2+2;
 }
 
@@ -59,7 +59,7 @@ int main() {
 	ConvertADC();
 
 	while(1){
-		a();
+		A();
 
 	}
 }

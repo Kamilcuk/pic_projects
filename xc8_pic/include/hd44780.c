@@ -162,18 +162,18 @@
 #endif // HD44780_DISABLE_ALL
 
 /* ---------------- wrappers around flags --------------- */
-#ifndef HD44780_RW_READ
-	#error HD44780_RW_READ not defined
-#endif // HD44780_RW_READ
-#ifndef HD44780_RW_WRITE
-	#error HD44780_RW_WRITE not defined
-#endif // HD44780_RW_WRITE
-#ifndef HD44780_RS_INST
-	#error HD44780_RS_INST not defined
-#endif // HD44780_RS_INST
-#ifndef HD44780_RS_DATA
-	#error HD44780_RS_DATA not defined
-#endif // HD44780_RS_DATA
+#ifndef HD44780_FLAG_RW_READ
+	#error HD44780_FLAG_RW_READ not defined
+#endif // HD44780_FLAG_RW_READ
+#ifndef HD44780_FLAG_RW_WRITE
+	#error HD44780_FLAG_RW_WRITE not defined
+#endif // HD44780_FLAG_RW_WRITE
+#ifndef HD44780_FLAG_RS_INST
+	#error HD44780_FLAG_RS_INST not defined
+#endif // HD44780_FLAG_RS_INST
+#ifndef HD44780_FLAG_RS_DATA
+	#error HD44780_FLAG_RS_DATA not defined
+#endif // HD44780_FLAG_RS_DATA
 
 /* ------------------ check user defines ---------- */
 #ifndef HD44780_LONG_DELAY
@@ -207,11 +207,11 @@ unsigned char hd44780_checker_curpos[HD44780_NUM_CONTROLLERS];
 #if !HD44780_CHECKER_DISABLE_DEFAULT
 
 /**
- * You may be wondering why there are so many of theese.
+ * You may be wondering why there are so many of these.
  * For 2*40 hd44780 controller we get 80 chars per display.
  * With 8 controllers i get 8*2*40=640 chars to keep in memory.
  * One bank slot in PIC18 has the length of 256 - i need to split this in parts.
- * It is here splitted in HD44780_DISP_SIZE chars size parts,
+ * It is here split in HD44780_DISP_SIZE chars size parts,
  * One state?? variable handles one display.
  * The linker can choose the proper positions for every of these variables.
  * The hd44780_state variable is then initialized with pointers to these state variables.
@@ -311,7 +311,7 @@ static inline void hd44780_checker_parse(const unsigned char ctrl, const unsigne
 {
 	if ( ctrl == HD44780_NUM_CONTROLLERS ) {
 		switch(flags) {
-		case HD44780_RW_WRITE|HD44780_RS_INST:
+		case HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST:
 			HD44780_PDEBUG_CHECKER(("parse inst all %x\n", command));
 			if ( command&0x80 ) {
 				uint8_t optimize = command&0x7f;
@@ -321,7 +321,7 @@ static inline void hd44780_checker_parse(const unsigned char ctrl, const unsigne
 				memset(hd44780_checker_curpos,            0, HD44780_NUM_CONTROLLERS);
 			}
 			break;
-		case HD44780_RW_WRITE|HD44780_RS_DATA:
+		case HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_DATA:
 			HD44780_PDEBUG_CHECKER(("parse data all %x\n", command));
 			for(uint8_t i = 0; i < HD44780_NUM_CONTROLLERS; ++i) {
 				hd44780_checker_state[i][hd44780_checker_curpos[i]] = command;
@@ -331,7 +331,7 @@ static inline void hd44780_checker_parse(const unsigned char ctrl, const unsigne
 		}
 	} else {
 		switch(flags) {
-		case HD44780_RW_WRITE|HD44780_RS_INST:
+		case HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST:
 			HD44780_PDEBUG_CHECKER(("parse inst %d %x\n", ctrl, command));
 			if ( command&0x80 ) {
 				uint8_t optimize = command&0x7f;
@@ -341,11 +341,11 @@ static inline void hd44780_checker_parse(const unsigned char ctrl, const unsigne
 				hd44780_checker_curpos[ctrl] = 0;
 			}
 			break;
-		case HD44780_RW_WRITE|HD44780_RS_DATA:
+		case HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_DATA:
 			HD44780_PDEBUG_CHECKER(("parse data %d %x\n", ctrl, command));
 			hd44780_checker_state[ctrl][hd44780_checker_curpos[ctrl]] = command;
 			/* no break */
-		case HD44780_RW_READ|HD44780_RS_DATA:
+		case HD44780_FLAG_RW_READ|HD44780_FLAG_RS_DATA:
 			_hd44780_checker_curpos_inc_(ctrl);
 			break;
 		}
@@ -362,15 +362,15 @@ void hd44780_checker_check(void)
 		
 		const uint8_t *state = hd44780_checker_state[i];
 		
-		// save current cursosr position
+		// save current cursor position
 		const uint8_t rawcur_sav = hd44780_get_rawcurpos(i);
 
 		// move cursor to (0,0)
 		hd44780_write_inst(i, HD44780_DDRAM_ADDRESS);
-		HD44780_PDEBUG_CHECKER(("Checking dispay %d\n", i));
+		HD44780_PDEBUG_CHECKER(("Checking display %d\n", i));
 
 		for(uint8_t j = 0; j < HD44780_DISP_SIZE; /* ++j is below in the if */) { // for every character
-			const uint8_t recv = hd44780_read(i, HD44780_RS_DATA);
+			const uint8_t recv = hd44780_read(i, HD44780_FLAG_RS_DATA);
 			const uint8_t state_buff = state[0];
 			HD44780_PDEBUG_CHECKER(("Check[%d] recv=%x state=%x\n", j, recv, state_buff));
 
@@ -406,7 +406,7 @@ void hd44780_checker_check(void)
  * waits for hd44780 to complete send thing
  */
 #define _hd44780_sleep_on_write_(flags, command) do{ \
-	if ( ( flags == (HD44780_RW_WRITE|HD44780_RS_INST) ) && ( command & 0x03 ) ) { \
+	if ( ( flags == (HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST) ) && ( command & 0x03 ) ) { \
 		HD44780_LONG_DELAY(); \
 	} else { \
 		HD44780_NORMAL_DELAY(); \
@@ -426,19 +426,19 @@ static void _hd44780_wait_for_ready_(unsigned char ctrl)
 
 	HD44780_PDEBUG(("hd wait_for_ready(%d)\n", ctrl));
 
-	HD44780_ADDRESS_SET_READ(HD44780_RW_READ|HD44780_RS_INST);
+	HD44780_ADDRESS_SET_READ(HD44780_FLAG_RW_READ|HD44780_FLAG_RS_INST);
 #ifdef HD44780_BUSYFLAG_STUCK
 	uint16_t count;
 	for ( count = HD44780_BUSYFLAG_STUCK; count; --count )
 #else
-	for(;;)
+	for (;;)
 #endif
 	{
 
 		HD44780_EXTRA_ENABLE_CYCLE_TIME();
-		HD44780_ENABLE(HD44780_RW_READ|HD44780_RS_INST, ctrl);
+		HD44780_ENABLE(HD44780_FLAG_RW_READ|HD44780_FLAG_RS_INST, ctrl);
 		readbuff = HD44780_DATA_GET_CALLBACK();
-		HD44780_DISABLE_ALL(HD44780_RW_READ|HD44780_RS_INST);
+		HD44780_DISABLE_ALL(HD44780_FLAG_RW_READ|HD44780_FLAG_RS_INST);
 
 #if !HD44780_MODE_4_BIT
 		if ( ! ( readbuff & 0x80 ) ) {
@@ -446,9 +446,9 @@ static void _hd44780_wait_for_ready_(unsigned char ctrl)
 		}
 #else
 		HD44780_EXTRA_ENABLE_CYCLE_TIME();
-		HD44780_ENABLE(HD44780_RW_READ|HD44780_RS_INST, ctrl);
+		HD44780_ENABLE(HD44780_FLAG_RW_READ|HD44780_FLAG_RS_INST, ctrl);
 		/* ignore second byte */
-		HD44780_DISABLE_ALL(HD44780_RW_READ|HD44780_RS_INST);
+		HD44780_DISABLE_ALL(HD44780_FLAG_RW_READ|HD44780_FLAG_RS_INST);
 		if ( ! ( readbuff & 0x08 ) ) {
 			break;
 		}
@@ -472,7 +472,7 @@ static void _hd44780_wait_for_ready_(unsigned char ctrl)
 
 #if !HD44780_MODE_4_BIT
 #define hd44780_write_8bit_op hd44780_write
-#else
+#else // !HD44780_MODE_4_BIT
 
 /**
  * Write to all controllers in 8-bit mode once, for doing initialization.
@@ -487,7 +487,7 @@ static void hd44780_write_8bit_op(const unsigned char ctrl, unsigned char flags,
 	const bool all = ( ctrl == HD44780_NUM_CONTROLLERS ) ? true : false;
 
 	/** write data */
-	flags |= HD44780_RW_WRITE;
+	flags |= HD44780_FLAG_RW_WRITE;
 	HD44780_ADDRESS_SET_WRITE(flags);
 	HD44780_DATA_SET(flags, command, 1);
 	if ( all ) {
@@ -498,7 +498,7 @@ static void hd44780_write_8bit_op(const unsigned char ctrl, unsigned char flags,
 	HD44780_DISABLE_ALL(flags);
 }
 
-#endif
+#endif // !HD44780_MODE_4_BIT
 
 static void inline _hd44780_write_(const unsigned char ctrl, const unsigned char flags, const unsigned char data)
 {
@@ -508,7 +508,7 @@ static void inline _hd44780_write_(const unsigned char ctrl, const unsigned char
 
 #if HD44780_CHECK_RAWCURPOS
 	// if this is a command to set cursor position && if the rawcursor position is outside the window
-	if ( ( flags == (HD44780_RW_WRITE|HD44780_RS_INST) ) && ( data & HD44780_DDRAM_ADDRESS ) &&
+	if ( ( flags == (HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST) ) && ( data & HD44780_DDRAM_ADDRESS ) &&
 			!hd44780_rawcurpos_check(data) ) {
 		HD44780_PERR(("rawcurpos_check command=%x flags=%x ret=%x col=%x\n",
 				data, flags, hd44780_rawcurpos_check(data), hd44780_col_from_rawcurpos(data)
@@ -593,33 +593,33 @@ void hd44780_write(const unsigned char ctrl, unsigned char flags, const unsigned
 
 	const bool all = ( ctrl == HD44780_NUM_CONTROLLERS ) ? true : false;
 
-	flags |= HD44780_RW_WRITE;
+	flags |= HD44780_FLAG_RW_WRITE;
 
 #if HD44780_CHECK_EVERY_WRITE
 #if HD44780_CHECK_EVERY_WRITE_MAX
 	uint8_t check_every_write_times = HD44780_CHECK_EVERY_WRITE_MAX;
 #endif // HD44780_CHECK_EVERY_WRITE_MAX
 	uint8_t rawcurpossave;
-	if ( !all && ( flags == (HD44780_RW_WRITE|HD44780_RS_DATA) ) ) {
+	if ( !all && ( flags == (HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_DATA) ) ) {
 		// save cursor position
 		rawcurpossave = hd44780_get_rawcurpos(ctrl);
 	}
 
-write_again:
+WRITE_AGAIN:
 #endif // HD44780_CHECK_EVERY_WRITE
 
 	_hd44780_write_(ctrl, flags, data);
 
 #if HD44780_CHECK_EVERY_WRITE
-	if ( !all && ( flags == (HD44780_RW_WRITE|HD44780_RS_DATA) )
+	if ( !all && ( flags == (HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_DATA) )
 #if !HD44780_NO_BF_CHECKING
 			&& HD44780_BFCHECK_IS_ENABLED(ctrl)
 #endif // HD44780_NO_BF_CHECKING
 		) {
 		// restore cursor position
-		_hd44780_write_(ctrl, HD44780_RW_WRITE|HD44780_RS_INST, HD44780_DDRAM_ADDRESS|rawcurpossave);
+		_hd44780_write_(ctrl, HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST, HD44780_DDRAM_ADDRESS|rawcurpossave);
 		// read character, compare to command
-		if ( hd44780_read(ctrl, HD44780_RW_READ|HD44780_RS_DATA) != data ) {
+		if ( hd44780_read(ctrl, HD44780_FLAG_RW_READ|HD44780_FLAG_RS_DATA) != data ) {
 
 #if HD44780_CHECK_EVERY_WRITE_MAX
 			--check_every_write_times;
@@ -633,8 +633,8 @@ write_again:
 				// if false, try writing the character again
 				HD44780_PERR(("HD check_every_write goto write_again\n"));
 				// restore cursor position
-				_hd44780_write_(ctrl, HD44780_RW_WRITE|HD44780_RS_INST, HD44780_DDRAM_ADDRESS|rawcurpossave);
-				goto write_again;
+				_hd44780_write_(ctrl, HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST, HD44780_DDRAM_ADDRESS|rawcurpossave);
+				goto WRITE_AGAIN;
 			}
 		}
 	}
@@ -647,7 +647,7 @@ unsigned char hd44780_read(const unsigned char ctrl, unsigned char flags)
 	unsigned char data;
 
 	HD44780_ASSERT( ctrl < HD44780_NUM_CONTROLLERS );
-	flags |= HD44780_RW_READ;
+	flags |= HD44780_FLAG_RW_READ;
 
 #if !HD44780_NO_BF_CHECKING
 	if ( HD44780_BFCHECK_IS_ENABLED(ctrl) ) {
@@ -695,7 +695,7 @@ unsigned char hd44780_read(const unsigned char ctrl, unsigned char flags)
 
 #if HD44780_CHECK_RAWCURPOS
 	// if we have read cursor position, we can check if its ok
-	if ( ( flags == (HD44780_RW_WRITE|HD44780_RS_INST) ) && ( data & HD44780_DDRAM_ADDRESS ) &&
+	if ( ( flags == (HD44780_FLAG_RW_WRITE|HD44780_FLAG_RS_INST) ) && ( data & HD44780_DDRAM_ADDRESS ) &&
 				!hd44780_rawcurpos_check(data) ) {
 		HD44780_PERR(("rawcurpos_check command=%x flags=%x ret=%x col=%x\n",
 				data, flags, hd44780_rawcurpos_check(data), hd44780_col_from_rawcurpos(data)
@@ -728,21 +728,21 @@ static void hd44780_initialize_by_instruction(uint8_t ctrl)
 	/* Wait for more then 15 ms after Vcc raises to 4.5V */
 	__delay_ms(15);
 	/* Function set (Interface is 8 bits long.) */
-	hd44780_write_8bit_op(ctrl, HD44780_RS_INST, 0b00110000);
+	hd44780_write_8bit_op(ctrl, HD44780_FLAG_RS_INST, 0b00110000);
 	/* Wait for more then 4.1 ms */
 	__delay_ms(5);
 	/* Function set (Interface is 8 bits long.) */
-	hd44780_write_8bit_op(ctrl, HD44780_RS_INST, 0b00110000);
+	hd44780_write_8bit_op(ctrl, HD44780_FLAG_RS_INST, 0b00110000);
 	/* Wait for more then 100 us */
 	__delay_us(100);
 	/* Function set (Interface is 8 bits long.) */
-	hd44780_write_8bit_op(ctrl, HD44780_RS_INST, 0b00110000);
+	hd44780_write_8bit_op(ctrl, HD44780_FLAG_RS_INST, 0b00110000);
 	HD44780_LONG_DELAY();
 
 #if HD44780_MODE_4_BIT
 	/* Function set (Interface is 8 bits long.)
 	 * Set Interface to be 4 bits long*/
-	hd44780_write_8bit_op(ctrl, HD44780_RS_INST, 0b00100000);
+	hd44780_write_8bit_op(ctrl, HD44780_FLAG_RS_INST, 0b00100000);
 	HD44780_LONG_DELAY();
 #endif
 

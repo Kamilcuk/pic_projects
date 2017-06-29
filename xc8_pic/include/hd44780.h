@@ -63,7 +63,7 @@
 #endif
 
 #if !HD44780_NO_BF_CHECKING
-#include <bit.h>
+#include <bit.h> /// BIt_SET BIT_CLEAN BIT_READ
 #define HD44780_BFCHECK_DISABLE(ctrl)          BIT_SET(hd44780.nobfcheck, (ctrl))
 #define HD44780_BFCHECK_ENABLE(ctrl)         BIT_CLEAR(hd44780.nobfcheck, (ctrl))
 #define HD44780_BFCHECK_IS_DISABLED(ctrl)     BIT_READ(hd44780.nobfcheck, (ctrl))
@@ -143,16 +143,16 @@ void hd44780_write(unsigned char ctrl, unsigned char flags, unsigned char data);
 unsigned char hd44780_read(unsigned char ctrl, unsigned char flags);
 #endif
 
-#define hd44780_write_all(flags, data)    hd44780_write(HD44780_NUM_CONTROLLERS, flags, data)
+#define hd44780_write_all(flags, data)       hd44780_write(HD44780_NUM_CONTROLLERS, flags, data)
 
-#define hd44780_write_inst(ctrl, inst)		 hd44780_write(ctrl, HD44780_RS_INST, inst)
-#define hd44780_write_data(ctrl, data)		 hd44780_write(ctrl, HD44780_RS_DATA, data)
+#define hd44780_write_inst(ctrl, inst)		 hd44780_write(ctrl, HD44780_FLAG_RS_INST, inst)
+#define hd44780_write_data(ctrl, data)		 hd44780_write(ctrl, HD44780_FLAG_RS_DATA, data)
 
-#define hd44780_read_inst(ctrl)				 hd44780_read(ctrl, HD44780_RS_INST)
-#define hd44780_read_data(ctrl)				 hd44780_read(ctrl, HD44780_RS_DATA)
+#define hd44780_read_inst(ctrl)				 hd44780_read(ctrl, HD44780_FLAG_RS_INST)
+#define hd44780_read_data(ctrl)				 hd44780_read(ctrl, HD44780_FLAG_RS_DATA)
 
-#define hd44780_write_inst_all(inst)		 hd44780_write_all(HD44780_RS_INST, inst)
-#define hd44780_write_data_all(data)		 hd44780_write_all(HD44780_RS_DATA, data)
+#define hd44780_write_inst_all(inst)		 hd44780_write_all(HD44780_FLAG_RS_INST, inst)
+#define hd44780_write_data_all(data)		 hd44780_write_all(HD44780_FLAG_RS_DATA, data)
 
 #define hd44780_get_rawcurpos(ctrl) \
 		( hd44780_read_inst(ctrl) & 0x7f )
@@ -164,20 +164,20 @@ unsigned char hd44780_read(unsigned char ctrl, unsigned char flags);
 		hd44780_write_inst_all(HD44780_DDRAM_ADDRESS | rawcurpos)
 
 #define hd44780_set_cursor_rowcol(ctrl, row, col) \
-		hd44780_write_inst(ctrl, HD44780_DDRAM_ADDRESS | hd44780_rowcol_to_rawcurpos(row,col) );
+		hd44780_write_inst(ctrl, HD44780_DDRAM_ADDRESS | hd44780_rowcol_to_rawcurpos(row,col) )
 
 #define hd44780_set_cursor_rowcol_all(row, col) \
-		hd44780_write_inst_all(HD44780_DDRAM_ADDRESS | hd44780_rowcol_to_rawcurpos(row,col) );
+		hd44780_write_inst_all(HD44780_DDRAM_ADDRESS | hd44780_rowcol_to_rawcurpos(row,col) )
 
 #define hd44780_clrscr(ctrl) do{ \
 		hd44780_write_inst(ctrl, HD44780_CLRDISP); \
 		hd44780_write_inst(ctrl, HD44780_DDRAM_ADDRESS); \
-} while(0)
+	} while(0)
 
 #define hd44780_clrscr_all() do{ \
 		hd44780_write_inst_all(HD44780_CLRDISP); \
 		hd44780_write_inst_all(HD44780_DDRAM_ADDRESS); \
-} while(0)
+	} while(0)
 
 #if HD44780_CHECKER
 

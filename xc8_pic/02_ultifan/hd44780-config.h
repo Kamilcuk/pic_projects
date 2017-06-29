@@ -35,20 +35,6 @@
 #include <xc.h> // Nop(); __delay_ms() __delay_us()
 #include <pcf8574.h>
 
-#define HD44780_PCF8574    PCF8574A_ADDR(0b000)
-#define HD44780_PCF8574_EX PCF8574A_ADDR(0b111)
-
-/*
- * P0 - DB4
- * P1 - DB5
- * P2 - DB6
- * P3 - DB7
- * P4 - RW
- * P5 - RS
- * P6 - Enable
- * P7 - diode
- */
-
 /* ---------------------------------- global options configuration ------------------------------- */
 
 /**
@@ -125,14 +111,35 @@
 
 /* -------------------------------- pinout configuration ----------------------------- */
 
-extern unsigned char pcf8574_hd44780_freepin; // shuold be 0x01(ON) or 0x00(off)
+extern unsigned char pcf8574_hd44780_freepin; // should be 0x01(ON) or 0x00(off)
+
+#define HD44780_PCF8574    PCF8574A_ADDR(0b000)
+//#define HD44780_PCF8574_EX PCF8574A_ADDR(0b111)
+
+/*
+ * HD44780_PCF8574
+ * |  P7 |  P6 |  P5 |  P4 | P3 | P2 | P1 | P0                      |
+ * | DB7 | DB6 | DB5 | DB4 | RS | E0 | RW | pcf8574_hd44780_freepin |
+ */
+
+/**
+ * Those are the arguments for 'flags' parameter to the functions above
+ */
+#define HD44780_FLAG_RS_DATA           (0x08)
+#define HD44780_FLAG_RS_INST           (0x00)
+#define HD44780_FLAG_RW_READ           (0x02)
+#define HD44780_FLAG_RW_WRITE          (0x00)
+#define HD44780_ENABLE_CTRL       (0x04)
+#define HD44780_DISABLE_CTRL      (0x00)
+#define HD44780_FREEPIN_ON        (0x01)
+#define HD44780_FREEPIN_OFF       (0x00)
+
 
 /**
  * User function to initialize port parameters
  */
 #define HD44780_INIT_CALLBACK() do{ \
 		PCF8574_WRITE(HD44780_PCF8574, 0x00 | pcf8574_hd44780_freepin); \
-		PCF8574_WRITE(HD44780_PCF8574_EX, 0x00); \
 }while(0)
 
 /**
@@ -146,7 +153,8 @@ extern unsigned char pcf8574_hd44780_freepin; // shuold be 0x01(ON) or 0x00(off)
  * Set data lines as inputs and set address (RS and RW) lines
  */
 #define HD44780_ADDRESS_SET_READ_CALLBACK(flags)     do { \
-		PCF8574_WRITE(HD44780_PCF8574, flags | 0xf0 | pcf8574_hd44780_freepin); PCF8574_READ(HD44780_PCF8574); \
+		PCF8574_WRITE(HD44780_PCF8574, flags | 0xf0 | pcf8574_hd44780_freepin); \
+		PCF8574_READ(HD44780_PCF8574); \
 }while(0)
 
 /*
@@ -174,7 +182,6 @@ extern unsigned char pcf8574_hd44780_freepin; // shuold be 0x01(ON) or 0x00(off)
  */
 #define HD44780_ENABLE_CALLBACK(flags, ctrl_nr) do{ \
 		PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_ENABLE_CTRL | pcf8574_hd44780_freepin); \
-		PCF8574_WRITE(HD44780_PCF8574_EX, 0xff); \
 }while(0)
 
 /**
@@ -183,23 +190,7 @@ extern unsigned char pcf8574_hd44780_freepin; // shuold be 0x01(ON) or 0x00(off)
  */
 #define HD44780_DISABLE_ALL_CALLBACK(flags) do{ \
 		PCF8574_WRITE(HD44780_PCF8574, flags | HD44780_DISABLE_CTRL | pcf8574_hd44780_freepin); \
-		PCF8574_WRITE(HD44780_PCF8574_EX, 0x00); \
 }while(0)
-
-
-/* ------------------------- flags, that are passed as 'flags' parameter to above functions  ----------------- */
-
-/**
- * Those are the arguments for 'flags' parameter to the functions above
- */
-#define HD44780_RS_DATA           (0x08)
-#define HD44780_RS_INST           (0x00)
-#define HD44780_RW_READ           (0x02)
-#define HD44780_RW_WRITE          (0x00)
-#define HD44780_ENABLE_CTRL       (0x04)
-#define HD44780_DISABLE_CTRL      (0x00)
-#define HD44780_FREEPIN_ON        (0x01)
-#define HD44780_FREEPIN_OFF       (0x00)
 
 /* -------------------------------- delays configuration -------------------------------- */
 

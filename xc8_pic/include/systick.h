@@ -178,11 +178,16 @@ bool systickElapsed_unsafe(systick_t Tickstop);
 
 /* ------------------------------------------- timeout implementation -------------------------------- */
 
-#define SYSTICK_TIMEOUT_DECLARE(varname)     systick_t varname = 0
-#define SYSTICK_TIMEOUT_SET(varname, ms)     ( varname = systickGet() + SYSTICK_MS_TO_SYSTICKS(ms) )
-#define SYSTICK_TIMEOUT_ELAPSED(varname, ms) ( systickElapsed(varname, SYSTICK_MS_TO_SYSTICKS(ms) ) )
+#define SYSTICK_TIMEOUT_DECLARE(varname) \
+	systick_t varname = 0
+#define SYSTICK_TIMEOUT_SET(varname, ms) \
+	( varname = (systick_t)(systickGet() + SYSTICK_MS_TO_SYSTICKS(ms)) )
+#define SYSTICK_TIMEOUT_ELAPSED_UNSAFE(varname) \
+	( systickElapsed_unsafe(varname) )
+#define SYSTICK_TIMEOUT_ELAPSED(varname, ms) \
+	( systickElapsed(varname, SYSTICK_MS_TO_SYSTICKS(ms) ) )
 
-/* ------------------------------------------- examples ----------------------------------------------- */
+/* ------------------------------------------- timeout examples ----------------------------------------------- */
 
 /** examples
  *
@@ -222,6 +227,15 @@ void execute_Task_every_500_miliseconds() {
 	}
 }
  */
+
+/* ------------------------------------------- systick protothread integration ------------------- */
+
+#define PT_SYSTICK_DELAY_DECLARE(varname) static SYSTICK_TIMEOUT_DECLARE(varname)
+#define PT_SYSTICK_DELAY(pt, varname, ms) do { \
+		SYSTICK_TIMEOUT_SET(varname, ms); \
+		pt_wait_while(pt, !SYSTICK_TIMEOUT_ELAPSED(varname, ms)); \
+	}while(0)
+#define pt_systick_delay(pt, varname, ms) PT_SYSTICK_DELAY(pt, varname, ms)
 
 /* ------------------------------------------- eof ----------------------------------------------- */
 

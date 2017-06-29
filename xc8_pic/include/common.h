@@ -40,9 +40,6 @@ As for why it's so broken for stdlib.h to define max, the C standard is very spe
 #define  DEVID(num)                  (*(const __far unsigned char *)(0x3ffffe+num))
 
 #pragma warning disable 1404 // __attribute__((unsupported)) -- used mostly for plib functions that i use
-#pragma warning disable 350  // unused typedef
-
-#define STATIC_ASSERT(COND) do{ typedef char __CONCAT(static_assert_at_line_,__LINE__)[(!!(COND))*2-1]; }while(0)
 
 /**
  * PORT and TRIS usage example:
@@ -59,10 +56,10 @@ As for why it's so broken for stdlib.h to define max, the C standard is very spe
 #define __CONCAT5(a,b,c,d,e)         a ## b ## c ## d ## e
 #define PORT(PORTNAME, PINNUMBER)    ( __CONCAT5( PORT , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
 #define TRIS(PORTNAME, PINNUMBER)    ( __CONCAT5( TRIS , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
-#define LAT(PORTNAME, PINNUMBER)     ( __CONCAT5( LAT  , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
+#define LAT( PORTNAME, PINNUMBER)    ( __CONCAT5(  LAT , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
 #define PORT1(PORTNAMEPINPORT)       PORT(PORTNAMEPINPORT)
 #define TRIS1(PORTNAMEPINPORT)       TRIS(PORTNAMEPINPORT)
-#define LAT1(PORTNAMEPINPORT)        LAT(PORTNAMEPINPORT)
+#define LAT1( PORTNAMEPINPORT)       LAT(PORTNAMEPINPORT)
 
 #define PORT_LOW                     0
 #define PORT_HIGH                    1

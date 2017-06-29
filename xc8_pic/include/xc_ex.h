@@ -49,8 +49,13 @@
 #define FUCK_XC8_CAST_TO_LONG   ( (FUCK_XC8_BIG_NUMBER) / (FUCK_XC8_BIG_NUMBER) )
 
 /**
+ * XC8 PreProcessor cast to LONG by MULTIplication
+ */
+#define XC8PP_LONG_MULTI        FUCK_XC8_CAST_TO_LONG
+
+/**
  * XC8 PreProcessor cast to LONG
  */
-#define XC8PP_LONG(x)           ( FUCK_XC8_CAST_TO_LONG * x )
+#define XC8PP_LONG(x)           ( XC8PP_LONG_MULTI * x )
 
 #endif /* XC_EX_H_ */

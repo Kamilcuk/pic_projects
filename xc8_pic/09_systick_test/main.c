@@ -12,6 +12,8 @@
 #include <systick.h>
 #include <stdio.h>
 
+#include "xc_ex.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <errata.h>
@@ -51,7 +53,7 @@ void test1(void)
 }
 void test2(void)
 {
-	globalms = (1000)*(500)*(16)/(256);
+	globalms = XC8PP_LONG_MULTI * (1000)*(500)*(16)/(256);
 	globalms = SYSTICK_SYSTICKS_TO_MS(500);
 	globalms = SYSTICK_MS_TO_SYSTICKS(500);
 }
@@ -86,7 +88,7 @@ void main(void)
 
 		SYSTICK_TIMEOUT_DECLARE(Tickstop);
 		while(1) {
-			if ( SYSTICK_TIMEOUT_ELAPSED(Tickstop) ) {
+			if ( SYSTICK_TIMEOUT_ELAPSED(Tickstop, 500) ) {
 				SYSTICK_TIMEOUT_SET(Tickstop, 500);
 
 				printf("systick elapsed = %u \n", systickGet());

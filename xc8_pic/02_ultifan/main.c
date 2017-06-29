@@ -23,10 +23,11 @@
 #include <ds18x20_ex.h>
 #include <pt.h> // prothread
 #include <checkmacro.h>
-#include <boost/counter.h> // BOOST_PP_COUNTER
 #include <interrupt.h> // ATOMIC_CODE
 #include <checkmacro.h>
 #include <hd44780-config.h>
+#include <byte_to_binary.h>
+#include <stdint_ex.h>
 
 #include <stdint.h>
 #include <time.h>
@@ -35,7 +36,8 @@
 #include <GenericTypeDefs.h>
 #include <stdbool.h>
 
-#include "usbhid_stdio/usbhid_stdio.h"
+#include <usbhid_stdio/usbhid_stdio.h>
+
 
 /* ------------------------------------ configuration ------------------------------------ */
 
@@ -96,7 +98,7 @@ static void rpmSet(const uint8_t UB, const uint8_t HB, const uint8_t LB)
 	}
 
 	// set to measure next port
-	rpmPortSet( rpmResultpos );
+	//rpmPortSet( rpmResultpos );
 }
 
 static uint24_t rpmGet(const uint8_t i)
@@ -179,8 +181,8 @@ static void fanWrite(uint8_t num, uint16_t val)
 		UINT16_VAL byte;
 	}
 	union WriteCommandRegisterMCP48x2_u wcr = {0};
+	static_assert( sizeof(union WriteCommandRegisterMCP48x2_u) == 2 );
 
-	STATIC_ASSERT( sizeof(union WriteCommandRegisterMCP48x2_u) == 2 );
 	assert( num < sizeof(fanSpeeds)/sizeof(*fanSpeeds) );
 
 	// deselect all chips
@@ -267,10 +269,9 @@ static int16_t sense_val[DS18X20_MAXSENSORS];
 static void sense_thread()
 {
 	static struct pt_s sense_pt = pt_init();
-	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
+	static PT_SYSTICK_DELAY_DECLARE(Tickstop);
 	static uint8_t i;
 
-#include <boost/counter_reset.h>
 	pt_begin(&sense_pt);
 
 	// disable pullup
@@ -308,7 +309,6 @@ static void sense_thread()
 
 
 	pt_yield(&sense_pt);
-#include <boost/counter_inc.h>
 
 	if ( sense_count == 0 ) {
 		goto END;
@@ -329,9 +329,7 @@ static void sense_thread()
 			PORT1(OW_PULLUP_PORTPIN) = 0;
 
 			// wait for conversion
-			SYSTICK_TIMEOUT_SET( Tickstop , DS18B20_WAITTIME );
-			pt_wait_while( &sense_pt, !SYSTICK_TIMEOUT_ELAPSED(Tickstop, DS18B20_WAITTIME));
-#include <boost/counter_inc.h>
+			pt_systick_delay(&sense_pt, Tickstop, DS18B20_WAITTIME);
 
 			// disable pullup
 			PORT1(OW_PULLUP_PORTPIN) = 1;
@@ -342,12 +340,9 @@ static void sense_thread()
 			SENSE_DEBUG(("read decicelsius from %u = %u", i, sense_val[i]));
 
 			pt_yield(&sense_pt);
-#include <boost/counter_inc.h>
-
 		}
 
 		pt_yield(&sense_pt);
-#include <boost/counter_inc.h>
 	}
 
 END:
@@ -414,7 +409,6 @@ static void display_thread()
 	static struct pt_s display_pt = pt_init();
 	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
 
-#include <boost/counter_reset.h>
 	pt_begin(&display_pt);
 
 	// initialization
@@ -422,22 +416,18 @@ static void display_thread()
 	printf("hd44780 initialized.\n");
 
 	pt_yield(&display_pt);
-#include <boost/counter_inc.h>
-
 
 	while(1) {
 
 		SYSTICK_TIMEOUT_SET( Tickstop, 2000 );
 		pt_wait_while( &display_pt,
 				display_state_cur == display_state_next && !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 2000 ) );
-#include <boost/counter_inc.h>
 
 		// update hd44780
 		hd44780_clrscr_all();
+		memcpy(display[0], display[1], sizeof(display[0])/sizeof(display[0][0]));
+		display_update(display[1]);
 		for(uint8_t col = 0; col < 2; ++col) {
-
-			display_update(display[col]);
-
 			hd44780_set_cursor_rowcol(0, 0, col);
 			for(uint8_t i = 0; i < 16; ++i) {
 				uint8_t temp = display[col][i];
@@ -447,7 +437,7 @@ static void display_thread()
 				hd44780_write_data(0, temp);
 			}
 			pt_yield(&display_pt);
-#include <boost/counter_inc.h>
+
 		}
 	}
 
@@ -461,10 +451,9 @@ static uint16_t luminosity;
 static void luminosity_thread()
 {
 	static struct pt_s luminosity_pt = pt_init();
-	static SYSTICK_TIMEOUT_DECLARE(Tickstop);
-	static SYSTICK_TIMEOUT_DECLARE(Timeout);
+	static PT_SYSTICK_DELAY_DECLARE(Tickstop);
+	static PT_SYSTICK_DELAY_DECLARE(Timeout);
 
-#include <boost/counter_reset.h>
 	pt_begin(&luminosity_pt);
 
 	TSL2561_init(TSL2561_ADDR_FLOAT);
@@ -472,29 +461,20 @@ static void luminosity_thread()
 	printf("TLS2561 initialized.\n");
 
 	pt_yield(&luminosity_pt);
-#include <boost/counter_inc.h>
+
 
 	while(1) {
 		TSL2561_getLuminosity_nonblock_start();
-		SYSTICK_TIMEOUT_SET(Tickstop, 600);
-		LUMINOSITY_DEBUG(("nonblock start tick=%u tickstop=%u", systickGet(), Tickstop));
-		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 600 ) );
-#include <boost/counter_inc.h>
+		LUMINOSITY_DEBUG(("nonblock start tick=%u", systickGet()));
+		pt_systick_delay(&luminosity_pt, Tickstop, 600);
 
-		uint16_t temp;
-		temp = TSL2561_getLuminosity_nonblock_stop(2);
-		if ( temp != 0 ) {
-			luminosity = temp;
-		}
-		LUMINOSITY_DEBUG(("noblock stop temp=%u luminosity=%u", temp, luminosity));
+		luminosity = TSL2561_getLuminosity_nonblock_stop(2);
+		LUMINOSITY_DEBUG(("noblock stop luminosity=%u", luminosity));
 
-		SYSTICK_TIMEOUT_SET(Tickstop, 200);
-		LUMINOSITY_DEBUG(("empty wait tick=%u tickstop=%u", systickGet(), Tickstop));
-		pt_wait_while( &luminosity_pt, !SYSTICK_TIMEOUT_ELAPSED( Tickstop, 200 ) );
-#include <boost/counter_inc.h>
+		LUMINOSITY_DEBUG(("empty wait tick=%u", systickGet()));
+		pt_systick_delay(&luminosity_pt, Tickstop, 200);
 
 		pt_yield(&luminosity_pt);
-#include <boost/counter_inc.h>
 	}
 
 	pt_end(&luminosity_pt);
@@ -588,6 +568,12 @@ void cmdlineService_callback(void)
 			printf("Reporting luminosity every %u seconds\n", report_luminosity);
 		}
 	}	break;
+	case 't': {
+		uint8_t x = atoi(&cmdline.buff[1]);
+		printf("x=%x\n", x);
+		printf( "x=" BYTE_TO_BINARY_PATTERN "\n" , BYTE_TO_BINARY(x) );
+		PCF8574_WRITE(HD44780_PCF8574, x );
+	}   break;
 	case 'd':
 		strncpy(display_custom_msg, &cmdline.buff[2], MIN(sizeof(display_custom_msg)/sizeof(*display_custom_msg), cmdline.buffpos));
 		break;
@@ -603,12 +589,12 @@ void cmdlineService_callback(void)
 				"Version=" VERSION "\n"
 				"Author=Kamil Cukrowski\n"
 				"Available commands: \n"
-				"i                 - print current configuration\n"
-				"f NUM VAL         - set fan number num to VAL voltage in percent\n"
-				"l                 - get lumination value from TSL2560\n"
-				"l NUM             - report lumination value every NUM seconds\n"
-				"d <msg>           - set custom hd44780 msg"
-				"r                 - print hd44780 next screen"
+				" i                 - print current configuration\n"
+				" f NUM VAL         - set fan number num to VAL voltage in percent\n"
+				" l                 - get lumination value from TSL2560\n"
+				" l NUM             - report lumination value every NUM seconds\n"
+				" d MSG             - set custom hd44780 msg"
+				" r                 - print hd44780 next screen"
 				"\n"
 		);
 		/* no break */
@@ -625,12 +611,11 @@ NOT_ENOUGH_ARGUMENTS:
 
 /* ----------------------------------------------------------------------------------------- */
 
-void app_thread(void)
+void app3_thread(void)
 {
 	static struct pt_s app_thread_pt = pt_init();
 	static uint8_t last;
 
-#include <boost/counter_reset.h>
 	pt_begin(&app_thread_pt);
 
 	TRISAbits.RA0 = TRIS_OUT;
@@ -645,7 +630,6 @@ void app_thread(void)
 
 	while(1) {
 		pt_yield(&app_thread_pt);
-#include <boost/counter_inc.h>
 		if ( last != PORTCbits.RC2 ) {
 			last = PORTCbits.RC2;
 			printf("RC2=%x\n", last);
@@ -654,6 +638,48 @@ void app_thread(void)
 	pt_end(&app_thread_pt);
 }
 
+volatile uint8_t A = 0;
+void app2_thread(void)
+{
+	static struct pt_s app_thread_pt = pt_init();
+	asm("nop");
+	A = 1;
+	pt_begin(&app_thread_pt);
+	asm("nop");
+	A = 2;
+	pt_yield(&app_thread_pt);
+	asm("nop");
+	while(1) {
+		A = 3;
+		pt_yield(&app_thread_pt);
+		asm("nop");
+	}
+	asm("nop");
+	A = 4;
+	pt_yield(&app_thread_pt);
+	asm("nop");
+	A = 5;
+	pt_end(&app_thread_pt);
+	asm("nop");
+}
+
+
+void app_thread(void)
+{
+	static SYSTICK_TIMEOUT_DECLARE(Timeout);
+	static struct pt_s app_thread_pt = pt_init();
+	static uint8_t x=0x01;
+
+	if ( SYSTICK_TIMEOUT_ELAPSED(Timeout, 3000 ) ) {
+		SYSTICK_TIMEOUT_SET(Timeout, 3000);
+
+		x = (x << 1) | (x >> (7));
+		x = 0b000001000;
+
+		//printf( "x=" BYTE_TO_BINARY_PATTERN "\n" , BYTE_TO_BINARY(x) );
+		//	PCF8574_WRITE(HD44780_PCF8574, x );
+	}
+}
 
 unsigned char pcf8574_hd44780_freepin = 0; // referenced by hd44780-config.h
 void diode_thread(void)
@@ -716,6 +742,8 @@ void main(void)
 	printf("fan initialized.\n");
 
 	while(1) {
+
+		app2_thread();
 
 		display_thread();
 

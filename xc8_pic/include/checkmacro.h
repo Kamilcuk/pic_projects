@@ -14,10 +14,11 @@
 #define CHECKMACRO_H_
 
 // CHECKMACRO_STR_NEXT is compilator dependend
-
-#define CHECKMACRO_STR1(S1) \
-	#S1
 // generated with: for i in $(seq 1 16); do echo "#define CHECKMACRO_STR${i}($(for j in $(seq 1 $i);do echo -ne "S${j},"; done | sed 's/,$//')) \\"; echo -e "\tCHECKMACRO_STR$((i-1))($(for j in $(seq 1 $((i-1)));do echo -ne "S${j},"; done | sed 's/,$//'))CHECKMACRO_STR_NEXT(S$i)"; done
+
+#define CHECKMACRO_STR0(S1) \
+	S1
+
 #define CHECKMACRO_STR2(S1,S2) \
 	CHECKMACRO_STR1(S1)CHECKMACRO_STR_NEXT(S2)
 #define CHECKMACRO_STR3(S1,S2,S3) \
@@ -50,13 +51,13 @@
 	CHECKMACRO_STR15(S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15)CHECKMACRO_STR_NEXT(S16)
 
 
-
 #if defined( __XC8 )
 
+#define CHECKMACRO_STR1(S1)             CHECKMACRO_STR0(S1)
 #define CHECKMARO_COMMA                 -
 #define CHECKMACRO_STR_NEXT__P(S1)      S1 /* this is really strange on XC8 preprocessor */
 #define CHECKMACRO_STR_NEXT(S1)         CHECKMACRO_STR_NEXT__P(CHECKMARO_COMMA) ## CHECKMACRO_STR1(S1)
-#define CHECKMACRO(N,VAR)               warning (!COMPILECHECK_#VAR=CHECKMACRO_STR ## N(VAR)__!)
+#define CHECKMACRO(N,VAR)               warning (COMPILECHECK--#VAR=CHECKMACRO_STR ## N(VAR))
 
 /**
  * Usage example for __XC8 compiler:
@@ -74,6 +75,7 @@
 
 #elif defined(__GNUC__)
 
+#define CHECKMACRO_STR1(S1)             CHECKMACRO_STR0(#S1)
 #define CHECKMARO_COMMA                 ","
 #define CHECKMACRO_STR_NEXT(S1)         CHECKMARO_COMMA CHECKMACRO_STR1(S1)
 #define CHECKMACRO(N,VAR)               ("COMPILECHECK \""#VAR"\"=\""CHECKMACRO_STR ## N(VAR)"\"")

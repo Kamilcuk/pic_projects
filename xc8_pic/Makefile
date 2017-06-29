@@ -112,6 +112,12 @@ $(OBJDIR)/%.obj: %.as
 	@mkdir -p $(dir $@)
 	$(AS) -o$@ $(ASFLAGS) $<
 
+
+cscope: cscope.out
+cscope.out: $(SOURCES)
+	make -pn | sed -rn '/^[^# \t\.%].*:[^=]?/p' | egrep '(\.c|\.h):' | sed 's/:$$//' \
+	 | xargs -n1 readlink -f | sort -u > cscope.files
+	cscope -U -b -k -I /opt/microchip/xc8/*/include
 hexinfo: $(TARGET_OBJECT).hex
 	./hexinfo.sh $<
 simulate: $(TARGET_OBJECT).elf
@@ -131,5 +137,5 @@ distclean: clean
 	rmdir $(OBJDIR)
 	rm -f $(TARGETDIR)/main.hex
 
-.PHONY: clean distclean hexinfo simulate program_fsusb program_pk3cmd print-%
+.PHONY: clean distclean hexinfo simulate program_fsusb program_pk3cmd print-% cscope
 

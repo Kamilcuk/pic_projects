@@ -1,11 +1,7 @@
-#!/bin/bash -ue
-set -o pipefail
+#!/bin/bash
+set -ueo pipefail
 
-XC8=$(echo /opt/microchip/xc8/*/bin/xc8 | sort | tail -n 1)
-
-XC8args=(
-	"-DGIT_REV_PARSE_HEAD_SHORT=$(git rev-parse --short HEAD)"
-)
+################################## functions ###############################
 
 filter_free_notice() {
 	grep --line-buffered --invert-match \
@@ -18,21 +14,84 @@ filter_free_notice() {
 		-e '^$'
 }
 
+
+filter_const_warnings() {
+	awk '{
+	if ( $0 ~ /: warning: \(359\) / ) {
+		warnline = $0
+		getline
+		line = $0
+
+		arg1 = $0
+		sub(/pointer to /, "", arg1)
+		sub(/ -> .*/, "", arg1)
+
+		arg2 = $0
+		sub(/.* -> pointer to const /, "", arg2)
+
+		if ( arg2 !~ arg1 ) {
+			print warnline
+			print line
+		}
+	} else {
+		print
+	}
+}
+'
+}
+
+filter_const_warnings_test() {
+	echo "
+some other line
+02_ultifan/main.c:365: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:538: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:544: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:562: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:571: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:577: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to const unsigned char
+02_ultifan/main.c:734: warning: (359) illegal conversion between pointer types
+pointer to struct dupa -> pointer to const unsigned char
+	" | filter_const_warnings
+}
+
+####################################### main ##############################
+
+XC8=xc8
+if ! which $XC8 >/dev/null 2>/dev/null; then
+	XC8=$(echo /opt/microchip/xc8/*/bin/xc8 | sort | tail -n 1)
+	if ! which $XC8 >/dev/null 2>/dev/null; then
+		echo "ERROR: no xc8 compiler found" >&2;
+		exit 1;
+	fi
+fi
+
+XC8version=$(bc <<<"scale=0;$(xc8 | sed -n '/Version/s/.*: //p')*1000/1;")
+XC8args=(
+        "-DGIT_REV_PARSE_HEAD_SHORT=$(git rev-parse --short HEAD)"
+)
+if [ $XC8version -eq 1420 ]; then XC8args+=( --MSGDISABLE=373 ); fi
+
+
 # filter outfile from parameters to display it in front
-args=()
-outfile=()
+outfiles=()
 for i in "$@"; do
 	if echo "$i" | egrep -q "^-o" ; then
-		outfile+=( $i )
+		outfiles+=( $i )
 	else
-		args+=( $i )
+		XC8args+=( $i )
 	fi
 done
 
 (
   set -x
   $XC8 \
-	${outfile[@]} \
+    ${outfiles[@]} \
     --chip=18F2550  \
     --double=24 --float=24 --emi=wordwrite  \
     --opt=default,+asm,+asmfile,+speed,-space,-debug  \
@@ -51,7 +110,6 @@ done
     "--warnformat=%f:%l: warning: (%n) %s"  \
     "--msgformat=%f:%l: note: (%n) %s" \
     -G \
-    "${XC8args[@]}" \
-    "${args[@]}"
-) 2>&1 | filter_free_notice
+    "${XC8args[@]}"
+) 2>&1 | filter_free_notice | filter_const_warnings
 

@@ -13,6 +13,8 @@
 
 #if USBHID_STDIO_ENABLE
 
+#include "stdio_ex.h"
+
 #include <usb_device.h>
 
 #include <stdio.h> // getchar() putchar() printf() _IO{L,N,F}BF
@@ -28,7 +30,7 @@
 
 /**
  * Synchronizes output with flush() callback.
- * If this flag is set, putchat does not call flush() when buffer is ready.
+ * If this flag is set, putchar does not call flush() when buffer is ready.
  * This flag exists to preserve ReturnAddressStack.
  */
 #ifndef USBCDC_STDIO_SYNC

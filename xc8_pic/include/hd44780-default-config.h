@@ -256,10 +256,10 @@
 /**
  * Those are the arguments for 'flags' parameter to the functions above
  */
-#define HD44780_RS_DATA           (0x02)
-#define HD44780_RS_INST           (0x00)
-#define HD44780_RW_READ           (0x01)
-#define HD44780_RW_WRITE          (0x00)
+#define HD44780_FLAG_RS_DATA           (0x02)
+#define HD44780_FLAG_RS_INST           (0x00)
+#define HD44780_FLAG_RW_READ           (0x01)
+#define HD44780_FLAG_RW_WRITE          (0x00)
 
 /* -------------------------------- delays configuration -------------------------------- */
 

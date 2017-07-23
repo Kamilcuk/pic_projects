@@ -103,7 +103,7 @@
  * Enable counting of characters read or wrote
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_COUNTERS          1
+#define HD44780_COUNTERS_ENABLE          1
 
 /**
  * Type of hd44780 counter, uint16_t is too short, but good for debugging.

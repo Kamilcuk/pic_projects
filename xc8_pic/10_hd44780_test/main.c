@@ -18,12 +18,12 @@
 
 /* ------------------------------------- interrupts ------------------------------ */
 
-void interrupt high_priority SYS_InterruptHigh(void)
+void __interrupt(high_priority) SYS_InterruptHigh(void)
 {    
 	usbStdioInterruptHandler();
 }
 
-void interrupt  low_priority SYS_InterruptLow(void)
+void __interrupt( low_priority) SYS_InterruptLow(void)
 {
 }
 
@@ -70,8 +70,9 @@ void main_test1(void)
 		for(; i < ARRAY_SIZE(str)-1 && (c = str[i]); ++i) {
 			hd44780_write_data(j, c);
 		}
-#if HD44780_CHECKER
-		printf("checker curpos: %u =? %u =? %x\n", hd44780_checker_curpos[j], i, hd44780_get_rawcurpos(j));
+#if HD44780_CHECKER_ENABLED
+		printf("checker curpos: %u =? %u =? %x\n",
+				hd44780_checker_curpos[j], i, hd44780_get_rawcurpos(j));
 #endif
 	}
 
@@ -85,7 +86,7 @@ void main_test1(void)
 	}
 	printf("\n");
 
-#if HD44780_CHECKER
+#if HD44780_CHECKER_ENABLED
 
 
 	uint8_t curposs[] = { 0, 10, 20, 30, 40, 50, 60, 70, 39, 79 };
@@ -162,15 +163,6 @@ void main_test1(void)
 #endif
 
 	__delay_ms(1000);
-}
-
-void main_test2(void)
-{
-	static uint8_t a = 0xff;
-	PCF8574_WRITE(PCF8574_DATA, a);
-	PCF8574_WRITE(PCF8574_FLAG, a);
-	__delay_ms(1000);
-	a ^= 0xff;
 }
 
 void main(void)

@@ -60,13 +60,6 @@
 #define HD44780_MODE_4_BIT        1
 
 /**
- * If disabled, after every operation we check busyflag at max BUSYFLAG_STUCK times.
- * If enabled, after every operation we wait a predefined time.
- * @param 0 - disabled, 1 - enabled
- */
-#define HD44780_NO_BF_CHECKING    1
-
-/**
  * If enabled, after every character written, we check if the character was properly written.
  * @param 0 - disabled, 1 - enabled
  */
@@ -96,13 +89,26 @@
  * Uses much memory to store whole display state.
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_CHECKER           0
+#define HD44780_CHECKER           1
 
 /**
  * If enabled, disables the function hd44780_recv()
  * @param 0 - disabled, 1 - enabled
  */
-#define HD44780_WRITE_ONLY        1
+#define HD44780_READ_ENABLE        1
+
+/**
+ * If disabled, after every operation we check busyflag at max (if defined)BUSYFLAG_STUCK times.
+ * If enabled, after every operation we wait a predefined time.
+ * @param 0 - disabled, 1 - enabled
+ */
+#define HD44780_BF_CHECKING      1
+
+/**
+ * If enabled, user code may disable busyflag checking for specified controllers
+ * @param 0 - disabled, 1 - enabled
+ */
+#define HD44780_BF_CHECKING_OPTIONAL 0
 
 /**
  * How many times check busyflag, to stop checking busyflag on this controller
@@ -157,11 +163,11 @@ extern unsigned char pcf8574_hd44780_freepin; // should be 0x01(ON) or 0x00(off)
 		PCF8574_READ(HD44780_PCF8574); \
 }while(0)
 
-/*
+/**
  * In 8-bit mode: Read DB0 through DB7
  * In 4-bit mode: Read DB4 through DB7. Output as lower bits.
  */
-//#define HD44780_DATA_GET_CALLBACK()            ( ( PCF8574_READ(HD44780_PCF8574) & 0xf0 ) >> 4 )
+#define HD44780_DATA_GET_CALLBACK()            ( ( PCF8574_READ(HD44780_PCF8574) & 0xf0 ) >> 4 )
 
 /**
  * Set DB0 through DB7.

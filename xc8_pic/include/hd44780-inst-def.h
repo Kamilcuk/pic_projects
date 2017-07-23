@@ -26,9 +26,6 @@
  * If we meet some day, and you think this stuff is worth it, you can buy me a
  * beer in return.
  * -----------------------------------------------------------------------------
- * 
- * 
- * 
  */
  
 #ifndef _hd44780_inst_def_
@@ -65,9 +62,20 @@
 #define HD44780_CGRAM_ADDRESS       0b01000000
 #define HD44780_DDRAM_ADDRESS       0b10000000
 
-//#define HD44780_RS_DATA             1
-//#define HD44780_RS_INST             0
-//#define HD44780_RW_READ             1
-//#define HD44780_RW_WRITE            0
+#define HD44780_INST_IS_CLRDISP(x)             ( !( (x) & 0xFE ) && ( (x) & 0x01 ) )
+#define HD44780_INST_IS_RETURNHOME(x)          ( !( (x) & 0xFC ) && ( (x) & 0x02 ) )
+#define HD44780_INST_IS_EMS(x)                 ( !( (x) & 0xF8 ) && ( (x) & 0x04 ) )
+#define HD44780_INST_IS_DOOC(x)                ( !( (x) & 0xF0 ) && ( (x) & 0x08 ) )
+#define HD44780_INST_IS_CDS(x)                 ( !( (x) & 0xE0 ) && ( (x) & 0x10 ) )
+#define HD44780_INST_IS_FS(x)                  ( !( (x) & 0xC0 ) && ( (x) & 0x20 ) )
+#define HD44780_INST_IS_CGRAM_ADDRESS(x)       ( !( (x) & 0x80 ) && ( (x) & 0x40 ) )
+#define HD44780_INST_IS_DDRAM_ADDRESS(x)          ( (x) & 0x80 )
+
+#define HD44780_INST_GET_EMS_COMMAND(x)        ( (x) & 0x03 )
+#define HD44780_INST_GET_DOOC_COMMAND(x)       ( (x) & 0x07 )
+#define HD44780_INST_GET_CDS_COMMAND(x)        ( (x) & 0x0F )
+#define HD44780_INST_GET_FS_COMMAND(x)         ( (x) & 0x1F )
+#define HD44780_INST_GET_CGRAM_ADDRESS(x)      ( (x) & 0x3F )
+#define HD44780_INST_GET_DDRAM_ADDRESS(x)      ( (x) & 0x7F )
 
 #endif /* _hd44780_inst_def_ */

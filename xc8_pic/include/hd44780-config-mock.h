@@ -1,6 +1,7 @@
 /*
- *        File: hd44780-config.h
- *  Created on: 10.05.2017
+ * hd44780-config-mock.h
+ *
+ *  Created on: 23 lip 2017
  *      Author: Kamil Cukrowski
  * ------------------- The MIT Expat License + Beerware License ----------------
  * Copyright (c) 2017 Kamil Cukrowski
@@ -28,10 +29,28 @@
  * -----------------------------------------------------------------------------
  */
 
-#ifndef HD44780_CONFIG_H_
-#define HD44780_CONFIG_H_
+#ifndef HD44780_CONFIG_MOCK_H_
+#define HD44780_CONFIG_MOCK_H_
 
-#include "hd44780-default-config.h"
-//#include "hd44780-config-2xpcf8574.h"
+#include "hd44780-config-default.h"
 
-#endif /* HD44780_CONFIG_H_ */
+#include <stdint.h>
+
+#undef HD44780_INIT_CALLBACK
+#define HD44780_INIT_CALLBACK() hd44780_mock_init()
+
+#undef HD44780_DATA_SET_CALLBACK
+#define HD44780_DATA_SET_CALLBACK(FLAG_RW, ctrl, FLAG_RS, data) \
+	hd44780_mock_data_set_callback(FLAG_RW, ctrl, FLAG_RS, data)
+
+#undef HD44780_DATA_GET_CALLBACK
+#define HD44780_DATA_GET_CALLBACK(FLAG_RW, ctrl, FLAG_RS) \
+	hd44780_mock_data_get_callback(FLAG_RW, ctrl, FLAG_RS)
+
+void hd44780_mock_init();
+
+void hd44780_mock_data_set_callback(uint8_t flag_rw, uint8_t ctrl, uint8_t flag_rs, uint8_t data);
+
+uint8_t hd44780_mock_data_get_callback(uint8_t flag_rw, uint8_t ctrl, uint8_t flag_rs);
+
+#endif /* HD44780_CONFIG_MOCK_H_ */

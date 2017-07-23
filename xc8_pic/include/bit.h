@@ -49,4 +49,10 @@
 //#define BIT_WRITE(REG, BIT, VAL) ( (REG) = ((VAL) ? ((REG) | (1<<(BIT))) : ((REG) & (1<<(BIT))) ) )
 //#define BIT_WRITE(REG, BIT, VAL) ( (REG)  = ((REG)&(~(1<<(BIT)))) | ((VAL)?(1<<(BIT):0)) )
 
+#define BITMASK_READ(REG, MASK)          ( (REG) &   (MASK) )
+#define BITMASK_CLEAR(REG, MASK)         ( (REG) &= ~(MASK) )
+#define BITMASK_SET(REG, MASK)           ( (REG) |=  (MASK) )
+#define BITMASK_TOGGLE(REG, MASK)        ( (REG) ^=  (MASK) )
+#define BITMASK_WRITE(REG, MASK, BITVAL) ( (REG)  = ((REG)&(~(MASK))) | (BITVAL) )
+
 #endif /* BIT_H_ */

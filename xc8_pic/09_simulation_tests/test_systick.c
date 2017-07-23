@@ -1,12 +1,18 @@
 /*
- * systick.h
+ * test_systick.c
  *
- *  Created on: 04.04.2017
+ *  Created on: 20 lip 2017
  *      Author: Kamil Cukrowski
  *     License: beerware
+ * Kamil Cukrowski wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.
  */
+#include "system.h"
+
+#if CFG_TEST == CFG_TEST_SYSTICK
+
 #include <xc.h>
-#include <system.h>
 
 #include <mdb.h>
 #include <systick.h>
@@ -20,30 +26,19 @@
 #include <GenericTypeDefs.h>
 #include <stdbool.h>
 
+
 /* ------------------------------------- interrupts ------------------------------ */
 
-void interrupt high_priority SYS_InterruptHigh(void)
+void __interrupt(high_priority) SYS_InterruptHigh(void)
 {
 }
 
-void interrupt  low_priority SYS_InterruptLow(void)
+void __interrupt( low_priority) SYS_InterruptLow(void)
 {
 	systickServiceInterrupt();
 }
 
 /* ----------------------------------------------------------------------------------------- */
-
-void main_preinit(void)
-{
-	// set all ports as inputs
-	PORTA = PORTB = PORTC = 0x00;
-	TRISA = TRISB = TRISC = 0xff;
-	LATA = LATB = LATC = 0x00;
-	// enable interrupts
-	RCONbits.IPEN = 1;
-	INTCONbits.GIEH = 1;
-	INTCONbits.GIEL = 1;
-}
 
 systick_t globaltick;
 uint16_t  globalms;
@@ -66,11 +61,8 @@ void test4(systick_t tick)
 	globalms = SYSTICK_SYSTICKS_TO_MS(tick);
 }
 
-MDB_UART_PUTCH_DECLARE()
-void main(void)
+void main_test()
 {
-	main_preinit();
-	MDB_UART_INIT();
 	systickInitInterrupt(0);
 
 	while(1) {
@@ -97,3 +89,4 @@ void main(void)
 	}
 }
 
+#endif

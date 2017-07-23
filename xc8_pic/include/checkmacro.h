@@ -51,7 +51,7 @@
 	CHECKMACRO_STR15(S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15)CHECKMACRO_STR_NEXT(S16)
 
 
-#if defined( __XC8 )
+#if defined( __XC )
 
 #define CHECKMACRO_STR1(S1)             CHECKMACRO_STR0(S1)
 #define CHECKMARO_COMMA                 -
@@ -89,8 +89,8 @@ checkmacro.h:85:9: note: #pragma message: COMPILECHECK--VAL=123
 #pragma message CHECKMACRO(CHECKMACRO_STR, VAL)
  */
 
-#else // defined( __XC8 )
+#else // defined( __XC )
 #define CHECKMACRO(STRINGIFY, VAR)
-#endif // defined( __XC8 )
+#endif // defined( __XC )
 
 #endif /* CHECKMACRO_H_ */

@@ -10,4 +10,9 @@
 
 #include <system_defaults.h>
 
+#define CFG_TEST_OUTPUT       0
+#define CFG_TEST_SYSTICK      1
+#define CFG_TEST_UNIT_TESTS   2
+#define CFG_TEST              CFG_TEST_UNIT_TESTS
+
 #endif //SYSTEM_H

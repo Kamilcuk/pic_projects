@@ -27,11 +27,11 @@
  * beer in return.
  * -----------------------------------------------------------------------------
  */
+#include <system.h> // configuration - ASSERT_USE_*
 
 #include <assert.h>
 #include <return_address_stack.h> // ReturnAddressStack_Clear
 
-#include <system.h> // configuration - ASSERT_USE_*
 #include <xc.h> // __delay_ms
 
 #if defined( ASSERT_USE_MORSE )
@@ -81,3 +81,12 @@ void __assert(const char *__assertion, const char *__file, unsigned int __line)
 }
 
 #endif
+
+#ifdef __XC8
+
+void _fassert(int line, const char * file, const char *exp)
+{
+	__assert(exp, file, line);
+}
+
+#endif // __XC8

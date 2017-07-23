@@ -45,16 +45,10 @@ filter_const_warnings_test() {
 some other line
 02_ultifan/main.c:365: warning: (359) illegal conversion between pointer types
 pointer to unsigned char -> pointer to const unsigned char
-02_ultifan/main.c:538: warning: (359) illegal conversion between pointer types
-pointer to unsigned char -> pointer to const unsigned char
-02_ultifan/main.c:544: warning: (359) illegal conversion between pointer types
-pointer to unsigned char -> pointer to const unsigned char
-02_ultifan/main.c:562: warning: (359) illegal conversion between pointer types
-pointer to unsigned char -> pointer to const unsigned char
-02_ultifan/main.c:571: warning: (359) illegal conversion between pointer types
-pointer to unsigned char -> pointer to const unsigned char
 02_ultifan/main.c:577: warning: (359) illegal conversion between pointer types
-pointer to unsigned char -> pointer to const unsigned char
+pointer to unsigned char -> pointer to volatile const unsigned char
+02_ultifan/main.c:577: warning: (359) illegal conversion between pointer types
+pointer to unsigned char -> pointer to volatile unsigned char
 02_ultifan/main.c:734: warning: (359) illegal conversion between pointer types
 pointer to struct dupa -> pointer to const unsigned char
 	" | filter_const_warnings

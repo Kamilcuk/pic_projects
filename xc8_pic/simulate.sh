@@ -1,7 +1,7 @@
-#!/bin/bash -ue
+#!/bin/bash
+set -ue
 
 FILE=$(readlink -f ${1:-./.obj/main.elf})
-shift
 tempfile=$(mktemp)
 trap 'rm -f $tempfile' EXIT
 echo '
@@ -21,5 +21,13 @@ Run
 Wait 120000
 Quit
 ' | tee $tempfile
-set -x
-mdb $tempfile
+
+runUntilTextIsReceived() {
+  local quittext="$1"
+  shift
+  ( PIDFILE=$(mktemp /tmp/foo.XXXXXX) && trap "rm -f $PIDFILE; wait;" 0 && {(
+    set -x; "$@";
+  ) > >( tee >( grep -q -x $quittext && kill $(cat $PIDFILE) ) ) &
+  PID=$! && echo $PID >$PIDFILE ; wait $PID || true; })
+}
+runUntilTextIsReceived 'QUIT' mdb $tempfile

@@ -42,29 +42,35 @@ As for why it's so broken for stdlib.h to define max, the C standard is very spe
 #pragma warning disable 1404 // __attribute__((unsupported)) -- used mostly for plib functions that i use
 
 /**
- * PORT and TRIS usage example:
+ * PORT1 and TRIS1 usage example:
  * #define LIB_PORT A
  * #define LIB_PIN  5
  * TRIS(LIB_PORT, LIB_PIN) = 0;
  * PORT(LIB_PORT, LIB_PIN) = 1;
  *
- * PORT1 and TRIS1 usage example:
+ * PORT and TRIS usage example:
  * #define LIB_PORTPIN A, 5
- * TRIS1(LIB_PORTPIN) = 0;
- * PORT1(LIB_PORTPIN) = 1;
+ * TRIS(LIB_PORTPIN) = 0;
+ * PORT(LIB_PORTPIN) = 1;
  */
-#define __CONCAT5(a,b,c,d,e)         a ## b ## c ## d ## e
-#define PORT(PORTNAME, PINNUMBER)    ( __CONCAT5( PORT , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
-#define TRIS(PORTNAME, PINNUMBER)    ( __CONCAT5( TRIS , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
-#define LAT( PORTNAME, PINNUMBER)    ( __CONCAT5(  LAT , PORTNAME , bits.R , PORTNAME , PINNUMBER ) )
-#define PORT1(PORTNAMEPINPORT)       PORT(PORTNAMEPINPORT)
-#define TRIS1(PORTNAMEPINPORT)       TRIS(PORTNAMEPINPORT)
-#define LAT1( PORTNAMEPINPORT)       LAT(PORTNAMEPINPORT)
+#define PORT1(PORTNAME, PINNUMBER)    ( PORT ## PORTNAME ## bits.R ## PORTNAME ## PINNUMBER )
+#define TRIS1(PORTNAME, PINNUMBER)    ( TRIS ## PORTNAME ## bits.R ## PORTNAME ## PINNUMBER )
+#define LAT1( PORTNAME, PINNUMBER)    (  LAT ## PORTNAME ## bits.R ## PORTNAME ## PINNUMBER )
+#define PORT(PORTNAMEPINPORT)         PORT(PORTNAMEPINPORT)
+#define TRIS(PORTNAMEPINPORT)         TRIS(PORTNAMEPINPORT)
+#define LAT( PORTNAMEPINPORT)         LAT(PORTNAMEPINPORT)
+
+#define PORTPIN_PORT1(PORTNAME, PINNUMBER)  PORTNAME
+#define PORTPIN_PORT(PORTNAMEPINPORT)       PORTPIN_PORT1(PORTNAMEPINPORT)
+#define PORTPIN_PIN1(PORTNAME, PINNUMBER)   PINNUMBER
+#define PORTPIN_PIN(PORTNAMEPINPORT)        PORTPIN_PIN1(PORTNAMEPINPORT)
 
 #define PORT_LOW                     0
 #define PORT_HIGH                    1
 #define TRIS_OUT                     0
 #define TRIS_IN                      1
+#define LAT_LOW                      0
+#define LAT_HIGH                     1
 #define INTERRUPT_FLAG_CLEAR         0
 #define INTERRUPT_FLAG_SET           1
 #define INTERRUPT_PRIORITY_BIT_LOW   0

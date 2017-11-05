@@ -66,7 +66,4 @@ regs Kusti, 7.3.2010
 // Kamil Cukrowski added const
 void printft(__far const char *fmt, ...);
 
-// use printft not printf
-#define printf printft
-
 #endif

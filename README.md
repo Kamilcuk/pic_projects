@@ -1,3 +1,10 @@
+# DONT USE THIS REPO
+
+Cmon. Its year 2017, so get all pic18 devices you have and one trash bin.  
+And put all pic18 into the trash bin.  
+You can buy stm32f103c6 for 1.60$ on aliexpress.  
+So get the fuck out of PIC18 and get 32-bit stm32 for more speed and less money.  
+
 # pic_projects
 
 My Microchip PIC18F2550 related projects.  

@@ -17,13 +17,13 @@
  * Corresponds with ( !feof(stdin) ) on a POSIX system.
  * This is only predeclaration, implementation is program specific.
  */
-extern bool getchar_ready();
+extern bool getchar_ready(void);
 
 /**
  * Flush putchar() buffers.
  * Corresponds with fflush(stdout) on POSIX system.
  * This is only predeclaration, implementation is program specific.
  */
-extern void flush();
+extern void flush(void);
 
 #endif /* STDIO_EX_H_ */

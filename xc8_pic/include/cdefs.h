@@ -64,14 +64,16 @@
  * for a given compiler, let the compile fail if it is told to use
  * a feature that we cannot live without.
  */
-#define	__dead2
-#define	__pure2
-#define	__unused
-#define	__packed
-#define	__aligned(x)
-#define	__alloc_align(x)
-#define	__alloc_size(x)
-#define	__section(x)
-#define	__weak_symbol
+#ifdef __XC8
+# define	__dead2
+# define	__pure2
+# define	__unused
+# define	__packed
+# define	__aligned(x)
+# define	__alloc_align(x)
+# define	__alloc_size(x)
+# define	__section(x)
+# define	__weak_symbol
+#endif
 
 #endif /* !_SYS_CDEFS_H_ */
